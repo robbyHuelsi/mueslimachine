@@ -1,0 +1,11 @@
+{% include "header.html" %}
+
+<main>
+	{% if session['username'] %}
+		<h1>Hello {{ session['username'] }}!</h1>
+	{% else %}
+		<h1>Hello, World!</h1>
+	{% endif %}
+</main>
+ 
+{% include "footer.html" %}

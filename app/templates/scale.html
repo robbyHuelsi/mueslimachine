@@ -1,0 +1,20 @@
+{% include "header.html" %}
+
+<main>
+	<div class="jumbotron jumbotron-fluid">
+		<div class="container">
+			<h1>Scale</h1>
+			<p class="lead"></p>
+			<p>
+				<div class="input-group mb-3">
+					<span class="input-group-addon">Weight</span>
+					<input type="text" id="inputTextScaleWeight" class="form-control" aria-label="weight" dir="rtl" disabled>
+					<span class="input-group-addon"> g</span>
+				</div>
+				<a id="buttonTare" class="btn btn-lg btn-success" href="#" role="button" onclick="mmAjaxStatus('tare')">TARE</a>
+			</p>
+		</div>
+	</div>
+</main>
+ 
+{% include "footer.html" %}

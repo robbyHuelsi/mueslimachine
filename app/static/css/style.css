@@ -1,0 +1,7 @@
+#notification{
+	position: fixed;
+	z-index: 100;
+	width: calc(100% - 20px);
+	top: 10px;
+	left: 10px
+}

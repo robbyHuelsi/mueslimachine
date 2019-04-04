@@ -1,0 +1,28 @@
+version: "3"
+services:
+    app:
+        container_name: mmApp
+        build: ./app
+        ports:
+            - ${APP_PORT}:80
+        environment:
+            DB_HOST: db
+            DB_PORT: ${DB_PORT}
+            DB_USER: ${DB_USER}
+            DB_PASS: ${DB_PASS}
+            DB_NAME: ${DB_NAME}
+
+    db:
+        container_name: mmMySQL
+        image: mysql:5.7
+        restart: always
+        ports:
+            - ${DB_PORT}:3306
+        environment:
+            MYSQL_DATABASE: ${DB_NAME}
+            MYSQL_ROOT_PASSWORD: ${DB_PASS}
+            MYSQL_ROOT_HOST: 0.0.0.0
+            MYSQL_USER: ${DB_USER}
+            MYSQL_PASSWORD: ${DB_PASS}
+        volumes:
+            - ./db:/var/lib/mysql
