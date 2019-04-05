@@ -1,1 +1,0 @@
-Here MySQL files are automatically stored by appropriate Docker container.
