@@ -8,7 +8,7 @@ services:
         environment:
             DB_HOST: db
             DB_PORT: ${DB_PORT}
-            DB_USER: ${DB_USER}
+            DB_USER: root
             DB_PASS: ${DB_PASS}
             DB_NAME: ${DB_NAME}
 
@@ -21,8 +21,6 @@ services:
         environment:
             MYSQL_DATABASE: ${DB_NAME}
             MYSQL_ROOT_PASSWORD: ${DB_PASS}
-            MYSQL_ROOT_HOST: 0.0.0.0
-            MYSQL_USER: ${DB_USER}
-            MYSQL_PASSWORD: ${DB_PASS}
+            MYSQL_HOST: localhost
         volumes:
             - ./db:/var/lib/mysql

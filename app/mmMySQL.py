@@ -56,16 +56,15 @@ class mmMySQL():
 		while not connected:
 			try:
 				self.connection = self.mysql.connect()
-				self.cursor = self.connection.cursor()
-		
-				self.__checkAndSetUpDB(CONST, dbName)
-				self.__checkAndSetUpTables(CONST, user, host)
-
 				connected = True
 			except Exception as e:
 				print("[WARN] " + str(e), flush=True)
 				print("[INFO] Wait 5 seconds and try again.", flush=True)
 				time.sleep(5)
+
+		self.cursor = self.connection.cursor()		
+		self.__checkAndSetUpDB(CONST, dbName)
+		self.__checkAndSetUpTables(CONST, user, host)
 		
 	def __del__(self):
 		self.connection.close()
