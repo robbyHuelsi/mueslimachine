@@ -9,7 +9,7 @@ class mmFlask(Flask):
 	def __init__(self, muesliMachine):
 		super().__init__(__name__)
 
-		self.muesliMachine = muesliMachine
+		self.mm = muesliMachine
 		
 		self.static_folder = "../static"
 		self.template_folder = "../templates"
@@ -29,20 +29,20 @@ class mmFlask(Flask):
 		self.registerUrlsForItems("ingredient")
 		self.registerUrlsForItems("recipe")
 
-		self.add_url_rule('/ajaxStatus', methods=['POST'], view_func=mmFlaskViewAjaxStatus.as_view('flaskAjaxStatus', muesliMachine=self.muesliMachine))
-		self.add_url_rule('/ajaxSignUp', methods=['POST'], view_func=mmFlaskViewAjaxSignUp.as_view('flaskAjaxSignUp', muesliMachine=self.muesliMachine))
+		self.add_url_rule('/ajaxStatus', methods=['POST'], view_func=mmFlaskViewAjaxStatus.as_view('flaskAjaxStatus', muesliMachine=self.mm))
+		self.add_url_rule('/ajaxSignUp', methods=['POST'], view_func=mmFlaskViewAjaxSignUp.as_view('flaskAjaxSignUp', muesliMachine=self.mm))
 		
 		# TODO: Keep this really secret:
 		self.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
 	def registerUrlsDefault(self, name):
 		url = "/" + name + "/" if name != "index" else "/"
-		viewFunc = mmFlaskViewDefaultRenderer.as_view(name, endpointName=name, muesliMachine=self.muesliMachine)
+		viewFunc = mmFlaskViewDefaultRenderer.as_view(name, endpointName=name, muesliMachine=self.mm)
 		self.add_url_rule(url, view_func=viewFunc)
 
 	def registerUrlsForItems(self, name):
 		url = "/" + name + "/"
-		viewFunc = mmFlaskViewForItemsRenderer.as_view(name, endpointName=name, muesliMachine=self.muesliMachine)
+		viewFunc = mmFlaskViewForItemsRenderer.as_view(name, endpointName=name, muesliMachine=self.mm)
 		self.add_url_rule(url, defaults={"itemId": None}, view_func=viewFunc, methods=['GET',])
 		self.add_url_rule(url, view_func=viewFunc, methods=['POST',])
 		self.add_url_rule(url + "<int:itemId>", view_func=viewFunc, methods=['GET', 'PUT', 'DELETE'])
@@ -51,7 +51,7 @@ class mmFlaskViewDefaultRenderer(MethodView):
 	def __init__(self, endpointName, muesliMachine):
 		self.endpointName = endpointName
 		self.templateName = endpointName + ".html"
-		self.muesliMachine = muesliMachine
+		self.mm = muesliMachine
 		super().__init__()
 	
 	def get(self):
@@ -77,7 +77,7 @@ class mmFlaskViewDefaultRenderer(MethodView):
 		inPassword = request.form['inputPassword']
 		
 		if inUsername and inPassword:
-			if self.muesliMachine.mySQL.spUsersCheckUserPassword(inUsername, inPassword) == True:
+			if self.mm.mySQL.spUsersCheckUserPassword(inUsername, inPassword) == True:
 				session['username'] = inUsername
 				return redirect(url_for('index'))
 		
@@ -92,16 +92,16 @@ class mmFlaskViewDefaultRenderer(MethodView):
 class mmFlaskViewForItemsRenderer(MethodView):
 	def __init__(self, endpointName, muesliMachine):
 		self.endpointName = endpointName
-		self.muesliMachine = muesliMachine
+		self.mm = muesliMachine
 		super().__init__()
 
 	def get(self, itemId):
 		if itemId is None:
-			print("Show List of" + self.endpointName)
+			self.mm.logger.log("Show List of " + self.endpointName)
 			# return a list of users
 			return render_template(self.endpointName + "List.html")
 		else:
-			print("Show Single View of" + self.endpointName + "Id " + str(itemId))
+			self.mm.logger.log("Show Single View of " + self.endpointName + "Id " + str(itemId))
 			# expose a single user
 			return render_template(self.endpointName + "Single.html", itemId=itemId)
 
@@ -120,14 +120,14 @@ class mmFlaskViewForItemsRenderer(MethodView):
 
 class mmFlaskViewAjaxStatus(View):       
 	def __init__(self, muesliMachine):
-		self.muesliMachine = muesliMachine
+		self.mm = muesliMachine
 		super().__init__()
 	
 	def dispatch_request(self):
 		cmd = request.form.get("cmd")
 
 		if cmd and cmd != "":
-			print(cmd)
+			self.mm.logger.log(cmd)
 
 			# Example:
 			# {  
@@ -143,37 +143,37 @@ class mmFlaskViewAjaxStatus(View):
 				cmd = json.loads(cmd)
 				parsed = True
 			except Exception as e:
-				print("[WARN] cmd is not in JSON format")
+				self.mm.logger.logErr("cmd is not in JSON format")
 			
 			if parsed:		
 				if "stepper" in cmd:
 					stepperId = cmd["stepper"]["id"]
 					steps = cmd["stepper"]["steps"]
-					print("Stepper ID " + str(stepperId))
-					print("Steps " + str(steps))
-					self.muesliMachine.arduino.sendDrive(stepperId, steps)
+					self.mm.logger.log("Stepper ID " + str(stepperId))
+					self.mm.logger.log("Steps " + str(steps))
+					self.mm.arduino.sendDrive(stepperId, steps)
 				# Auskommentiert wg. Docker-Test
 				# elif cmd == 'ledRedOn':
-				# 	self.muesliMachine.ledRed.on()
+				# 	self.mm.ledRed.on()
 				# elif cmd == 'ledRedOff':
-				# 	self.muesliMachine.ledRed.off()
+				# 	self.mm.ledRed.off()
 				# elif cmd == 'ledYellowOn':
-				# 	self.muesliMachine.ledYellow.on()
+				# 	self.mm.ledYellow.on()
 				# elif cmd == 'ledYellowOff':
-				# 	self.muesliMachine.ledYellow.off()
+				# 	self.mm.ledYellow.off()
 				# elif cmd == 'servo1On':
-				# 	self.muesliMachine.servo1.on()
+				# 	self.mm.servo1.on()
 				# elif cmd == 'servo1Off':
-				# 	self.muesliMachine.servo1.off()
+				# 	self.mm.servo1.off()
 				# elif cmd == 'tare':
-				# 	self.muesliMachine.scale.tare()
+				# 	self.mm.scale.tare()
 			
-		#print(scale.getAverage())
-		return jsonify(self.muesliMachine.status.getStatus())
+		#self.mm.logger.log(scale.getAverage())
+		return jsonify(self.mm.status.getStatus())
 	
 class mmFlaskViewAjaxSignUp(View):
 	def __init__(self, muesliMachine):
-		self.muesliMachine = muesliMachine
+		self.mm = muesliMachine
 		super().__init__()
 		
 	def dispatch_request(self):
@@ -186,9 +186,9 @@ class mmFlaskViewAjaxSignUp(View):
 		inRole = "admin"
 		
 		if inUsername and inEmail and inPassword:
-			msg = self.muesliMachine.mySQL.spUsersCreateUser(inUsername, inFirstname, inLastname, hashedPassword, inEmail, inRole)
-			print(msg)
+			msg = self.mm.mySQL.spUsersCreateUser(inUsername, inFirstname, inLastname, hashedPassword, inEmail, inRole)
+			self.mm.logger.log(msg)
 		else:
-			self.muesliMachine.status.addOneTimeNotificationWarning("Enter all required fields")
+			self.mm.status.addOneTimeNotificationWarning("Enter all required fields")
 		
-		return jsonify(self.muesliMachine.status.getStatus())
+		return jsonify(self.mm.status.getStatus())

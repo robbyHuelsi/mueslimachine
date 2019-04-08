@@ -33,17 +33,19 @@ class _Const(object):
 
 
 class mmMySQL():
-	def __init__(self, app, status, user, password, host, port, dbName):
+	def __init__(self, logger, flask, status, user, password, host, port, dbName):
+		self.logger = logger
+		self.status = status
+
 		CONST = _Const()
 		self.connected = False
-		self.status = status
 		self.mysql = MySQL()
-		app.config['MYSQL_DATABASE_HOST'] = host
-		app.config['MYSQL_DATABASE_PORT'] = port
-		app.config['MYSQL_DATABASE_USER'] = user
-		app.config['MYSQL_DATABASE_PASSWORD'] = password
+		flask.config['MYSQL_DATABASE_HOST'] = host
+		flask.config['MYSQL_DATABASE_PORT'] = port
+		flask.config['MYSQL_DATABASE_USER'] = user
+		flask.config['MYSQL_DATABASE_PASSWORD'] = password
 		
-		self.mysql.init_app(app)
+		self.mysql.init_app(flask)
 		
 		# In case docker compose starting up MySQL try to connect a couple times
 		
@@ -53,8 +55,8 @@ class mmMySQL():
 				self.connected = True
 				self.status.addOneTimeNotificationSuccess("Database connected")
 			except Exception as e:
-				print("[WARN] " + str(e), flush=True)
-				print("[INFO] Wait 5 seconds and try again.", flush=True)
+				self.logger.logWarn(str(e), flush=True)
+				self.logger.log("Wait 5 seconds and try again.", flush=True)
 				self.status.addOneTimeNotificationError("Error while connecting database. Retry in 5 seconds.")
 				time.sleep(5) # TODO: Multithreading -> Status auf schon laufender Webpage anzeigen
 
@@ -64,7 +66,7 @@ class mmMySQL():
 		
 	def __del__(self):
 		self.connection.close()
-		print("MySQL connection closed")
+		self.logger.log("MySQL connection closed")
 		
 	
 	def __checkAndSetUpDB(self, CONST, dbName):
@@ -76,11 +78,11 @@ class mmMySQL():
 				break
 		if dbExists:
 			self.cursor.execute('USE ' + dbName)
-			print("[ ok ] Database '" + dbName + "' already exists")
+			self.logger.log("Database '" + dbName + "' already exists")
 		else:  
 			self.cursor.execute("create database if not exists " + dbName + " DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci")
 			self.cursor.execute('USE ' + dbName)
-			print("[ ok ] Database '" + dbName + "' was created")
+			self.logger.log("Database '" + dbName + "' was created")
 			
 	def __checkAndSetUpTables(self, CONST, user, host):
 		self.cursor.execute("SHOW TABLES")
@@ -94,7 +96,7 @@ class mmMySQL():
 					break
 					
 			if tblExists:
-				print("[ ok ] Table '" + table + "' already exists")
+				self.logger.log("Table '" + table + "' already exists")
 			else:
 				if table == CONST.TBL_USERS:
 					self.cursor.execute("CREATE TABLE " + table + " (" +
@@ -138,7 +140,7 @@ class mmMySQL():
 					self.cursor.execute("CREATE TABLE " + table + " (recipe_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, recipe_name VARCHAR(20), recipe_creator BIGINT UNSIGNED NOT NULL, FOREIGN KEY (recipe_creator) REFERENCES " + CONST.TBL_USERS + "(user_uid)) ENGINE=INNODB;")
 				elif table == CONST.TBL_IR:
 					self.cursor.execute("CREATE TABLE " + table + " (ir_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ir_ingredient BIGINT UNSIGNED NOT NULL, ir_recipe BIGINT UNSIGNED NOT NULL, ir_weight FLOAT(5), FOREIGN KEY (ir_ingredient) REFERENCES tbl_ingredients(ingredient_uid), FOREIGN KEY (ir_recipe) REFERENCES " + CONST.TBL_RECIPES + "(recipe_uid)) ENGINE=INNODB;")
-				print("[ ok ] Table '" + table + "' was created")
+				self.logger.log("Table '" + table + "' was created")
 				
 	
 	def spUsersCreateUser(self, inUsername, inFirstname, inLastname, inPassword, inEmail, inRole):
@@ -156,9 +158,9 @@ class mmMySQL():
 	def spUsersCheckUserPassword(self, inUsername, inPassword):
 		self.cursor.callproc('spUsers_getPassword',(inUsername,))
 		hashedPassword = self.cursor.fetchall()
-		#print("Username: " + inUsername)
-		#print("Password: " + inPassword)
-		#print("HashedPw: " + str(hashedPassword))
+		#self.logger.log("Username: " + inUsername)
+		#self.logger.log("Password: " + inPassword)
+		#self.logger.log("HashedPw: " + str(hashedPassword))
 		if hashedPassword:
 			return check_password_hash(hashedPassword[0][0], inPassword)
 		

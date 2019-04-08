@@ -2,6 +2,7 @@
 #
 import os
 
+from mmLogger import mmLogger
 from mmFlask.mmFlask import mmFlask
 from mmStatus import mmStatus
 from mmMySQL import mmMySQL
@@ -21,12 +22,14 @@ class muesliMachine():
 		db_name = os.getenv("DB_NAME", "mueslimachine")
 		arduino_port = os.getenv("ARDUINO_PORT", "/dev/ttyUSB0")
 
+		self.logger = mmLogger()
+
 		self.flask = mmFlask(self)
 
 		self.status = mmStatus()
-		self.mySQL = mmMySQL(self.flask, self.status, db_user, db_pass, db_host, db_port, db_name)
+		self.mySQL = mmMySQL(self.logger, self.flask, self.status, db_user, db_pass, db_host, db_port, db_name)
 
-		self.arduino = mmArduino(arduino_port, self.status)
+		self.arduino = mmArduino(self.logger, self.status, arduino_port)
 
 		#pyDevD = mmPyDevD() #Eclipse Python Remote Dev Environment
 
