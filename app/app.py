@@ -21,9 +21,6 @@ class muesliMachine():
 		db_name = os.getenv("DB_NAME", "mueslimachine")
 		arduino_port = os.getenv("ARDUINO_PORT", "/dev/ttyUSB0")
 
-		print(db_host)
-		print(db_port)
-
 		self.flask = mmFlask(self)
 
 		self.status = mmStatus()
