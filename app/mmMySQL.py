@@ -35,13 +35,7 @@ class _Const(object):
 class mmMySQL():
 	def __init__(self, app, status, user, password, host, port, dbName):
 		CONST = _Const()
-		
-		print(user)
-		print(password)
-		print(host)
-		print(port)
-		print(dbName)
-
+		self.connected = False
 		self.status = status
 		self.mysql = MySQL()
 		app.config['MYSQL_DATABASE_HOST'] = host
@@ -52,15 +46,17 @@ class mmMySQL():
 		self.mysql.init_app(app)
 		
 		# In case docker compose starting up MySQL try to connect a couple times
-		connected = False
-		while not connected:
+		
+		while not self.connected:
 			try:
 				self.connection = self.mysql.connect()
-				connected = True
+				self.connected = True
+				self.status.addOneTimeNotificationSuccess("Database connected")
 			except Exception as e:
 				print("[WARN] " + str(e), flush=True)
 				print("[INFO] Wait 5 seconds and try again.", flush=True)
-				time.sleep(5)
+				self.status.addOneTimeNotificationError("Error while connecting database. Retry in 5 seconds.")
+				time.sleep(5) # TODO: Multithreading -> Status auf schon laufender Webpage anzeigen
 
 		self.cursor = self.connection.cursor()		
 		self.__checkAndSetUpDB(CONST, dbName)
