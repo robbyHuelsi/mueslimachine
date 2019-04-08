@@ -17,6 +17,7 @@ class mmFlask(Flask):
 		self.nav = mmFlaskNav(self)
 
 		self.registerUrlsDefault("index")
+		self.registerUrlsDefault("status") # TODO: Multithreading -> Status auf schon laufender Webpage anzeigen
 		self.registerUrlsDefault("signup")
 		self.registerUrlsDefault("login")
 		self.registerUrlsDefault("logout")
@@ -45,7 +46,7 @@ class mmFlask(Flask):
 		viewFunc = mmFlaskViewForItemsRenderer.as_view(name, endpointName=name, muesliMachine=self.mm)
 		self.add_url_rule(url, defaults={"itemId": None}, view_func=viewFunc, methods=['GET',])
 		self.add_url_rule(url, view_func=viewFunc, methods=['POST',])
-		self.add_url_rule(url + "<int:itemId>", view_func=viewFunc, methods=['GET', 'PUT', 'DELETE'])
+		self.add_url_rule(url + "<int:itemId>/", view_func=viewFunc, methods=['GET', 'PUT', 'DELETE'])
 	
 class mmFlaskViewDefaultRenderer(MethodView):
 	def __init__(self, endpointName, muesliMachine):
