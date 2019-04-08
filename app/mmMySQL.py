@@ -1,5 +1,6 @@
 from flaskext.mysql import MySQL
 from werkzeug import check_password_hash
+import threading
 import time
 
 def constant(f):
@@ -38,6 +39,7 @@ class mmMySQL():
 		self.status = status
 
 		CONST = _Const()
+		self.connecting = False
 		self.connected = False
 		self.mysql = MySQL()
 		flask.config['MYSQL_DATABASE_HOST'] = host
@@ -47,26 +49,48 @@ class mmMySQL():
 		
 		self.mysql.init_app(flask)
 		
-		# In case docker compose starting up MySQL try to connect a couple times
+		connectingThread = threading.Thread(target=self.connect, args=[CONST, dbName, user, host])
+		connectingThread.daemon = True 
+		connectingThread.start()
 		
-		while not self.connected:
-			try:
-				self.connection = self.mysql.connect()
-				self.connected = True
-				self.status.addOneTimeNotificationSuccess("Database connected")
-			except Exception as e:
-				self.logger.logWarn(str(e), flush=True)
-				self.logger.log("Wait 5 seconds and try again.", flush=True)
-				self.status.addOneTimeNotificationError("Error while connecting database. Retry in 5 seconds.")
-				time.sleep(5) # TODO: Multithreading -> Status auf schon laufender Webpage anzeigen
+	def __del__(self):
+		if self.connected:
+			self.connection.close()
+			self.logger.log("MySQL connection closed")
+
+	def connect(self, CONST, dbName, user, host):
+		if self.connecting == True:
+			self.logger.logErr("Another thread is trying to connect to database")
+			return False
+		elif self.connected == True:
+			self.logger.logErr("Database is already connected")
+			return False
+		else:
+			self.connecting = True
+			# In case MySQL is not up yet try to connect every 5 seconds
+			while True:
+				try:
+					self.connection = self.mysql.connect()
+					break
+				except Exception as e:
+					self.logger.logWarn(str(e), flush=True)
+					self.logger.log("Wait 5 seconds and try again.", flush=True)
+					self.status.addOneTimeNotificationError("Error while connecting database. Retry in 5 seconds.")
+					time.sleep(5)
 
 		self.cursor = self.connection.cursor()		
 		self.__checkAndSetUpDB(CONST, dbName)
 		self.__checkAndSetUpTables(CONST, user, host)
-		
-	def __del__(self):
-		self.connection.close()
-		self.logger.log("MySQL connection closed")
+		self.connecting = False
+		self.connected = True
+		self.logger.log("Database connected", flush=True)
+		self.status.addOneTimeNotificationSuccess("Database connected")
+
+		return True
+
+
+	def isConnected(self):
+		return self.connected
 		
 	
 	def __checkAndSetUpDB(self, CONST, dbName):

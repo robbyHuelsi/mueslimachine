@@ -1,5 +1,6 @@
 from serial import Serial
-from datetime import datetime
+import threading
+import time
 
 class mmArduino():
 	
@@ -8,24 +9,45 @@ class mmArduino():
 		self.status = status
 		self.port = port
 		
+		self.connecting = False
+		self.connected = False
 		self.serial = None
 		self.time = None
-		self.hasSetup = False
 
-		self.open()
+		connectingThread = threading.Thread(target=self.connect, args=())
+		connectingThread.daemon = True 
+		connectingThread.start()
 	   
 	def __del__(self):
-		self.close()
+		if self.connected:
+			self.serial.close()
 
-	def open(self):
-		try:
-			self.serial = Serial(self.port, 300)
-		except Exception as e:
-			self.logger.logErr(str(e))
+	def connect(self):
+		if self.connecting == True:
+			self.logger.logErr("Another thread is trying to connect to Arduino")
 			return False
-		self.time = datetime.now()
-		self.hasSetup = True #TODO: False
-		self.logger.log("Arduino connected")
+		elif self.connected == True:
+			self.logger.logErr("Aduino is already connected")
+			return False
+		else:
+			self.connecting = True
+			# In case Arduino is not up yet try to connect every 5 seconds
+			while True:
+				try:
+					self.serial = Serial(self.port, 300)
+					# TODO: self.sendPing() ...
+					break
+				except Exception as e:
+					self.logger.logWarn(str(e), flush=True)
+					self.logger.log("Wait 5 seconds and try again.", flush=True)
+					self.status.addOneTimeNotificationError("Error while connecting Arduino. Retry in 5 seconds.")
+					time.sleep(5)
+
+		self.connecting = False
+		self.connected = True
+		self.logger.log("Arduino connected", flush=True)
+		self.status.addOneTimeNotificationSuccess("Arduino connected")
+
 		return True
 
 	def close(self):
@@ -40,10 +62,19 @@ class mmArduino():
 		self.hasSetup = False
 		return True
 
+	def isConnected(self):
+		return self.serial != None
+
+	def sendPing(self):
+		# TODO: Ping ausarbeiten
+		# self.serial.write('p\n')
+		self.logger.logWarn("Arduino: Ping not implemented!")
+		return False
+
 	def sendInit(self): #TODO: Object mit allen Tubes und ihre Pins als Übergabeparameter
 		# TODO: Init ausarbeiten
 		# self.serial.write('i\n')
-		self.logger.logWarn("Init not implemented!")
+		self.logger.logWarn("Arduino: Init not implemented!")
 		return False
 
 	def sendDrive(self, id, steps) :
