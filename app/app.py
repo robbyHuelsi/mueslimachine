@@ -1,14 +1,16 @@
 #!/usr/bin/python
+#
+import os
 
 from mmFlask.mmFlask import mmFlask
 from mmStatus import mmStatus
 from mmMySQL import mmMySQL
+from mmArduino import mmArduino
+
 # Auskommentiert wg. Docker-Test
 # from mmPyDevD import mmPyDevD
 # from mmGpio import *
 # from mmGpioServo import *
-
-import os
 
 class muesliMachine():
 	def __init__(self):
@@ -17,6 +19,7 @@ class muesliMachine():
 		db_user = os.getenv("DB_USER", "root")
 		db_pass = os.getenv("DB_PASS", "root")
 		db_name = os.getenv("DB_NAME", "mueslimachine")
+		arduino_port = os.getenv("ARDUINO_PORT", "/dev/ttyUSB0")
 
 		print(db_host)
 		print(db_port)
@@ -25,6 +28,8 @@ class muesliMachine():
 
 		self.status = mmStatus()
 		self.mySQL = mmMySQL(self.flask, self.status, db_user, db_pass, db_host, db_port, db_name)
+
+		self.arduino = mmArduino(arduino_port, self.status)
 
 		#pyDevD = mmPyDevD() #Eclipse Python Remote Dev Environment
 
