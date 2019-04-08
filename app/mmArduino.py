@@ -20,12 +20,13 @@ class mmArduino():
 	def open(self):
 		try:
 			self.serial = Serial(self.port, 300)
-			return True
 		except Exception as e:
 			self.logger.logErr(str(e))
 			return False
 		self.time = datetime.now()
 		self.hasSetup = True #TODO: False
+		self.logger.log("Arduino connected")
+		return True
 
 	def close(self):
 		if self.serial != None:
@@ -54,7 +55,7 @@ class mmArduino():
 			return False
 		else:
 			msg = 'd,' + str(id) + ',' + str(steps)
-			if self.serial.write(msg + '\n'):
+			if self.serial.write((msg + '\n').encode()):
 				self.logger.log("Message sent to Arduino: " + msg)
 			else:
 				self.logger.logErr("Sending message to Arduino failed")
