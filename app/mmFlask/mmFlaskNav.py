@@ -16,12 +16,12 @@ class mmFlaskNav():
         items = []
         
         if loggedIn:
-            items.append(View('Scale', 'flaskScale'))
-            items.append(View('LED', 'flaskLed'))
-            items.append(View('Log out', 'flaskLogOut'))
+            # items.append(View('Scale', 'scale'))
+            # items.append(View('LED', 'led'))
+            items.append(View('Log out', 'logout'))
         else:
-            items.append(View('Log in', 'flaskLogIn'))
-            items.append(View('Sign up', 'flaskSignUp'))
+            items.append(View('Log in', 'login'))
+            items.append(View('Sign up', 'signup'))
         
         return Navbar('', *items)
 

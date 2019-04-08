@@ -1,0 +1,15 @@
+{% include "header.html" %}
+
+<main>
+	<div class="jumbotron jumbotron-fluid">
+		<div class="container">
+			<h1>Tube {{itemId}}</h1>
+			<p class="lead"></p>
+			<p>
+					<a id="buttonStepper{{itemId}}Rot" class="btn btn-lg btn-success" href="#" role="button" aria-pressed="true" onclick="cmd = {'stepper':{'id':{{itemId}},'steps':300}}; mmAjaxStatus(JSON.stringify(cmd));">Rotate 300 steps</a>
+			</p>
+		</div>
+	</div> 
+</main>
+ 
+{% include "footer.html" %}
