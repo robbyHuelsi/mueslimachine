@@ -4,13 +4,12 @@ import time
 
 class mmArduino():
 	
-	def __init__(self, logger, status, port):
+	def __init__(self, logger, mmStatus, port):
 		self.logger = logger
-		self.status = status
+		self.mmStatus = mmStatus
 		self.port = port
 		
-		self.connecting = False
-		self.connected = False
+		self.setStatus(0) # 0 => disconnected / 1 => connecting / 2 => setting up / 3 => connected
 		self.serial = None
 		self.time = None
 
@@ -19,39 +18,39 @@ class mmArduino():
 		connectingThread.start()
 	   
 	def __del__(self):
-		if self.connected:
+		if self.status == 2 or self.status == 3:
 			self.serial.close()
+			self.logger.log("Arduino connection closed")
 
 	def connect(self):
-		if self.connecting == True:
+		if self.status == 1:
 			self.logger.logErr("Another thread is trying to connect to Arduino")
 			return False
-		elif self.connected == True:
+		elif self.status == 2 or self.status == 3:
 			self.logger.logErr("Aduino is already connected")
 			return False
-		else:
-			self.connecting = True
+		elif self.status == 0:
+			self.setStatus(1)
 			# In case Arduino is not up yet try to connect every 5 seconds
 			while True:
 				try:
 					self.serial = Serial(self.port, 300)
+					self.setStatus(2)
 					# TODO: self.sendPing() ...
 					break
 				except Exception as e:
 					self.logger.logWarn(str(e), flush=True)
 					self.logger.log("Wait 5 seconds and try again.", flush=True)
-					self.status.addOneTimeNotificationError("Error while connecting Arduino. Retry in 5 seconds.")
 					time.sleep(5)
-
-		self.connecting = False
-		self.connected = True
-		self.logger.log("Arduino connected", flush=True)
-		self.status.addOneTimeNotificationSuccess("Arduino connected")
-
-		return True
+			self.setStatus(3)
+			self.logger.log("Arduino connected", flush=True)
+			return True
+		else:
+			self.logger.logErr("Something went wrong while connecting Arduino")
+			return False
 
 	def close(self):
-		if self.serial != None:
+		if self.status == 2 or self.status == 3:
 			try:
 				self.serial.close()
 			except Exception as e:
@@ -62,8 +61,11 @@ class mmArduino():
 		self.hasSetup = False
 		return True
 
-	def isConnected(self):
-		return self.serial != None
+	def setStatus(self, status):
+		# 0 => disconnected / 1 => connecting / 2 => setting up / 3 => connected
+		self.status = status
+		self.mmStatus.setArduinoStatus(status)
+		return True
 
 	def sendPing(self):
 		# TODO: Ping ausarbeiten

@@ -5,15 +5,23 @@ import json
 class mmStatus():
 	def __init__(self):
 		self.json = {}
+		self.databaseStatus = 0
+		self.arduinoStatus = 0
 		self.gpiosIn = []
 		self.gpiosOut = []
 		self.oneTimeNotification = []
 		
-	def getStatus(self):
+	def getStatus(self, requestId = None):
+		if requestId:
+			self.json["requestId"] = requestId
+
 		if self.oneTimeNotification:
 			self.json["notification"] = self.oneTimeNotification
 			del self.oneTimeNotification
 			self.oneTimeNotification = []
+
+		self.json["database"] = self.databaseStatus
+		self.json["arduino"] = self.arduinoStatus
 		
 		self.json["gpioin"] = []
 		for gpioIn in self.gpiosIn:
@@ -33,6 +41,14 @@ class mmStatus():
 		self.json = {}
 		return jsonToSend
 	
+	def setDatabaseStatus(self,databaseStatus):
+		self.databaseStatus = databaseStatus
+		return True
+
+	def setArduinoStatus(self,arduinoStatus):
+		self.arduinoStatus = arduinoStatus
+		return True
+
 	def registerGpioIn(self, gpioIn):
 		self.gpiosIn.append(gpioIn)
 		

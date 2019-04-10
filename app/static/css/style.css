@@ -5,3 +5,16 @@
 	top: 10px;
 	left: 10px;
 }
+
+#statusTable tr > th{
+	width: 50px;
+	text-align: center;
+}
+
+.indicatorBadage span{
+	margin-right: 5px;
+}
+
+.indicatorBadage span:last-child{
+	margin-right: 0px;
+}

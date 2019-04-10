@@ -59,7 +59,8 @@ class mmFlaskViewDefaultRenderer(MethodView):
 		
 		if self.endpointName == "logout":
 			return self.logout()
-		
+		elif self.endpointName == "status":
+			return render_template(self.templateName, status=self.mm.status.getStatus())
 		else:
 			return render_template(self.templateName)
 		
@@ -126,6 +127,8 @@ class mmFlaskViewAjaxStatus(View):
 	
 	def dispatch_request(self):
 		cmd = request.form.get("cmd")
+		requestId = request.form.get("id")
+		self.mm.logger.log("Request ID: " + str(requestId))
 
 		if cmd and cmd != "":
 			self.mm.logger.log(cmd)
@@ -170,7 +173,7 @@ class mmFlaskViewAjaxStatus(View):
 				# 	self.mm.scale.tare()
 			
 		#self.mm.logger.log(scale.getAverage())
-		return jsonify(self.mm.status.getStatus())
+		return jsonify(self.mm.status.getStatus(requestId))
 	
 class mmFlaskViewAjaxSignUp(View):
 	def __init__(self, muesliMachine):

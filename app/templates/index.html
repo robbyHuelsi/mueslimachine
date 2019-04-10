@@ -1,11 +1,21 @@
 {% include "header.html" %}
 
 <main>
-	{% if session['username'] %}
-		<h1>Hello {{ session['username'] }}!</h1>
-	{% else %}
-		<h1>Hello, World!</h1>
-	{% endif %}
+	<div class="jumbotron jumbotron-fluid">
+		<div class="container">
+			<h1>Welcome to Muesli Machine! <i class="fas fa-utensil-spoon"></i></h1>
+{% if session['username'] %}
+			<p>Hello {{ session['username'] }}!</p>
+{% else %}
+			<p>Sign up or log in to get some cereals.</p>
+			<form>
+				<button type="submit" class="btn btn-success btn-lg" formaction="/signup">Sign Up</button>
+				<button type="submit" class="btn btn-secondary btn-lg" formaction="/login">Log In</button>
+			</form>
+			
+{% endif %}
+		</div>
+	</div>
 </main>
  
 {% include "footer.html" %}

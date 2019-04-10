@@ -5,25 +5,43 @@
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
 			<h1>Status</h1>
-
-			<table class="table table-bordered">
+			<h4>Services</h4>
+			<table id="statusTable" class="table">
 				<tbody>
-					<tr>
+					<tr class="table-light">
 						<th scope="row">
-							<i class="fa fa-circle text-danger" aria-hidden="true"></i>
+							<span class="webserverStatusIndicator">
+								<i class='fas fa-server text-muted' aria-hidden='true'></i>
+							</span>
 						</th>
-						<td>Database</td>
+						<td>Web Server<span id="webserverStatusText" class="text-muted"></span></td>
 					</tr>
 				</tbody>
 				<tbody>
-					<tr>
+					<tr class="table-light">
 						<th scope="row">
-							<i class="fa fa-circle text-danger" aria-hidden="true"></i>
+							<span class="databaseStatusIndicator">
+								<i class='fas fa-database text-muted' aria-hidden='true'></i>
+							</span>
 						</th>
-						<td>Arduino</td>
+						<td>Database<span id="databaseStatusText" class="text-muted"></span></td>
+					</tr>
+				</tbody>
+				<tbody>
+					<tr class="table-light">
+						<th scope="row">
+							<span class="arduinoStatusIndicator">
+								<i class='fas fa-infinity text-muted' aria-hidden='true'></i>
+							</span>
+						</th>
+						<td>Arduino<span class="arduinoStatusText" class="text-muted"></span></td>
 					</tr>
 				</tbody>
 			</table>
+
+			<h4>Last Response Message</h4>
+			<p id="fullStatusJsonText" class="text-monospace"></p>
+
 		</div>
 	</div>
         
