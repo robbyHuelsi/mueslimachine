@@ -8,11 +8,8 @@
 			<p>Hello {{ session['username'] }}!</p>
 {% else %}
 			<p>Sign up or log in to get some cereals.</p>
-			<form>
-				<button type="submit" class="btn btn-success btn-lg" formaction="/signup">Sign Up</button>
-				<button type="submit" class="btn btn-secondary btn-lg" formaction="/login">Log In</button>
-			</form>
-			
+			<a class="btn btn-success btn-lg" href="/signup/" role="button">Sign Up</a>
+			<a class="btn btn-secondary btn-lg" href="/login/" role="button">Log In</a>		
 {% endif %}
 		</div>
 	</div>

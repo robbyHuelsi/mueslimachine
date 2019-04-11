@@ -3,10 +3,36 @@
 <main>
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
-			<h1>Tube {{itemId}}</h1>
-			<p class="lead"></p>
+			<h1>Tube #{{item[0]}}</h1>
+			<form>
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="basic-addon3">Pin 1</span>
+					</div>
+					<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" value="{{item[1]}}">
+				</div>
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="basic-addon3">Pin 2</span>
+					</div>
+					<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" value="{{item[2]}}">
+				</div>
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="basic-addon3">Pin 3</span>
+					</div>
+					<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" value="{{item[3]}}">
+				</div>
+				<div class="input-group mb-3">
+					<div class="input-group-prepend">
+						<span class="input-group-text" id="basic-addon3">Pin 4</span>
+					</div>
+					<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" value="{{item[4]}}">
+				</div>
+				<button type="button" class="btn btn-primary">Save</button>
+			</form>
 			<p>
-					<a id="buttonStepper{{itemId}}Rot" class="btn btn-lg btn-success" href="#" role="button" aria-pressed="true" onclick="cmd = {'stepper':{'id':{{itemId}},'steps':300}}; mmAjaxStatus(JSON.stringify(cmd));">Rotate 300 steps</a>
+					<a id="buttonStepper{{item[0]}}Rot" class="btn btn-lg btn-success" href="#" role="button" aria-pressed="true" onclick="cmd = {'stepper':{'id':{{item[0]}},'steps':300}}; mmAjaxStatus(JSON.stringify(cmd));">Rotate 300 steps</a>
 			</p>
 		</div>
 	</div> 

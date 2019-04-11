@@ -4,7 +4,34 @@
 
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
-			<h1>List of Tubes</h1>
+			<h1>List of Tubes <i class="fas fa-vials"></i></h1>
+
+			<table class="table table-hover">
+				<thead>
+					<tr>
+						<th scope="col" class="align-middle">ID</th>
+						<th scope="col" class="align-middle">Pins</th>
+						<th scope="col" class="align-middle">Filling</th>
+						<th scope="col" class="align-middle"></th>
+					</tr>
+				</thead>
+				<tbody>
+{% for item in items %}
+						<th scope="row" class="align-middle">{{item[0]}}</th>
+						<td class="align-middle">
+							<span class="badge badge-primary">{{item[1]}}</span>
+							<span class="badge badge-primary">{{item[2]}}</span>
+							<span class="badge badge-primary">{{item[3]}}</span>
+							<span class="badge badge-primary">{{item[4]}}</span>
+						</td>
+						<td class="align-middle"></td>
+						<td class="align-middle">
+							<a class="btn btn-primary btn-sm" href="/tube/{{item[0]}}/" role="button">Edit</a>
+						</td>
+					</tr>
+{% endfor %}
+				</tbody>
+			</table>
 		</div>
 	</div>
         

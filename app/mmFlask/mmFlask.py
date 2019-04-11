@@ -100,12 +100,12 @@ class mmFlaskViewForItemsRenderer(MethodView):
 	def get(self, itemId):
 		if itemId is None:
 			self.mm.logger.log("Show List of " + self.endpointName)
-			# return a list of users
-			return render_template(self.endpointName + "List.html")
+			items = self.mm.mySQL.getItems(self.endpointName)
+			return render_template(self.endpointName + "List.html", items=items)
 		else:
 			self.mm.logger.log("Show Single View of " + self.endpointName + "Id " + str(itemId))
-			# expose a single user
-			return render_template(self.endpointName + "Single.html", itemId=itemId)
+			item = self.mm.mySQL.getItemById(self.endpointName, itemId)
+			return render_template(self.endpointName + "Single.html", item=item)
 
 	def post(self):
 		# create a new user
