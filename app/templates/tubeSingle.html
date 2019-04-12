@@ -3,37 +3,68 @@
 <main>
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
-			<h1>Tube #{{item[0]}}</h1>
-			<form>
-				<div class="input-group mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="basic-addon3">Pin 1</span>
+			<h1>Tube #{{item[0][0]}} <i class="fas fa-vial"></i></h1>
+
+			<div class="my-3">
+				<h4>Pins</h4>
+				<p>All pin fieds are requiered.</p>
+				<form method="post">
+					<div class="form-row align-items-center">
+						<div class="inputPinNumber col mb-3">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text">A</span>
+								</div>
+								<input type="text" class="form-control" id="pin1" value="{{item[0][1]}}">
+							</div>
+						</div>
+						<div class="inputPinNumber col mb-3">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text">B</span>
+								</div>
+								<input type="text" class="form-control" id="pin2" value="{{item[0][2]}}">
+							</div>
+						</div>
+						<div class="inputPinNumber col mb-3">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text">C</span>
+								</div>
+								<input type="text" class="form-control" id="pin3" value="{{item[0][3]}}">
+							</div>
+						</div>
+						<div class="inputPinNumber col mb-3">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<span class="input-group-text">D</span>
+								</div>
+								<input type="text" class="form-control" id="pin4" value="{{item[0][4]}}">
+							</div>
+						</div>
 					</div>
-					<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" value="{{item[1]}}">
-				</div>
-				<div class="input-group mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="basic-addon3">Pin 2</span>
-					</div>
-					<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" value="{{item[2]}}">
-				</div>
-				<div class="input-group mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="basic-addon3">Pin 3</span>
-					</div>
-					<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" value="{{item[3]}}">
-				</div>
-				<div class="input-group mb-3">
-					<div class="input-group-prepend">
-						<span class="input-group-text" id="basic-addon3">Pin 4</span>
-					</div>
-					<input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3" value="{{item[4]}}">
-				</div>
-				<button type="button" class="btn btn-primary">Save</button>
-			</form>
-			<p>
-					<a id="buttonStepper{{item[0]}}Rot" class="btn btn-lg btn-success" href="#" role="button" aria-pressed="true" onclick="cmd = {'stepper':{'id':{{item[0]}},'steps':300}}; mmAjaxStatus(JSON.stringify(cmd));">Rotate 300 steps</a>
-			</p>
+					<button name="cmd" value="edit" class="btn btn-primary btn-lg btn-block">Save</button>
+				</form>
+			</div>
+
+			<div class="my-3">
+				<h4>Filling</h4>
+				<p>Lorem ipsum</p>
+			</div>
+
+			<div class="my-3">
+				<h4>Test</h4>
+				<p>
+						<a id="buttonStepper{{item[0]}}Rot" class="btn btn-lg btn-success btn-lg btn-block" href="#" role="button" aria-pressed="true" onclick="cmd = {'stepper':{'id':{{item[0][0]}},'steps':10}}; mmAjaxStatus(JSON.stringify(cmd));">Rotate 10 Steps</a>
+				</p>
+			</div>
+			
+			<div class="my-3">
+				<h4>Danger Zone</h4>
+				<form method="post">
+					<button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">Delete Tube #{{item[0][0]}}</button>
+				</form>
+			</div>
 		</div>
 	</div> 
 </main>

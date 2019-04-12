@@ -122,7 +122,7 @@ function updateWebServerStatus(requestId){
 		var responseTime = Date.now() - this.requestTimes[requestId];
 		delete this.requestTimes[requestId];
 		indicatorInnerHTML = "<i class='fas fa-server text-success' aria-hidden='true'></i>";
-		statusInnerHTML = " &mdash; Response time of request " + requestId + ": " + responseTime + " ms";
+		statusInnerHTML = " &mdash; response time: " + responseTime + " ms";
 	}else{
 		indicatorInnerHTML = "<i class='fas fa-server text-danger' aria-hidden='true'></i>";
 		statusInnerHTML = " &mdash; disconnected";

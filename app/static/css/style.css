@@ -1,3 +1,4 @@
+/* ----- General ----- */
 #notification{
 	position: fixed;
 	z-index: 100;
@@ -6,11 +7,20 @@
 	left: 10px;
 }
 
+/* ----- Status ----- */
 #statusTable tr > th{
 	width: 50px;
 	text-align: center;
 }
 
+/* ----- Tube Single ----- */
+@media (max-width: 400px) { 
+	.inputPinNumber{
+		min-width: 120px;
+	}
+}
+
+/* ----- Footer ----- */
 footer{
 	text-align: center;
 }

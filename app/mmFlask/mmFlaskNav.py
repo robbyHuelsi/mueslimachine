@@ -14,12 +14,10 @@ class mmFlaskNav():
 	
 	def mmTopNav(self, loggedIn):
 		items = []
-
-		items.append(View('Status', 'status'))
-		items.append(View('Users', 'user'))
-		items.append(View('Tubes', 'tube'))
-		items.append(View('Ingredients', 'ingredient'))
 		items.append(View('Recipes', 'recipe'))
+		items.append(View('Ingredients', 'ingredient'))
+		items.append(View('Tubes', 'tube'))
+		items.append(View('Users', 'user'))
 		
 		if loggedIn:
 			# items.append(View('Scale', 'scale'))
@@ -28,6 +26,8 @@ class mmFlaskNav():
 		else:
 			items.append(View('Log in', 'login'))
 			items.append(View('Sign up', 'signup'))
+
+		items.append(View('Status', 'status'))
 		
 		return Navbar('', *items)
 

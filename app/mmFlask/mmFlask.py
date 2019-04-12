@@ -43,10 +43,12 @@ class mmFlask(Flask):
 
 	def registerUrlsForItems(self, name):
 		url = "/" + name + "/"
-		viewFunc = mmFlaskViewForItemsRenderer.as_view(name, endpointName=name, muesliMachine=self.mm)
-		self.add_url_rule(url, defaults={"itemId": None}, view_func=viewFunc, methods=['GET',])
-		self.add_url_rule(url, view_func=viewFunc, methods=['POST',])
-		self.add_url_rule(url + "<int:itemId>/", view_func=viewFunc, methods=['GET', 'PUT', 'DELETE'])
+		methodView = mmFlaskViewForItemsRenderer(endpointName=name, muesliMachine=self.mm)
+		viewFuncList, viewFuncSingle = methodView.as_view()
+		self.add_url_rule(url, view_func=viewFuncList, methods=['GET',], defaults={"itemId": None})
+		self.add_url_rule(url, view_func=viewFuncList, methods=['POST',], defaults={"itemId": None})
+		self.add_url_rule(url + "<int:itemId>/", view_func=viewFuncSingle, methods=['GET',])
+		self.add_url_rule(url + "<int:itemId>/", view_func=viewFuncSingle, methods=['POST',])
 	
 class mmFlaskViewDefaultRenderer(MethodView):
 	def __init__(self, endpointName, muesliMachine):
@@ -56,7 +58,6 @@ class mmFlaskViewDefaultRenderer(MethodView):
 		super().__init__()
 	
 	def get(self):
-		
 		if self.endpointName == "logout":
 			return self.logout()
 		elif self.endpointName == "status":
@@ -97,27 +98,57 @@ class mmFlaskViewForItemsRenderer(MethodView):
 		self.mm = muesliMachine
 		super().__init__()
 
-	def get(self, itemId):
+	def as_view(self):
+		viewList = super().as_view(self.endpointName, endpointName=self.endpointName, muesliMachine=self.mm)
+		viewSingle = super().as_view(self.endpointName + "Single", endpointName=self.endpointName, muesliMachine=self.mm)
+		return viewList, viewSingle
+
+	def get(self, itemId):	
 		if itemId is None:
-			self.mm.logger.log("Show List of " + self.endpointName)
+			# self.mm.logger.log("Show List of " + self.endpointName)
 			items = self.mm.mySQL.getItems(self.endpointName)
 			return render_template(self.endpointName + "List.html", items=items)
 		else:
-			self.mm.logger.log("Show Single View of " + self.endpointName + "Id " + str(itemId))
+			# self.mm.logger.log("Show Single View of " + self.endpointName + "Id " + str(itemId))
 			item = self.mm.mySQL.getItemById(self.endpointName, itemId)
-			return render_template(self.endpointName + "Single.html", item=item)
+			if len(item) == 1:
+				return render_template(self.endpointName + "Single.html", item=item)
+			else:
+				# If number of MySQL response items are 0 or > 1:
+				return redirect(url_for(self.endpointName))
+			
 
-	def post(self):
-		# create a new user
-		pass
+	def post(self, itemId):
+		cmd = request.form.get("cmd")
+		success = False
+		if cmd == "add":
+			self.mm.logger.log("Adding " + self.endpointName + "...")
+			success, itemId = self.mm.mySQL.addItem(self.endpointName)
+			if success:
+				return redirect(url_for(self.endpointName) + str(itemId) + "/")
+			else:
+				self.mm.status.addOneTimeNotificationError("Adding " + self.endpointName.title() + " failed.")
+				return redirect(url_for(self.endpointName))
 
-	def delete(self, itemId):
-		# delete a single user
-		pass
+		elif cmd == "edit":
+			if itemId is not None:
+				self.mm.logger.log("Editing " + self.endpointName + " #" + str(itemId) + "...")
+				success = self.mm.mySQL.editItemById(self.endpointName, itemId, request.form)
+			if success:
+				self.mm.status.addOneTimeNotificationSuccess(self.endpointName.title() + " #" + str(itemId) + " edited successfully.")
+			else:
+				self.mm.status.addOneTimeNotificationError("Editing " + self.endpointName.title() + " #" + str(itemId) + " failed.")
+			return redirect(url_for(self.endpointName) + str(itemId) + "/")
 
-	def put(self, itemId):
-		# update a single user
-		pass
+		elif cmd == "delete":
+			if itemId is not None:
+				# self.mm.logger.log("Deleting " + self.endpointName + " #" + str(itemId) + "...")
+				success = self.mm.mySQL.deleteItemById(self.endpointName, itemId)
+			if success:
+				self.mm.status.addOneTimeNotificationSuccess(self.endpointName.title() + " #" + str(itemId) + " deleted successfully.")
+			else:
+				self.mm.status.addOneTimeNotificationError("Deleting " + self.endpointName.title() + " #" + str(itemId) + " failed.")
+			return redirect(url_for(self.endpointName))
 
 
 class mmFlaskViewAjaxStatus(View):       

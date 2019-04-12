@@ -177,6 +177,12 @@ class mmMySQL():
 										"select * from " + table + " where " + table + "_uid = inItemId; " +
 										"END;")
 
+				self.cursor.execute("CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_deleteItemById`(" +
+										"IN inItemId BIGINT UNSIGNED) " +
+										"BEGIN " +
+										"delete from " + table + " where " + table + "_uid = inItemId; " +
+										"END;")
+
 				self.logger.log("Table '" + table + "' was created")
 				
 	
@@ -205,16 +211,46 @@ class mmMySQL():
 		if table in self.CONST.TABLES:
 			self.cursor.callproc(table + '_getItems',())
 			items = self.cursor.fetchall()
-			self.logger.log("All items of table " + table + ":", flush = True)
-			self.logger.log(str(items), flush = True)
+			# self.logger.log("All items of table " + table + ":", flush = True)
+			# self.logger.log(str(items), flush = True)
 			return items
 
 	def getItemById(self, table, itemId):
 		if table in self.CONST.TABLES:
 			self.cursor.callproc(table + "_getItemById",(itemId,))
-			self.logger.log("Item " + str(itemId) + " of table " + table + ":", flush = True)
+			# self.logger.log("Item " + str(itemId) + " of table " + table + ":", flush = True)
 			item = self.cursor.fetchall()
-			self.logger.log(str(item), flush = True)
+			# self.logger.log(str(item), flush = True)
 			return item
+
+	def addItem(self, table):
+		if table in self.CONST.TABLES:
+			# TODO
+			# self.cursor.callproc(table + "_addItem",())
+			# itemId = self.cursor.fetchall()
+			# return True, itemId
+			return False, None
+
+	def editItemById(self, table, itemId, data):
+		if table in self.CONST.TABLES:
+			self.cursor.callproc(table + "_getItemById",(itemId,))
+			item = self.cursor.fetchall()
+			if len(item) == 1:
+				# TODO: data...
+				# self.cursor.callproc(table + "_editItemById",(itemId,...))
+				# return True
+				return False
+			else:
+				return False
+
+	def deleteItemById(self, table, itemId):
+		if table in self.CONST.TABLES:
+			self.cursor.callproc(table + "_getItemById",(itemId,))
+			item = self.cursor.fetchall()
+			if len(item) == 1:
+				self.cursor.callproc(table + "_deleteItemById",(itemId,))
+				return True
+			else:
+				return False
 		
 		
