@@ -44,11 +44,12 @@ class mmFlask(Flask):
 	def registerUrlsForItems(self, name):
 		url = "/" + name + "/"
 		methodView = mmFlaskViewForItemsRenderer(endpointName=name, muesliMachine=self.mm)
-		viewFuncList, viewFuncSingle = methodView.as_view()
+		viewFuncList, viewFuncSingle, viewFuncAdd = methodView.as_view()
 		self.add_url_rule(url, view_func=viewFuncList, methods=['GET',], defaults={"itemId": None})
-		self.add_url_rule(url, view_func=viewFuncList, methods=['POST',], defaults={"itemId": None})
 		self.add_url_rule(url + "<int:itemId>/", view_func=viewFuncSingle, methods=['GET',])
 		self.add_url_rule(url + "<int:itemId>/", view_func=viewFuncSingle, methods=['POST',])
+		self.add_url_rule(url + "add/", view_func=viewFuncAdd, methods=['GET',], defaults={"itemId": "add"})
+		self.add_url_rule(url + "add/", view_func=viewFuncAdd, methods=['POST',], defaults={"itemId": "add"})
 	
 class mmFlaskViewDefaultRenderer(MethodView):
 	def __init__(self, endpointName, muesliMachine):
@@ -80,7 +81,7 @@ class mmFlaskViewDefaultRenderer(MethodView):
 		inPassword = request.form['inputPassword']
 		
 		if inUsername and inPassword:
-			if self.mm.mySQL.spUsersCheckUserPassword(inUsername, inPassword) == True:
+			if self.mm.mySQL.userCheckUserPassword(inUsername, inPassword) == True:
 				session['username'] = inUsername
 				return redirect(url_for('index'))
 		
@@ -101,13 +102,16 @@ class mmFlaskViewForItemsRenderer(MethodView):
 	def as_view(self):
 		viewList = super().as_view(self.endpointName, endpointName=self.endpointName, muesliMachine=self.mm)
 		viewSingle = super().as_view(self.endpointName + "Single", endpointName=self.endpointName, muesliMachine=self.mm)
-		return viewList, viewSingle
+		viewAdd = super().as_view(self.endpointName + "Add", endpointName=self.endpointName, muesliMachine=self.mm)
+		return viewList, viewSingle, viewAdd
 
 	def get(self, itemId):	
 		if itemId is None:
 			# self.mm.logger.log("Show List of " + self.endpointName)
 			items = self.mm.mySQL.getItems(self.endpointName)
 			return render_template(self.endpointName + "List.html", items=items)
+		elif itemId == "add":
+			return render_template(self.endpointName + "Single.html", item=None)
 		else:
 			# self.mm.logger.log("Show Single View of " + self.endpointName + "Id " + str(itemId))
 			item = self.mm.mySQL.getItemById(self.endpointName, itemId)
@@ -121,10 +125,27 @@ class mmFlaskViewForItemsRenderer(MethodView):
 	def post(self, itemId):
 		cmd = request.form.get("cmd")
 		success = False
+
+		# Add new item to items list
 		if cmd == "add":
 			self.mm.logger.log("Adding " + self.endpointName + "...")
-			success, itemId = self.mm.mySQL.addItem(self.endpointName)
+
+			# Get properties of new item from page
+			if self.endpointName == "tube":
+				properties = (request.form.get("pin1"), request.form.get("pin2"), request.form.get("pin3"), request.form.get("pin4"))
+			else:
+				properties = ()
+			
+			self.mm.logger.log("Properties: " + str(properties))
+			self.mm.logger.log("Count of prop.: " + str(len(properties)))
+			
+			# If properties are avaible, add new item
+			if len(properties) > 0:
+				success, itemId = self.mm.mySQL.addItem(self.endpointName, properties)
+
+			# If adding new item was successfull go to its single page or if not go to list page
 			if success:
+				self.mm.logger.log("itemId : " + str(itemId))
 				return redirect(url_for(self.endpointName) + str(itemId) + "/")
 			else:
 				self.mm.status.addOneTimeNotificationError("Adding " + self.endpointName.title() + " failed.")
@@ -221,7 +242,7 @@ class mmFlaskViewAjaxSignUp(View):
 		inRole = "admin"
 		
 		if inUsername and inEmail and inPassword:
-			msg = self.mm.mySQL.spUsersCreateUser(inUsername, inFirstname, inLastname, hashedPassword, inEmail, inRole)
+			msg = self.mm.mySQL.userCreateUser(inUsername, inFirstname, inLastname, hashedPassword, inEmail, inRole)
 			self.mm.logger.log(msg)
 		else:
 			self.mm.status.addOneTimeNotificationWarning("Enter all required fields")

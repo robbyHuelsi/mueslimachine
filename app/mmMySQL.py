@@ -125,7 +125,7 @@ class mmMySQL():
 			else:
 				if table == self.CONST.TBL_USER:
 					self.cursor.execute("CREATE TABLE " + table + " (" +
-										"user_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " 
+										"user_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
 										"user_username VARCHAR(20), " +
 										"user_firstname VARCHAR(50), " +
 										"user_lastname VARCHAR(50), " +
@@ -135,7 +135,7 @@ class mmMySQL():
 										"user_regdate TIMESTAMP, " +
 										"user_tracking VARCHAR(32500)) ENGINE=INNODB;")
 					
-					self.cursor.execute("CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `sp_users_createUser`(" +
+					self.cursor.execute("CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_addItem`(" +
 										"IN inUsername VARCHAR(20), " +
 										"IN inFirstname VARCHAR(50), " +
 										"IN inLastname VARCHAR(50), " +
@@ -143,22 +143,45 @@ class mmMySQL():
 										"IN inEmail VARCHAR(20), " +
 										"IN inRole ENUM('pending', 'user', 'admin')) " +
 										"BEGIN " +
-										"if ( select exists (select 1 from " + self.CONST.TBL_USER + " where user_username = inUsername) ) THEN " +
-										"select 'Username Exists !!'; " +
+										"if ( select exists (select 1 from " + table + " where user_username = inUsername) ) THEN " +
+										"select 'error_exists'; " +
 										"ELSE " +
-										"insert into " + self.CONST.TBL_USER + " (user_username, user_firstname, user_lastname, user_password, user_email, user_role) " +
+										"insert into " + table + " (user_username, user_firstname, user_lastname, user_password, user_email, user_role) " +
 										"values (inUsername, inFirstname, inLastname, inPassword, inEmail, inRole); " +
 										"END If; " +
 										"END;")
 					
-					self.cursor.execute("CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `spUsers_getPassword`(" +
+					self.cursor.execute("CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_getPassword`(" +
 										"IN inUsername VARCHAR(20)) " +
 										"BEGIN " +
 										"select user_password from " + self.CONST.TBL_USER + " where user_username = inUsername; " +
 										"END;")
 					
 				elif table == self.CONST.TBL_TUBE:
-					self.cursor.execute("CREATE TABLE " + table + " (tube_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, tube_gpio_1 INT(3) UNSIGNED NOT NULL, tube_gpio_2 INT(3) UNSIGNED NOT NULL, tube_gpio_3 INT(3) UNSIGNED NOT NULL, tube_gpio_4 INT(3) UNSIGNED NOT NULL) ENGINE=INNODB;")
+					self.cursor.execute("CREATE TABLE " + table + " (" +
+										"tube_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
+										"tube_gpio_1 INT(3) UNSIGNED NOT NULL, " +
+										"tube_gpio_2 INT(3) UNSIGNED NOT NULL, " +
+										"tube_gpio_3 INT(3) UNSIGNED NOT NULL, " +
+										"tube_gpio_4 INT(3) UNSIGNED NOT NULL) ENGINE=INNODB;")
+
+					self.cursor.execute("CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_addItem`(" +
+										"IN inGpio1 INT(3), " +
+										"IN inGpio2 INT(3), " +
+										"IN inGpio3 INT(3), " +
+										"IN inGpio4 INT(3)) " +
+										"BEGIN " +
+										"if(select exists(select 1 from " + table + " where tube_gpio_1 = inGpio1 OR tube_gpio_2 = inGpio2 OR tube_gpio_3 = inGpio3 OR tube_gpio_4 = inGpio4)) " +
+										"THEN " +
+										"select 'error_exists'; " +
+										"ELSE " +
+										"insert into " + table + " (tube_gpio_1, tube_gpio_2, tube_gpio_3, tube_gpio_4) " +
+										"values (inGpio1, inGpio2, inGpio3, inGpio4); " +
+										"select LAST_INSERT_ID();" +
+										"END If; " +
+										"END;")
+					
+
 				elif table == self.CONST.TBL_INGREDIENT:
 					self.cursor.execute("CREATE TABLE " + table + " (ingredient_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ingredient_name VARCHAR(20), ingredient_price FLOAT(5), ingredient_tube BIGINT UNSIGNED NOT NULL, ingredient_glutenfree BOOL, ingredient_lactosefree BOOL, ingredient_motortuning FLOAT(5), FOREIGN KEY (ingredient_tube) REFERENCES " + self.CONST.TBL_TUBE + "(tube_uid)) ENGINE=INNODB;")
 				elif table == self.CONST.TBL_RECIPE:
@@ -186,8 +209,8 @@ class mmMySQL():
 				self.logger.log("Table '" + table + "' was created")
 				
 	
-	def spUsersCreateUser(self, inUsername, inFirstname, inLastname, inPassword, inEmail, inRole):
-		self.cursor.callproc('sp_users_createUser',(inUsername, inFirstname, inLastname, inPassword, inEmail, inRole))
+	def userCreateUser(self, inUsername, inFirstname, inLastname, inPassword, inEmail, inRole):
+		self.cursor.callproc('user_addItem',(inUsername, inFirstname, inLastname, inPassword, inEmail, inRole))
 		data = self.cursor.fetchall()
 	
 		if len(data) is 0:
@@ -198,8 +221,8 @@ class mmMySQL():
 			self.mmStatus.addOneTimeNotificationError("Error while creating new user: " + str(data[0]))
 			return "error"
 
-	def spUsersCheckUserPassword(self, inUsername, inPassword):
-		self.cursor.callproc('spUsers_getPassword',(inUsername,))
+	def userCheckUserPassword(self, inUsername, inPassword):
+		self.cursor.callproc('user_getPassword',(inUsername,))
 		hashedPassword = self.cursor.fetchall()
 		#self.logger.log("Username: " + inUsername)
 		#self.logger.log("Password: " + inPassword)
@@ -223,13 +246,19 @@ class mmMySQL():
 			# self.logger.log(str(item), flush = True)
 			return item
 
-	def addItem(self, table):
+	def addItem(self, table, properties):
 		if table in self.CONST.TABLES:
-			# TODO
-			# self.cursor.callproc(table + "_addItem",())
-			# itemId = self.cursor.fetchall()
-			# return True, itemId
-			return False, None
+			# TODO: check properties first (e.g. tubes: unique pin values)
+			self.cursor.callproc(table + "_addItem",properties)
+			data = self.cursor.fetchall()
+			#self.logger.log("data: " + str(data))
+			
+			# TODO: error_exists handling
+			if len(data) > 0 and len(data[0]) > 0 and data[0][0] != "error_exists":
+				self.connection.commit()
+				return True, data[0][0]
+			else:
+				return False, None
 
 	def editItemById(self, table, itemId, data):
 		if table in self.CONST.TABLES:

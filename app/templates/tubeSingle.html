@@ -3,19 +3,25 @@
 <main>
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
+{% if item %}
 			<h1>Tube #{{item[0][0]}} <i class="fas fa-vial"></i></h1>
-
+{% else %}
+			<h1>New Tube <i class="fas fa-vial"></i></h1>
+{% endif %}
 			<div class="my-3">
 				<h4>Pins</h4>
 				<p>All pin fieds are requiered.</p>
 				<form method="post">
+{% if item %}
+					<input type="hidden" name="itemId" value="{{item[0][0]}}">
+{% endif %}
 					<div class="form-row align-items-center">
 						<div class="inputPinNumber col mb-3">
 							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text">A</span>
 								</div>
-								<input type="text" class="form-control" id="pin1" value="{{item[0][1]}}">
+								<input type="text" class="form-control" id="pin1" name="pin1" value="{% if item %}{{item[0][1]}}{% endif %}">
 							</div>
 						</div>
 						<div class="inputPinNumber col mb-3">
@@ -23,7 +29,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text">B</span>
 								</div>
-								<input type="text" class="form-control" id="pin2" value="{{item[0][2]}}">
+								<input type="text" class="form-control" id="pin2" name="pin2" value="{% if item %}{{item[0][2]}}{% endif %}">
 							</div>
 						</div>
 						<div class="inputPinNumber col mb-3">
@@ -31,7 +37,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text">C</span>
 								</div>
-								<input type="text" class="form-control" id="pin3" value="{{item[0][3]}}">
+								<input type="text" class="form-control" id="pin3" name="pin3" value="{% if item %}{{item[0][3]}}{% endif %}">
 							</div>
 						</div>
 						<div class="inputPinNumber col mb-3">
@@ -39,14 +45,14 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text">D</span>
 								</div>
-								<input type="text" class="form-control" id="pin4" value="{{item[0][4]}}">
+								<input type="text" class="form-control" id="pin4" name="pin4" value="{% if item %}{{item[0][4]}}{% endif %}">
 							</div>
 						</div>
 					</div>
-					<button name="cmd" value="edit" class="btn btn-primary btn-lg btn-block">Save</button>
+					<button name="cmd" value="{% if item %}edit{% else %}add{% endif %}" class="btn btn-primary btn-lg btn-block">Save</button>
 				</form>
 			</div>
-
+{% if item %}
 			<div class="my-3">
 				<h4>Filling</h4>
 				<p>Lorem ipsum</p>
@@ -55,7 +61,7 @@
 			<div class="my-3">
 				<h4>Test</h4>
 				<p>
-						<a id="buttonStepper{{item[0]}}Rot" class="btn btn-lg btn-success btn-lg btn-block" href="#" role="button" aria-pressed="true" onclick="cmd = {'stepper':{'id':{{item[0][0]}},'steps':10}}; mmAjaxStatus(JSON.stringify(cmd));">Rotate 10 Steps</a>
+						<a id="buttonStepper{{item[0][0]}}Rot" class="btn btn-lg btn-success btn-lg btn-block" href="#" role="button" aria-pressed="true" onclick="cmd = {'stepper':{'id':{{item[0][0]}},'steps':10}}; mmAjaxStatus(JSON.stringify(cmd));">Rotate 10 Steps</a>
 				</p>
 			</div>
 			
@@ -65,6 +71,7 @@
 					<button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">Delete Tube #{{item[0][0]}}</button>
 				</form>
 			</div>
+{% endif %}
 		</div>
 	</div> 
 </main>
