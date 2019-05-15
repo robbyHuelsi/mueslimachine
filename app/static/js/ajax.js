@@ -1,10 +1,10 @@
 isLiveLoadOn = false;
 notificationId = 0;
-requestId = 0;
+request_id = 0;
 requestTimes = {};
 
 function mmAjax(site, data) {
-	this.requestId++;
+	this.request_id++;
 	// TODO: Find better solution than overwriting web server status or not overwriting it when offline
 	this.updateWebServerStatus(null);
 
@@ -19,8 +19,8 @@ function mmAjax(site, data) {
 	}
 	req.open('POST', "/" + site, true);
 	req.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
-	req.send("id=" + this.requestId + "&" + data);
-	this.requestTimes[this.requestId] = Date.now();
+	req.send("request_id=" + this.request_id + "&" + data);
+	this.requestTimes[this.request_id] = Date.now();
 }
 
 function mmAjaxStatus(cmd) {
@@ -83,7 +83,7 @@ function responseHandler(res){
 		fullStatusJsonTextElement.innerHTML = JSON.stringify(res);
 	}
 
-	this.updateWebServerStatus(res.requestId);
+	this.updateWebServerStatus(res.request_id);
 	
 	for(var obj in res){
 		if(obj == "notification"){
@@ -97,30 +97,30 @@ function responseHandler(res){
 			this.updateDatabaseStatus(res.database);
 		}else if(obj == "arduino"){
 			this.updateArduinoStatus(res.arduino);
-		}else if(obj == "gpioin"){
-			for (var gpioin in res[obj]){
-				if(res[obj][gpioin].name == "Scale"){
+		}else if(obj == "gpio_in"){
+			for (var gpio_in in res[obj]){
+				if(res[obj][gpio_in].name == "Scale"){
 					// Waage
 					var inputTextScaleWeight = document.getElementById("inputTextScaleWeight");
 					if(inputTextScaleWeight != null){
-						inputTextScaleWeight.value = res[obj][gpioin].value;
+						inputTextScaleWeight.value = res[obj][gpio_in].value;
 					}
 				}
 			}
-		}else if(obj == "gpioout"){
+		}else if(obj == "gpio_out"){
 			
 		}
 	}
 }
 
-function updateWebServerStatus(requestId){
+function updateWebServerStatus(request_id){
 	// Show response time on status page
 	var indicatorInnerHTML = "";
 	var statusInnerHTML = "";
-	if (requestId && requestId in this.requestTimes) {
+	if (request_id && request_id in this.requestTimes) {
 		//console.log(this.requestTimes)
-		var responseTime = Date.now() - this.requestTimes[requestId];
-		delete this.requestTimes[requestId];
+		var responseTime = Date.now() - this.requestTimes[request_id];
+		delete this.requestTimes[request_id];
 		indicatorInnerHTML = "<i class='fas fa-server text-success' aria-hidden='true'></i>";
 		statusInnerHTML = " &mdash; response time: " + responseTime + " ms";
 	}else{

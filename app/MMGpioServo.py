@@ -2,19 +2,19 @@ import RPi.GPIO as GPIO
 import threading
 import time
 
-from mmGpio import mmGpioOut
+from MMGpio import MMGpioOut
 
 
-class mmGpioServo(mmGpioOut):   
+class MMGpioServo(MMGpioOut):
     t = None
     
     def __init__(self, pin, name, mmStatus):
-        mmGpioOut.__init__(self, pin, name, mmStatus)
+        MMGpioOut.__init__(self, pin, name, mmStatus)
         self.t = threading.Thread(target=self.__doit, args=(pin,)) 
 
     def __del__(self):
         self.off()
-        mmGpioOut.__del__(self)
+        MMGpioOut.__del__(self)
         
     def on(self):
         self.t.start()

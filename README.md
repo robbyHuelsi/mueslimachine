@@ -11,5 +11,5 @@ project work in progress - also readme...
 2. Change MySQL root password in `.env` file! Here you can also change web app, database port and database name.
 3. Let create containers via Docker Compose: `docker-compose up`
     * Container **mmApp** for Python Plesk web app
-    * Container **mmMySQL** for MySQL database
-      - mmMySQL container creates a `db/ folder for MySQL files
+    * Container **MMMySql** for MySQL database
+      - MMMySql container creates a `db/ folder for MySQL files

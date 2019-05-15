@@ -25,9 +25,9 @@
 					<span class="navbar-toggler-icon"></span>
 				</button>
 				{% if session['username'] %}
-					{{nav.mmTopNavLoggedIn.render(renderer='mmTopNavRenderer')}}
+					{{nav.mmTopNavLoggedIn.render(renderer='MMTopNavRenderer')}}
 				{% else %}
-					{{nav.mmTopNavLoggedOut.render(renderer='mmTopNavRenderer')}}
+					{{nav.mmTopNavLoggedOut.render(renderer='MMTopNavRenderer')}}
 				{% endif %}
 			</nav>
 			

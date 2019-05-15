@@ -1,7 +1,7 @@
 version: "3"
 services:
     app:
-        container_name: mmApp
+        container_name: Muesli_Machine_App
         build: ./app
         ports:
             - ${APP_PORT}:80
@@ -13,7 +13,7 @@ services:
             DB_NAME: ${DB_NAME}
 
     db:
-        container_name: mmMySQL
+        container_name: Muesli_Machine_MySQL
         image: mysql:5.7
         restart: always
         ports:
