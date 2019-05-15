@@ -6,12 +6,12 @@
 			<h1>Sign Up</h1>
 			
 			<div class="my-3">
-				<form class="form-signin" id="formSignUp">
-					<label for="inputFirstname" class="sr-only">Name</label>
-					<input type="name" name="inputFirstname" id="inputFirstname" class="form-control mb-2" placeholder="Firstname" autofocus>
+				<form class="form-signup" method="post">
+					<label for="inputFirstName" class="sr-only">Name</label>
+					<input type="name" name="inputFirstName" id="inputFirstName" class="form-control mb-2" placeholder="First Name" autofocus>
 					
-					<label for="inputLastname" class="sr-only">Name</label>
-					<input type="name" name="inputLastname" id="inputLastname" class="form-control mb-4" placeholder="Lastname">
+					<label for="inputLastName" class="sr-only">Name</label>
+					<input type="name" name="inputLastName" id="inputLastName" class="form-control mb-4" placeholder="Last Name">
 					
 					<div class="input-group mb-2">
 						<div class="input-group-prepend">
@@ -40,7 +40,7 @@
 						<input type="password" name="inputPassword" id="inputPassword" class="form-control" placeholder="Password" required>
 					</div>
 					
-					<button id="buttonSignUp" class="btn btn-lg btn-primary btn-block" type="button" onclick="mmAjaxSignUp(document.getElementById('formSignUp'))">Sign Up</button>
+                    <button type="submit" value=signup class="btn btn-lg btn-primary btn-block">Sign Up</button>
 				</form>
 			
 				<p class="mt-4">

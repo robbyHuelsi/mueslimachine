@@ -70,6 +70,9 @@ class MMFlaskViewDefaultRenderer(MethodView):
             return render_template(self.templateName)
 
     def post(self):
+        if self.endpoint_name == "signup":
+            return self.signup()
+
         if self.endpoint_name == "login":
             return self.login()
 
@@ -78,6 +81,28 @@ class MMFlaskViewDefaultRenderer(MethodView):
 
         else:
             return ""
+
+    def signup(self):
+        in_first_name = request.form.get("inputFirstName")
+        in_last_name = request.form.get("inputLastName")
+        in_username = request.form.get("inputUsername")
+        in_email = request.form.get("inputEmail")
+        in_password = request.form.get("inputPassword")
+        in_role = "admin"
+
+        tbl = self.mm.mySQL.get_tbl_names().TBL_USER
+        properties = (in_username, in_first_name,
+                      in_last_name, in_password,
+                      in_email, in_role)
+        success, item, err_msg = self.mm.mySQL.add_item(tbl, properties)
+        if success:
+            session['username'] = in_username
+            return redirect(url_for('index'))
+        else:
+            # TODO: Rewrite error messages
+            self.mm.status.add_one_time_notification_error(err_msg)
+
+        return redirect(url_for('signup'))
 
     def login(self):
         in_username = request.form['inputUsername']
@@ -134,7 +159,7 @@ class MMFlaskViewForItemsRenderer(MethodView):
             self.mm.logger.log("Adding " + self.endpoint_name + "...")
 
             # Get properties of new item from page
-            if self.endpoint_name == "user":
+            if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_USER:
                 in_first_name = request.form.get("inputFirstName")
                 in_last_name = request.form.get("inputLastName")
                 in_username = request.form.get("inputUsername")
@@ -142,7 +167,7 @@ class MMFlaskViewForItemsRenderer(MethodView):
                 in_password = request.form.get("inputPassword")
                 in_role = "admin"
                 properties = (in_username, in_first_name, in_last_name, in_password, in_email, in_role)
-            elif self.endpoint_name == "tube":
+            elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_TUBE:
                 properties = (request.form.get("pin1"), request.form.get("pin2"),
                               request.form.get("pin3"), request.form.get("pin4"))
             else:
@@ -153,14 +178,15 @@ class MMFlaskViewForItemsRenderer(MethodView):
 
             # If properties are available, add new item
             if len(properties) > 0:
-                success, item_id = self.mm.mySQL.add_item(self.endpoint_name, properties)
+                success, item_id, err_msg = self.mm.mySQL.add_item(self.endpoint_name, properties)
 
             # If adding new item was successful go to its single page or if not go to list page
             if success:
                 self.mm.logger.log("item_id : " + str(item_id))
                 return redirect(url_for(self.endpoint_name) + str(item_id) + "/")
             else:
-                self.mm.status.add_one_time_notification_error("Adding " + self.endpoint_name.title() + " failed.")
+                self.mm.status.add_one_time_notification_error("Adding " + self.endpoint_name.title() + " failed. " +
+                                                               err_msg)
                 return redirect(url_for(self.endpoint_name))
 
         elif cmd == "edit":
@@ -249,18 +275,4 @@ class MMFlaskViewAjaxSignUp(View):
         super().__init__()
 
     def dispatch_request(self):
-        in_first_name = request.form.get("inputFirstName")
-        in_last_name = request.form.get("inputLastName")
-        in_username = request.form.get("inputUsername")
-        in_email = request.form.get("inputEmail")
-        in_password = request.form.get("inputPassword")
-        in_role = "admin"
-
-        if in_username and in_email and in_password:
-            msg = self.mm.mySQL.user_create_user(in_username, in_first_name, in_last_name,
-                                                 in_password, in_email, in_role)
-            self.mm.logger.log(msg)
-        else:
-            self.mm.status.add_one_time_notification_warning("Enter all required fields")
-
         return jsonify(self.mm.status.get_status())
