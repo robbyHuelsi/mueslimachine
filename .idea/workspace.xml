@@ -2,20 +2,38 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2cc6d79a-8236-4e24-83f7-9625480e077a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/roberthulsmann.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/mueslimachine-docker.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.idea/app.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.idea/vcs.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/MMArduino.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/MMFlask/MMFlask.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/MMFlask/MMFlaskNav.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/MMGpio.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/app/MMLogger.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/MMMySql.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/MMStatus.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/app/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/app/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/app.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/mmArduino.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/MMArduino.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/mmFlask/mmFlask.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/MMFlask/MMFlask.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/mmFlask/mmFlaskNav.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/MMFlask/MMFlaskNav.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/mmGpio.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/MMGpio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mmArduino.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mmFlask/mmFlask.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mmFlask/mmFlaskNav.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mmGpio.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/mmGpioServo.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/MMGpioServo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/mmLogger.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/mmMySQL.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/MMMySql.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mmMySQL.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/mmPyDevD.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/mmStatus.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/MMStatus.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/mmStatus.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/mmWebserver.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/app/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/app/readme.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/static/js/ajax.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/static/js/ajax.js" afterDir="false" />
@@ -55,11 +73,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/MMMySql.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="199">
-              <caret line="248" column="10" selection-start-line="248" selection-start-column="10" selection-end-line="248" selection-end-column="10" />
+            <state relative-caret-position="140">
+              <caret line="270" column="42" lean-forward="true" selection-start-line="270" selection-start-column="42" selection-end-line="270" selection-end-column="42" />
               <folding>
                 <element signature="e#0#32#0" expanded="true" />
               </folding>
@@ -81,6 +99,18 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="495">
               <caret line="33" column="21" selection-start-line="33" selection-start-column="21" selection-end-line="33" selection-end-column="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/MMGpioServo.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="480">
+              <caret line="32" column="31" lean-forward="true" selection-start-line="32" selection-start-column="31" selection-end-line="32" selection-end-column="31" />
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -154,7 +184,6 @@
         <option value="$PROJECT_DIR$/app/MM_Logger.py" />
         <option value="$PROJECT_DIR$/app/app.py" />
         <option value="$PROJECT_DIR$/app/MMLogger.py" />
-        <option value="$PROJECT_DIR$/app/MMGpioServo.py" />
         <option value="$PROJECT_DIR$/app/__init__.py" />
         <option value="$PROJECT_DIR$/app/Dockerfile" />
         <option value="$PROJECT_DIR$/docker-compose.yml" />
@@ -166,6 +195,7 @@
         <option value="$PROJECT_DIR$/app/templates/tubeSingle.html" />
         <option value="$PROJECT_DIR$/app/MMFlask/MMFlask.py" />
         <option value="$PROJECT_DIR$/app/MMMySql.py" />
+        <option value="$PROJECT_DIR$/app/MMGpioServo.py" />
       </list>
     </option>
   </component>
@@ -209,12 +239,6 @@
               <item name="app" type="462c0819:PsiDirectoryNode" />
               <item name="MMFlask" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="mueslimachine-docker" type="b2602c69:ProjectViewProjectNode" />
-              <item name="mueslimachine-docker" type="462c0819:PsiDirectoryNode" />
-              <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="templates" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -223,6 +247,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
@@ -270,12 +295,12 @@
       <updated>1556660066456</updated>
       <workItem from="1556660069596" duration="5694000" />
       <workItem from="1557090247407" duration="562000" />
-      <workItem from="1557908769223" duration="11765000" />
+      <workItem from="1557908769223" duration="12007000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="18021000" />
+    <option name="totallyTimeSpent" value="18263000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -290,7 +315,7 @@
     <frame x="1440" y="0" width="2560" height="1440" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14138205" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14138205" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -300,7 +325,7 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32920355" />
-      <window_info active="true" anchor="bottom" id="Docker" order="7" visible="true" weight="0.32919708" />
+      <window_info anchor="bottom" id="Docker" order="7" visible="true" weight="0.32919708" />
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
@@ -394,16 +419,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/MMGpioServo.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="14" column="3" selection-start-line="14" selection-start-column="3" selection-end-line="14" selection-end-column="3" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/testnav.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="375">
@@ -411,13 +426,6 @@
           <folding>
             <element signature="e#0#40#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/MMStatus.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="33" column="21" selection-start-line="33" selection-start-column="21" selection-end-line="33" selection-end-column="21" />
         </state>
       </provider>
     </entry>
@@ -474,10 +482,27 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/MMMySql.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="199">
-          <caret line="248" column="10" selection-start-line="248" selection-start-column="10" selection-end-line="248" selection-end-column="10" />
+        <state relative-caret-position="140">
+          <caret line="270" column="42" lean-forward="true" selection-start-line="270" selection-start-column="42" selection-end-line="270" selection-end-column="42" />
           <folding>
             <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/MMStatus.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="33" column="21" selection-start-line="33" selection-start-column="21" selection-end-line="33" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/MMGpioServo.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="32" column="31" lean-forward="true" selection-start-line="32" selection-start-column="31" selection-end-line="32" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
           </folding>
         </state>
       </provider>
