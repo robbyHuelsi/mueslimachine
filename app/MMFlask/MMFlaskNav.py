@@ -12,7 +12,8 @@ class MMFlaskNav:
         self.nav.register_element('mmTopNavLoggedOut', self.mm_top_nav(False))
         register_renderer(app, 'MMTopNavRenderer', MMTopNavRenderer)
 
-    def mm_top_nav(self, logged_in):
+    @staticmethod
+    def mm_top_nav(logged_in):
         items = [View('Recipes', 'recipe'),
                  View('Ingredients', 'ingredient'),
                  View('Tubes', 'tube'),

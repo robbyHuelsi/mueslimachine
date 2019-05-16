@@ -1,7 +1,49 @@
 {% include "header.html" %}
 
 <main>
-        
+
+	<div class="jumbotron jumbotron-fluid">
+		<div class="container">
+			<h1>List of Users <i class="fas fa-users"></i></h1>
+
+			<div class="my-3">
+{% if items|length > 0 %}
+				<table class="table table-hover">
+					<thead>
+						<tr>
+							<th scope="col" class="align-middle">ID</th>
+							<th scope="col" class="align-middle">Name</th>
+							<th scope="col" class="align-middle">Email</th>
+                            <th scope="col" class="align-middle">Role</th>
+							<th scope="col" class="align-middle"></th>
+						</tr>
+					</thead>
+					<tbody>
+{% for item in items %}
+						<tr>
+							<th scope="row" class="align-middle">{{item[0]}}</th>
+							<td class="align-middle">
+                                <span class="text-dark">{{item[1]}} </span>
+                                <span class="text-secondary">({{item[2]}} {{item[3]}})</span>
+							</td>
+							<td class="align-middle">{{item[5]}}</td>
+                            <td class="align-middle">{{item[6]}}</td>
+							<td class="align-middle">
+								<a class="btn btn-primary btn-sm" href="{{item[0]}}/" role="button">Edit</a>
+							</td>
+						</tr>
+{% endfor %}
+				</tbody>
+			</table>
+{% else %}
+			<p>No user registered.</p>
+{% endif %}
+			<div class="my-3">
+				<a class="btn btn-success btn-lg btn-block" href="add/" role="button">Add User</a>
+			</div>
+		</div>
+	</div>
+
 </main>
- 
+
 {% include "footer.html" %}

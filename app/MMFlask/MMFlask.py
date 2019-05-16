@@ -32,8 +32,6 @@ class MMFlask(Flask):
 
         self.add_url_rule('/ajaxStatus', methods=['POST'],
                           view_func=MMFlaskViewAjaxStatus.as_view('flaskAjaxStatus', muesli_machine=self.mm))
-        self.add_url_rule('/ajaxSignUp', methods=['POST'],
-                          view_func=MMFlaskViewAjaxSignUp.as_view('flaskAjaxSignUp', muesli_machine=self.mm))
 
         # TODO: Keep this really secret:
         self.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
@@ -66,6 +64,10 @@ class MMFlaskViewDefaultRenderer(MethodView):
             return self.logout()
         elif self.endpoint_name == "status":
             return render_template(self.templateName, status=self.mm.status.get_status())
+        elif self.endpoint_name == "signup":
+            first_name, last_name, username, email = session.pop("signup_inputs", ("", "", "", ""))
+            return render_template(self.templateName, first_name=first_name, last_name=last_name,
+                                   username=username, email=email)
         else:
             return render_template(self.templateName)
 
@@ -83,12 +85,18 @@ class MMFlaskViewDefaultRenderer(MethodView):
             return ""
 
     def signup(self):
-        in_first_name = request.form.get("inputFirstName")
-        in_last_name = request.form.get("inputLastName")
-        in_username = request.form.get("inputUsername")
-        in_email = request.form.get("inputEmail")
-        in_password = request.form.get("inputPassword")
+        in_first_name = request.form.get("first_name")
+        in_last_name = request.form.get("last_name")
+        in_username = request.form.get("username")
+        in_email = request.form.get("email")
+        in_password = request.form.get("password")
+        in_password_confirm = request.form.get("password_confirm")
         in_role = "admin"
+
+        if in_password != in_password_confirm:
+            self.mm.status.add_one_time_notification_error("Confirmed password was different")
+            session["signup_inputs"] = (in_first_name, in_last_name, in_username, in_email)
+            return redirect(url_for('signup'))
 
         tbl = self.mm.mySQL.get_tbl_names().TBL_USER
         properties = (in_username, in_first_name,
@@ -102,20 +110,24 @@ class MMFlaskViewDefaultRenderer(MethodView):
             # TODO: Rewrite error messages
             self.mm.status.add_one_time_notification_error(err_msg)
 
+        session["signup_inputs"] = (in_first_name, in_last_name, in_username, in_email)
         return redirect(url_for('signup'))
 
     def login(self):
-        in_username = request.form['inputUsername']
-        in_password = request.form['inputPassword']
+        in_username = request.form['username']
+        in_password = request.form['password']
 
         if in_username and in_password:
             if self.mm.mySQL.user_check_user_password(in_username, in_password):
                 session['username'] = in_username
                 return redirect(url_for('index'))
+            else:
+                self.mm.status.add_one_time_notification_error("Login failed!")
 
         return redirect(url_for('login'))
 
-    def logout(self):
+    @staticmethod
+    def logout():
         if 'username' in session:
             session.pop('username', None)
         return redirect(url_for('index'))
@@ -160,11 +172,11 @@ class MMFlaskViewForItemsRenderer(MethodView):
 
             # Get properties of new item from page
             if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_USER:
-                in_first_name = request.form.get("inputFirstName")
-                in_last_name = request.form.get("inputLastName")
-                in_username = request.form.get("inputUsername")
-                in_email = request.form.get("inputEmail")
-                in_password = request.form.get("inputPassword")
+                in_first_name = request.form.get("first_name")
+                in_last_name = request.form.get("last_name")
+                in_username = request.form.get("username")
+                in_email = request.form.get("email")
+                in_password = "password"
                 in_role = "admin"
                 properties = (in_username, in_first_name, in_last_name, in_password, in_email, in_role)
             elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_TUBE:
@@ -180,14 +192,14 @@ class MMFlaskViewForItemsRenderer(MethodView):
             if len(properties) > 0:
                 success, item_id, err_msg = self.mm.mySQL.add_item(self.endpoint_name, properties)
 
-            # If adding new item was successful go to its single page or if not go to list page
-            if success:
-                self.mm.logger.log("item_id : " + str(item_id))
-                return redirect(url_for(self.endpoint_name) + str(item_id) + "/")
-            else:
-                self.mm.status.add_one_time_notification_error("Adding " + self.endpoint_name.title() + " failed. " +
-                                                               err_msg)
-                return redirect(url_for(self.endpoint_name))
+                # If adding new item was successful go to its single page or if not go to list page
+                if success:
+                    self.mm.logger.log("item_id : " + str(item_id))
+                    return redirect(url_for(self.endpoint_name) + str(item_id) + "/")
+                else:
+                    self.mm.status.add_one_time_notification_error("Adding " + self.endpoint_name.title() + " failed. "
+                                                                   + err_msg)
+            return redirect(url_for(self.endpoint_name))
 
         elif cmd == "edit":
             if item_id is not None:
@@ -267,12 +279,3 @@ class MMFlaskViewAjaxStatus(View):
 
         # self.mm.logger.log(scale.getAverage())
         return jsonify(self.mm.status.get_status(request_id))
-
-
-class MMFlaskViewAjaxSignUp(View):
-    def __init__(self, muesli_machine):
-        self.mm = muesli_machine
-        super().__init__()
-
-    def dispatch_request(self):
-        return jsonify(self.mm.status.get_status())

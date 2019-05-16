@@ -9,43 +9,43 @@
 			<h1>New Tube <i class="fas fa-vial"></i></h1>
 {% endif %}
 			<div class="my-3">
-				<h4>Pins</h4>
+				<h4>{% if item %}Edit{% else %}Set{% endif %} Pins</h4>
 				<p>All pin fieds are requiered.</p>
 				<form method="post">
 {% if item %}
 					<input type="hidden" name="item_id" value="{{item[0][0]}}">
 {% endif %}
 					<div class="form-row align-items-center">
-						<div class="inputPinNumber col mb-3">
+						<div class="inputPinNumber col mb-2">
 							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text">A</span>
 								</div>
-								<input type="text" class="form-control" id="pin1" name="pin1" value="{% if item %}{{item[0][1]}}{% endif %}">
+								<input type="text" class="form-control" id="input_pin_1" name="pin_1" value="{% if item %}{{item[0][1]}}{% endif %}">
 							</div>
 						</div>
-						<div class="inputPinNumber col mb-3">
+						<div class="inputPinNumber col mb-2">
 							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text">B</span>
 								</div>
-								<input type="text" class="form-control" id="pin2" name="pin2" value="{% if item %}{{item[0][2]}}{% endif %}">
+								<input type="text" class="form-control" id="input_pin_2" name="pin_2" value="{% if item %}{{item[0][2]}}{% endif %}">
 							</div>
 						</div>
-						<div class="inputPinNumber col mb-3">
+						<div class="inputPinNumber col mb-2">
 							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text">C</span>
 								</div>
-								<input type="text" class="form-control" id="pin3" name="pin3" value="{% if item %}{{item[0][3]}}{% endif %}">
+								<input type="text" class="form-control" id="input_pin_3" name="pin_3" value="{% if item %}{{item[0][3]}}{% endif %}">
 							</div>
 						</div>
-						<div class="inputPinNumber col mb-3">
+						<div class="inputPinNumber col mb-2">
 							<div class="input-group">
 								<div class="input-group-prepend">
 									<span class="input-group-text">D</span>
 								</div>
-								<input type="text" class="form-control" id="pin4" name="pin4" value="{% if item %}{{item[0][4]}}{% endif %}">
+								<input type="text" class="form-control" id="input_pin_4" name="pin_4" value="{% if item %}{{item[0][4]}}{% endif %}">
 							</div>
 						</div>
 					</div>

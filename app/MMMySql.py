@@ -296,7 +296,7 @@ class MMMySql:
             self.cursor.callproc(table + "_getItemById", (item_id,))
             item = self.cursor.fetchall()
             if len(item) == 1:
-                # TODO: data...
+                # TODO: Implement editing item (Take care at user: password!)
                 # self.cursor.callproc(table + "_editItemById",(item_id,...))
                 # return True
                 return False
@@ -330,7 +330,7 @@ class MMMySql:
                 success = False
                 err_msg += "role_empty;"
             elif role not in ["pending", "user", "admin"]:
-                uccess = False
+                success = False
                 err_msg += "role_wrong;"
 
             if not password:
@@ -350,7 +350,7 @@ class MMMySql:
         elif table == self.CONST_TBL_NAMES.TBL_IR:
             pass  # TODO: Check all properties
 
-        return True, properties, err_msg
+        return success, properties, err_msg
 
     def get_tbl_names(self):
         return self.CONST_TBL_NAMES

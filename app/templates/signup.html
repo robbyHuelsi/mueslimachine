@@ -7,37 +7,91 @@
 			
 			<div class="my-3">
 				<form class="form-signup" method="post">
-					<label for="inputFirstName" class="sr-only">Name</label>
-					<input type="name" name="inputFirstName" id="inputFirstName" class="form-control mb-2" placeholder="First Name" autofocus>
-					
-					<label for="inputLastName" class="sr-only">Name</label>
-					<input type="name" name="inputLastName" id="inputLastName" class="form-control mb-4" placeholder="Last Name">
-					
+					<label for="input_first_name" class="sr-only">Name</label>
+					<input
+                            type="name"
+                            name="first_name"
+                            id="input_first_name"
+                            class="form-control mb-2"
+                            placeholder="First Name"
+                            autocomplete="given-name"
+                            value="{{first_name}}"
+                            autofocus>
+
+					<label for="input_last_name" class="sr-only">Name</label>
+					<input
+                            type="name"
+                            name="last_name"
+                            id="input_last_name"
+                            class="form-control mb-4"
+                            placeholder="Last Name"
+                            autocomplete="family-name"
+                            value="{{last_name}}">
+
 					<div class="input-group mb-2">
 						<div class="input-group-prepend">
 							<div class="input-group-text">
 								<i class="fa fa-star" aria-hidden="true"></i>
 							</div>
 						</div>
-						<input type="name" name="inputUsername" id="inputUsername" class="form-control" placeholder="Username" required>
+						<input
+                                type="name"
+                                name="username"
+                                id="input_username"
+                                class="form-control"
+                                placeholder="Username"
+                                autocomplete="nickname"
+                                value="{{username}}"
+                                required>
 					</div>
-					
+
 					<div class="input-group mb-4">
 						<div class="input-group-prepend">
 							<div class="input-group-text">
 								<i class="fa fa-star" aria-hidden="true"></i>
 							</div>
 						</div>
-						<input type="email" name="inputEmail" id="inputEmail" class="form-control" placeholder="Email Address" required>
+						<input
+                                type="email"
+                                name="email"
+                                id="input_email"
+                                class="form-control"
+                                placeholder="Email Address"
+                                autocomplete="email"
+                                value="{{email}}"
+                                required>
 					</div>
-					
-					<div class="input-group mb-4">
+
+					<div class="input-group mb-2">
 						<div class="input-group-prepend">
 							<div class="input-group-text">
 								<i class="fa fa-star" aria-hidden="true"></i>
 							</div>
 						</div>
-						<input type="password" name="inputPassword" id="inputPassword" class="form-control" placeholder="Password" required>
+						<input
+                                type="password"
+                                name="password"
+                                id="input_password"
+                                class="form-control"
+                                placeholder="Password"
+                                autocomplete="new-password"
+                                required>
+					</div>
+
+                    <div class="input-group mb-4">
+						<div class="input-group-prepend">
+							<div class="input-group-text">
+								<i class="fa fa-star" aria-hidden="true"></i>
+							</div>
+						</div>
+						<input
+                                type="password"
+                                name="password_confirm"
+                                id="input_password_confirm"
+                                class="form-control"
+                                placeholder="Confirm Password"
+                                autocomplete="new-password"
+                                required>
 					</div>
 					
                     <button type="submit" value=signup class="btn btn-lg btn-primary btn-block">Sign Up</button>
