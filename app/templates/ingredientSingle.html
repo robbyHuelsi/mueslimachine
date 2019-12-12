@@ -1,7 +1,92 @@
 {% include "header.html" %}
 
 <main>
-        
+        <div class="jumbotron jumbotron-fluid">
+		<div class="container">
+{% if item %}
+			<h1>Edit Ingredient <i class="fas fa-apple-alt"></i></h1>
+            <div class="my-3">
+				<p>Id: {{item[0][0]}}</p>
+            </div>
+{% else %}
+			<h1>New Ingredient <i class="fas fa-apple-alt"></i></h1>
+{% endif %}
+
+            <div class="my-3">
+                <h4>{% if item %}Edit{% else %}Set{% endif %} properties</h4>
+				<form method="post">
+{% if item %}
+                    <input type="hidden" name="item_id" value="{{item[0][0]}}">
+{% endif %}
+                    <label for="input_name" class="sr-only">Name</label>
+                    <div class="input-group mb-2">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                <i class="fa fa-star" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <input
+                                type="test"
+                                name="name"
+                                id="input_name"
+                                class="form-control"
+                                placeholder="Name"
+                                autocomplete="off"
+                                value="{% if item %}{{item[0][1]}}{% endif %}"
+                                autofocus
+                                required>
+                    </div>
+                    <label for="input_price" class="sr-only">Price</label>
+                    <input
+                            type="number"
+                            name="price"
+                            id="input_price"
+                            class="form-control mb-2"
+                            placeholder="0.00"
+                            min="0"
+                            step="0.01"
+                            value="{% if item %}{{item[0][2]}}{% endif %}">
+                    <label for="input_tube" class="sr-only">Tube</label>
+                    <select
+                            name="tube"
+                            id="input_tube"
+                            class="form-control mb-2">
+                        <option value="?" selected>Tube #?</option>
+                    </select>
+                    <label for="input_glutenfree" class="sr-only">Glutenfree</label>
+                    <input
+                            type="checkbox"
+                            name="glutenfree"
+                            id="input_glutenfree"
+                            class="form-control mb-2"
+                            {% if item and item[0][4] %}checked{% endif %}>
+                    <label for="input_lactosefree" class="sr-only">Glutenfree</label>
+                    <input
+                            type="checkbox"
+                            name="lactosefree"
+                            id="input_lactosefree"
+                            class="form-control mb-2"
+                            {% if item and item[0][5] %}checked{% endif %}>
+                    <button name="cmd" value="{% if item %}edit{% else %}add{% endif %}" class="btn btn-primary btn-lg btn-block">Save</button>
+                </form>
+                <p class="mt-2">
+					<i class="fa fa-star" aria-hidden="true"></i> Requiered
+				</p>
+			</div>
+            <div class="my-3">
+				<h4>Motor Tuning</h4>
+				<p>Not implemented yet</p>
+			</div>
+{% if item %}
+			<div class="my-3">
+				<h4>Danger Zone</h4>
+				<form method="post">
+					<button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">Delete {{item[0][1]}}</button>
+				</form>
+			</div>
+{% endif %}
+		</div>
+	</div>
 </main>
  
 {% include "footer.html" %}

@@ -182,6 +182,14 @@ class MMFlaskViewForItemsRenderer(MethodView):
             elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_TUBE:
                 properties = (request.form.get("pin1"), request.form.get("pin2"),
                               request.form.get("pin3"), request.form.get("pin4"))
+            elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
+                in_name = request.form.get("name")
+                in_price = request.form.get("price")
+                in_tube = request.form.get("tube")
+                in_glutenfree = request.form.get("glutenfree")
+                in_lactosefree = request.form.get("lactosefree")
+                in_motortuning = ""
+                properties = (in_name, in_price, in_tube, in_glutenfree, in_lactosefree, in_motortuning)
             else:
                 properties = ()
 
