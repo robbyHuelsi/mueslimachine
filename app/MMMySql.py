@@ -1,4 +1,4 @@
-from flaskext.mysql import MySQL
+from flask_mysqldb import MySQL
 from werkzeug import security as sec
 import threading
 import time
@@ -47,29 +47,28 @@ class MMMySql:
         self.mm_status = mm_status
         self.status = None
 
-        self.connection = None
+        # self.connection = None
 
         self.CONST_TBL_NAMES = _ConstTableNames()
         self.set_status(0)  # 0 => disconnected / 1 => connecting / 2 => setting up / 3 => connected
         self.cursor = None
-        self.mysql = MySQL()
-        flask.config['MYSQL_DATABASE_HOST'] = host
-        flask.config['MYSQL_DATABASE_PORT'] = port
-        flask.config['MYSQL_DATABASE_USER'] = user
-        flask.config['MYSQL_DATABASE_PASSWORD'] = password
+        flask.config['MYSQL_HOST'] = host
+        flask.config['MYSQL_PORT'] = port
+        flask.config['MYSQL_USER'] = user
+        flask.config['MYSQL_PASSWORD'] = password
+        self.mysql = MySQL(flask)
 
-        self.mysql.init_app(flask)
-
-        connecting_thread = threading.Thread(target=self.connect, args=[db_name, user, host])
+        connecting_thread = threading.Thread(target=self.connect, args=[flask, db_name, user, host])
         connecting_thread.daemon = True
         connecting_thread.start()
 
     def __del__(self):
         if self.status == 2 or self.status == 3:
-            self.connection.close()
+            # self.connection.close()
+            self.cursor.close()
             self.logger.log("MySQL connection closed")
 
-    def connect(self, db_name, user, host):
+    def connect(self, flask, db_name, user, host):
         if self.status == 1:
             self.logger.log_error("Another thread is trying to connect to database")
             return False
@@ -81,15 +80,17 @@ class MMMySql:
             # In case MySQL is not up yet try to connect every 5 seconds
             while True:
                 try:
-                    self.connection = self.mysql.connect()
+                    # self.connection = self.mysql.connect()
+                    with flask.app_context():
+                        self.cursor = self.mysql.connection.cursor()
                     break
                 except Exception as e:
                     self.logger.log_warn(str(e), flush=True)
                     self.logger.log("Wait 5 seconds and try again.", flush=True)
                     time.sleep(5)
             self.set_status(2)
-            self.cursor = self.connection.cursor()
-            self.__check_and_set_up_db(db_name)
+
+            self.__check_and_set_up_db(flask, db_name)
             self.__check_and_set_up_tables(user, host)
             self.set_status(3)
             self.logger.log("Database connected", flush=True)
@@ -104,8 +105,9 @@ class MMMySql:
         self.mm_status.set_database_status(status)
         return True
 
-    def __check_and_set_up_db(self, db_name):
-        self.cursor.execute("SHOW DATABASES")
+    def __check_and_set_up_db(self, flask, db_name):
+        with flask.app_context():
+            self.cursor.execute('''SHOW DATABASES''')
         db_exists = 0
         for (database) in self.cursor:
             if database[0] == db_name:
@@ -144,7 +146,8 @@ class MMMySql:
                                         "user_email VARCHAR(50), " +
                                         "user_role ENUM('pending', 'user', 'admin') NOT NULL DEFAULT 'pending', " +
                                         "user_reg_date TIMESTAMP, " +
-                                        "user_tracking VARCHAR(32500)) ENGINE=INNODB;")
+                                        "user_tracking VARCHAR(32500)" +
+                                        ") ENGINE=INNODB;")
 
                     self.cursor.execute(
                         "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_add_item`(" +
@@ -184,7 +187,8 @@ class MMMySql:
                                         "tube_gpio_1 INT(3) UNSIGNED NOT NULL, " +
                                         "tube_gpio_2 INT(3) UNSIGNED NOT NULL, " +
                                         "tube_gpio_3 INT(3) UNSIGNED NOT NULL, " +
-                                        "tube_gpio_4 INT(3) UNSIGNED NOT NULL) ENGINE=INNODB;")
+                                        "tube_gpio_4 INT(3) UNSIGNED NOT NULL" +
+                                        ") ENGINE=INNODB;")
 
                     self.cursor.execute(
                         "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_add_item`(" +
@@ -208,14 +212,59 @@ class MMMySql:
                         "END;")
 
                 elif table == self.CONST_TBL_NAMES.TBL_INGREDIENT:
-                    self.cursor.execute(
-                        "CREATE TABLE " + table + " (ingredient_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ingredient_name VARCHAR(20), ingredient_price FLOAT(5), ingredient_tube BIGINT UNSIGNED NOT NULL, ingredient_glutenfree BOOL, ingredient_lactosefree BOOL, ingredient_motortuning FLOAT(5), FOREIGN KEY (ingredient_tube) REFERENCES " + self.CONST_TBL_NAMES.TBL_TUBE + "(tube_uid)) ENGINE=INNODB;")
+                    self.cursor.execute("CREATE TABLE " + table + " (" +
+                                        "ingredient_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
+                                        "ingredient_name VARCHAR(20), ingredient_price FLOAT(5), " +
+                                        "ingredient_tube BIGINT UNSIGNED NOT NULL, " +
+                                        "ingredient_glutenfree BOOL, " +
+                                        "ingredient_lactosefree BOOL, " +
+                                        "ingredient_motortuning FLOAT(5), " +
+                                        "FOREIGN KEY (ingredient_tube) " +
+                                        "REFERENCES " + self.CONST_TBL_NAMES.TBL_TUBE + "(tube_uid)) ENGINE=INNODB;")
+
+                    # self.cursor.execute(
+                    #     "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_add_item`(" +
+                    #     "IN in_name VARCHAR(20), " +
+                    #     "IN in_tube BIGINT UNSIGNED, " +  # TODO: Auf vorhandene Tubes checken?
+                    #     "IN in_glutenfree BOOL, " +
+                    #     "IN in_lactosefree BOOL, " +
+                    #     "IN in_motortuning FLOAT(5)) " +
+                    #     "BEGIN " +
+                    #     "IF(select exists(select 1 from " + table + " " +
+                    #     " here ingredient_tube = in_tube)) " +
+                    #     "THEN " +
+                    #     "select 'item_exists'; " +
+                    #     "ELSE IF(select exists(select 1 from " + self.CONST_TBL_NAMES.TBL_TUBE + " " +
+                    #     "where tube_uid = in_tube)) " +
+                    #     "THEN " +
+                    #     "insert into " + table + " (" +
+                    #     "ingredient_name, ingredient_tube, ingredient_glutenfree, " +
+                    #     "ingredient_lactosefree, ingredient_motortuning) " +
+                    #     "values (in_name, in_tube, in_glutenfree, in_lactosefree, in_motortuning); " +
+                    #     "select LAST_INSERT_ID();" +
+                    #     "ELSE " +
+                    #     "select 'tube_not_found'; " +
+                    #     "END If; " +
+                    #     "END;")
+
                 elif table == self.CONST_TBL_NAMES.TBL_RECIPE:
-                    self.cursor.execute(
-                        "CREATE TABLE " + table + " (recipe_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, recipe_name VARCHAR(20), recipe_creator BIGINT UNSIGNED NOT NULL, FOREIGN KEY (recipe_creator) REFERENCES " + self.CONST_TBL_NAMES.TBL_USER + "(user_uid)) ENGINE=INNODB;")
+                    self.cursor.execute("CREATE TABLE " + table + " (" +
+                                        "recipe_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
+                                        "recipe_name VARCHAR(20), " +
+                                        "recipe_creator BIGINT UNSIGNED NOT NULL, " +
+                                        "FOREIGN KEY (recipe_creator) " +
+                                        "REFERENCES " + self.CONST_TBL_NAMES.TBL_USER + "(user_uid)) ENGINE=INNODB;")
                 elif table == self.CONST_TBL_NAMES.TBL_IR:
-                    self.cursor.execute(
-                        "CREATE TABLE " + table + " (ir_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ir_ingredient BIGINT UNSIGNED NOT NULL, ir_recipe BIGINT UNSIGNED NOT NULL, ir_weight FLOAT(5), FOREIGN KEY (ir_ingredient) REFERENCES " + self.CONST_TBL_NAMES.TBL_INGREDIENT + "(ingredient_uid), FOREIGN KEY (ir_recipe) REFERENCES " + self.CONST_TBL_NAMES.TBL_RECIPE + "(recipe_uid)) ENGINE=INNODB;")
+                    self.cursor.execute("CREATE TABLE " + table + " (" +
+                                        "ir_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
+                                        "ir_ingredient BIGINT UNSIGNED NOT NULL, " +
+                                        "ir_recipe BIGINT UNSIGNED NOT NULL, " +
+                                        "ir_weight FLOAT(5), " +
+                                        "FOREIGN KEY (ir_ingredient) " +
+                                        "REFERENCES " + self.CONST_TBL_NAMES.TBL_INGREDIENT + "(ingredient_uid), " +
+                                        "FOREIGN KEY (ir_recipe) " +
+                                        "REFERENCES " + self.CONST_TBL_NAMES.TBL_RECIPE + "(recipe_uid)) " +
+                                        "ENGINE=INNODB;")
 
                 self.cursor.execute(
                     "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_getItems`() " +
@@ -288,7 +337,8 @@ class MMMySql:
             return False, None, "item_exists;"
 
         # Exit with ID of new item, if everything went well
-        self.connection.commit()
+        # self.connection.commit()
+        self.mysql.connection.commit()
         return True, data[0][0], ""
 
     def edit_item_by_id(self, table, item_id, data):
