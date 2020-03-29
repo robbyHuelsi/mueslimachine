@@ -3,7 +3,7 @@ from werkzeug import security as sec
 import threading
 import time
 
-from MMMySQL.MMMySQLCommands import get_sql_command
+from MMMySQL.MMMySQLCommands import get_sql_command, get_sql_command_create_db
 
 
 def constant(f):
@@ -55,10 +55,10 @@ class MMMySql:
         self.set_status(0)  # 0 => disconnected / 1 => connecting / 2 => setting up / 3 => connected
         self.cursor = None
         self.mysql = MySQL()
-        flask.config['MYSQL_DATABASE_HOST'] = host
-        flask.config['MYSQL_DATABASE_PORT'] = port
-        flask.config['MYSQL_DATABASE_USER'] = user
-        flask.config['MYSQL_DATABASE_PASSWORD'] = password
+        flask.config["MYSQL_DATABASE_HOST"] = host
+        flask.config["MYSQL_DATABASE_PORT"] = port
+        flask.config["MYSQL_DATABASE_USER"] = user
+        flask.config["MYSQL_DATABASE_PASSWORD"] = password
 
         self.mysql.init_app(flask)
 
@@ -114,12 +114,11 @@ class MMMySql:
                 db_exists = 1
                 break
         if db_exists:
-            self.cursor.execute('USE ' + db_name)
+            self.cursor.execute("USE " + db_name)
             self.logger.log("Database '" + db_name + "' already exists")
         else:
-            self.cursor.execute("create database if not exists "
-                                + db_name + " DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci")
-            self.cursor.execute('USE ' + db_name)
+            self.cursor.execute(get_sql_command_create_db(db_name))
+            self.cursor.execute("USE " + db_name)
             self.logger.log("Database '" + db_name + "' was created")
 
     def __check_and_set_up_tables(self, user, host):
@@ -143,29 +142,29 @@ class MMMySql:
 
                 elif table == self.CONST_TBL_NAMES.TBL_TUBE:
                     self.cursor.execute(get_sql_command("tube_createTable", user, host, table))
-                    self.cursor.execute(get_sql_command('tube_addItem', user, host, table))
+                    self.cursor.execute(get_sql_command("tube_addItem", user, host, table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_INGREDIENT:
-                    self.cursor.execute(get_sql_command('ingredient_createTable', user, host, table,
+                    self.cursor.execute(get_sql_command("ingredient_createTable", user, host, table,
                                                         self.CONST_TBL_NAMES.TBL_TUBE))
                 elif table == self.CONST_TBL_NAMES.TBL_RECIPE:
-                    self.cursor.execute(get_sql_command('recipe_createTable', user, host, table,
+                    self.cursor.execute(get_sql_command("recipe_createTable", user, host, table,
                                                         self.CONST_TBL_NAMES.TBL_USER))
                 elif table == self.CONST_TBL_NAMES.TBL_IR:
-                    self.cursor.execute(get_sql_command('ir_createTable', user, host, table,
+                    self.cursor.execute(get_sql_command("ir_createTable", user, host, table,
                                                         self.CONST_TBL_NAMES.TBL_INGREDIENT,
                                                         self.CONST_TBL_NAMES.TBL_RECIPE))
 
-                self.cursor.execute(get_sql_command('_getItems', user, host, table))
+                self.cursor.execute(get_sql_command("_getItems", user, host, table))
 
-                self.cursor.execute(get_sql_command('_getItemById', user, host, table))
+                self.cursor.execute(get_sql_command("_getItemById", user, host, table))
 
-                self.cursor.execute(get_sql_command('_deleteItemById', user, host, table))
+                self.cursor.execute(get_sql_command("_deleteItemById", user, host, table))
 
                 self.logger.log("Table '" + table + "' was created")
 
     def user_check_user_password(self, in_username, in_password):
-        self.cursor.callproc('user_getPassword', (in_username,))
+        self.cursor.callproc("user_getPassword", (in_username,))
         hashed_password = self.cursor.fetchall()
         # self.logger.log("Username: " + in_username)
         # self.logger.log("Password: " + in_password)
@@ -175,7 +174,7 @@ class MMMySql:
 
     def get_items(self, table):
         if table in self.CONST_TBL_NAMES.TABLES:
-            self.cursor.callproc(table + '_getItems', ())
+            self.cursor.callproc(table + "_getItems", ())
             items = self.cursor.fetchall()
             # self.logger.log("All items of table " + table + ":", flush = True)
             # self.logger.log(str(items), flush = True)
