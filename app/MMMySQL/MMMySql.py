@@ -3,6 +3,8 @@ from werkzeug import security as sec
 import threading
 import time
 
+from MMMySQL.MMMySQLCommands import get_sql_command
+
 
 def constant(f):
     def fset(self, value):
@@ -135,107 +137,30 @@ class MMMySql:
                 self.logger.log("Table '" + table + "' already exists")
             else:
                 if table == self.CONST_TBL_NAMES.TBL_USER:
-                    self.cursor.execute("CREATE TABLE " + table + " (" +
-                                        "user_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
-                                        "user_username VARCHAR(20), " +
-                                        "user_first_name VARCHAR(50), " +
-                                        "user_last_name VARCHAR(50), " +
-                                        "user_password VARCHAR(100), " +
-                                        "user_email VARCHAR(50), " +
-                                        "user_role ENUM('pending', 'user', 'admin') NOT NULL DEFAULT 'pending', " +
-                                        "user_reg_date TIMESTAMP, " +
-                                        "user_tracking VARCHAR(32500)) ENGINE=INNODB;")
-
-                    self.cursor.execute(
-                        "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_add_item`(" +
-                        "IN in_username VARCHAR(20), " +
-                        "IN in_first_name VARCHAR(50), " +
-                        "IN in_last_name VARCHAR(50), " +
-                        "IN in_password VARCHAR(100), " +
-                        "IN in_email VARCHAR(20), " +
-                        "IN in_role ENUM('pending', 'user', 'admin')) " +
-                        "BEGIN " +
-                        "if ( select exists (select 1 from " + table + " where user_username = in_username) ) THEN " +
-                        "select 'item_exists'; " +
-                        "ELSE " +
-                        "insert into " + table +
-                        " (user_username, " +
-                        "user_first_name, " +
-                        "user_last_name, " +
-                        "user_password, " +
-                        "user_email, " +
-                        "user_role) " +
-                        "values (in_username, in_first_name, in_last_name, in_password, in_email, in_role); " +
-                        "select LAST_INSERT_ID();" +
-                        "END If; " +
-                        "END;")
-
-                    self.cursor.execute(
-                        "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_getPassword`(" +
-                        "IN in_username VARCHAR(20)) " +
-                        "BEGIN " +
-                        "select user_password from " + self.CONST_TBL_NAMES.TBL_USER +
-                        " where user_username = in_username; " +
-                        "END;")
+                    self.cursor.execute(get_sql_command("user_createTable", user, host, table))
+                    self.cursor.execute(get_sql_command("user_addItem", user, host, table))
+                    self.cursor.execute(get_sql_command("user_getPassword", user, host, table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_TUBE:
-                    self.cursor.execute("CREATE TABLE " + table + " (" +
-                                        "tube_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, " +
-                                        "tube_gpio_1 INT(3) UNSIGNED NOT NULL, " +
-                                        "tube_gpio_2 INT(3) UNSIGNED NOT NULL, " +
-                                        "tube_gpio_3 INT(3) UNSIGNED NOT NULL, " +
-                                        "tube_gpio_4 INT(3) UNSIGNED NOT NULL) ENGINE=INNODB;")
-
-                    self.cursor.execute(
-                        "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_add_item`(" +
-                        "IN in_gpio_1 INT(3), " +
-                        "IN in_gpio_2 INT(3), " +
-                        "IN in_gpio_3 INT(3), " +
-                        "IN in_gpio_4 INT(3)) " +
-                        "BEGIN " +
-                        "if(select exists(select 1 from " + table +
-                        " where tube_gpio_1 = in_gpio_1 OR " +
-                        "tube_gpio_2 = in_gpio_2 OR " +
-                        "tube_gpio_3 = in_gpio_3 OR " +
-                        "tube_gpio_4 = in_gpio_4)) " +
-                        "THEN " +
-                        "select 'item_exists'; " +
-                        "ELSE " +
-                        "insert into " + table + " (tube_gpio_1, tube_gpio_2, tube_gpio_3, tube_gpio_4) " +
-                        "values (in_gpio_1, in_gpio_2, in_gpio_3, in_gpio_4); " +
-                        "select LAST_INSERT_ID();" +
-                        "END If; " +
-                        "END;")
+                    self.cursor.execute(get_sql_command("tube_createTable", user, host, table))
+                    self.cursor.execute(get_sql_command('tube_addItem', user, host, table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_INGREDIENT:
-                    self.cursor.execute(
-                        "CREATE TABLE " + table + " (ingredient_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ingredient_name VARCHAR(20), ingredient_price FLOAT(5), ingredient_tube BIGINT UNSIGNED NOT NULL, ingredient_glutenfree BOOL, ingredient_lactosefree BOOL, ingredient_motortuning FLOAT(5), FOREIGN KEY (ingredient_tube) REFERENCES " + self.CONST_TBL_NAMES.TBL_TUBE + "(tube_uid)) ENGINE=INNODB;")
+                    self.cursor.execute(get_sql_command('ingredient_createTable', user, host, table,
+                                                        self.CONST_TBL_NAMES.TBL_TUBE))
                 elif table == self.CONST_TBL_NAMES.TBL_RECIPE:
-                    self.cursor.execute(
-                        "CREATE TABLE " + table + " (recipe_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, recipe_name VARCHAR(20), recipe_creator BIGINT UNSIGNED NOT NULL, FOREIGN KEY (recipe_creator) REFERENCES " + self.CONST_TBL_NAMES.TBL_USER + "(user_uid)) ENGINE=INNODB;")
+                    self.cursor.execute(get_sql_command('recipe_createTable', user, host, table,
+                                                        self.CONST_TBL_NAMES.TBL_USER))
                 elif table == self.CONST_TBL_NAMES.TBL_IR:
-                    self.cursor.execute(
-                        "CREATE TABLE " + table + " (ir_uid BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ir_ingredient BIGINT UNSIGNED NOT NULL, ir_recipe BIGINT UNSIGNED NOT NULL, ir_weight FLOAT(5), FOREIGN KEY (ir_ingredient) REFERENCES " + self.CONST_TBL_NAMES.TBL_INGREDIENT + "(ingredient_uid), FOREIGN KEY (ir_recipe) REFERENCES " + self.CONST_TBL_NAMES.TBL_RECIPE + "(recipe_uid)) ENGINE=INNODB;")
+                    self.cursor.execute(get_sql_command('ir_createTable', user, host, table,
+                                                        self.CONST_TBL_NAMES.TBL_INGREDIENT,
+                                                        self.CONST_TBL_NAMES.TBL_RECIPE))
 
-                self.cursor.execute(
-                    "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_getItems`() " +
-                    "BEGIN " +
-                    "select * from " + table + "; "
-                                               "END;")
+                self.cursor.execute(get_sql_command('_getItems', user, host, table))
 
-                self.cursor.execute(
-                    "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_getItemById`(" +
-                    "IN inItemId BIGINT UNSIGNED) " +
-                    "BEGIN " +
-                    "select * from " + table + " where " + table + "_uid = inItemId; " +
-                    "END;")
+                self.cursor.execute(get_sql_command('_getItemById', user, host, table))
 
-                self.cursor.execute(
-                    "CREATE DEFINER='" + user + "'@'" + host + "' PROCEDURE `" + table + "_deleteItemById`(" +
-                    "IN inItemId BIGINT UNSIGNED) " +
-                    "BEGIN " +
-                    "delete from " + table + " where " + table + "_uid = inItemId; " +
-                    "END;")
+                self.cursor.execute(get_sql_command('_deleteItemById', user, host, table))
 
                 self.logger.log("Table '" + table + "' was created")
 
@@ -276,7 +201,7 @@ class MMMySql:
             return False, None, err_msg
 
         # Try to add Item and get response
-        self.cursor.callproc(table + "_add_item", properties)
+        self.cursor.callproc(table + "_addItem", properties)
         data = self.cursor.fetchall()
         self.logger.log("properties: " + str(properties))
         self.logger.log("data: " + str(data))

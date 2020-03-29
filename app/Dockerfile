@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.7-alpine
+FROM python:3.8-alpine3.10
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
