@@ -146,18 +146,32 @@ class MMFlaskViewForItemsRenderer(MethodView):
         view_add = super().as_view(self.endpoint_name + "Add", endpoint_name=self.endpoint_name, muesli_machine=self.mm)
         return view_list, view_single, view_add
 
+    def render_template_list(self, endpoint_name, items):
+        if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
+            tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
+            return render_template(self.endpoint_name + "List.html", ingredients=items, tubes=tubes)
+        else:
+            return render_template(self.endpoint_name + "List.html", items=items)
+
+    def render_template_single(self, endpoint_name, item):
+        if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
+            tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
+            return render_template(self.endpoint_name + "Single.html", ingredient=item, tubes=tubes)
+        else:
+            return render_template(self.endpoint_name + "Single.html", item=item)
+
     def get(self, item_id):
         if item_id is None:
             # self.mm.logger.log("Show List of " + self.endpoint_name)
             items = self.mm.mySQL.get_items(self.endpoint_name)
-            return render_template(self.endpoint_name + "List.html", items=items)
+            return self.render_template_list(self.endpoint_name, items=items)
         elif item_id == "add":
-            return render_template(self.endpoint_name + "Single.html", item=None)
+            return self.render_template_single(self.endpoint_name, item=None)
         else:
             # self.mm.logger.log("Show Single View of " + self.endpoint_name + "Id " + str(item_id))
             item = self.mm.mySQL.get_item_by_id(self.endpoint_name, item_id)
             if len(item) == 1:
-                return render_template(self.endpoint_name + "Single.html", item=item)
+                return self.render_template_single(self.endpoint_name, item=item)
             else:
                 # If number of MySQL response items are 0 or > 1:
                 return redirect(url_for(self.endpoint_name))
@@ -180,15 +194,15 @@ class MMFlaskViewForItemsRenderer(MethodView):
                 in_role = "admin"
                 properties = (in_username, in_first_name, in_last_name, in_password, in_email, in_role)
             elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_TUBE:
-                properties = (request.form.get("pin1"), request.form.get("pin2"),
-                              request.form.get("pin3"), request.form.get("pin4"))
+                properties = (request.form.get("pin_1"), request.form.get("pin_2"),
+                              request.form.get("pin_3"), request.form.get("pin_4"))
             elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
                 in_name = request.form.get("name")
-                in_price = request.form.get("price")
-                in_tube = request.form.get("tube")
-                in_glutenfree = request.form.get("glutenfree")
-                in_lactosefree = request.form.get("lactosefree")
-                in_motortuning = ""
+                in_price = float(request.form.get("price").replace(",", "."))
+                in_tube = int(request.form.get("tube"))
+                in_glutenfree = True if "glutenfree" in request.form else False
+                in_lactosefree = True if "lactosefree" in request.form else False
+                in_motortuning = 0
                 properties = (in_name, in_price, in_tube, in_glutenfree, in_lactosefree, in_motortuning)
             else:
                 properties = ()

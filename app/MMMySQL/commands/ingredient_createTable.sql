@@ -1,4 +1,4 @@
-CREATE TABLE `{2}`
+CREATE TABLE `{table}`
 (
     ingredient_uid         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     ingredient_name        VARCHAR(20),
@@ -7,5 +7,5 @@ CREATE TABLE `{2}`
     ingredient_glutenfree  BOOL,
     ingredient_lactosefree BOOL,
     ingredient_motortuning FLOAT(5),
-    FOREIGN KEY (ingredient_tube) REFERENCES `{3}` (tube_uid)
+    FOREIGN KEY (ingredient_tube) REFERENCES `{tbl_tube}` (tube_uid)
 ) ENGINE = INNODB

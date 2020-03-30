@@ -1,6 +1,6 @@
 CREATE
-    DEFINER = '{0}'@'{1}'
-    PROCEDURE `{2}_getItems`()
+    DEFINER = '{db_user}'@'{db_host}'
+    PROCEDURE `{table}_getItems`()
 BEGIN
-    SELECT * FROM `{2}`;
+    SELECT * FROM `{table}`;
 END;

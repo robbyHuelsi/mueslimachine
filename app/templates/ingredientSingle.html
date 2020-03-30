@@ -1,92 +1,143 @@
 {% include "header.html" %}
 
 <main>
-        <div class="jumbotron jumbotron-fluid">
-		<div class="container">
-{% if item %}
-			<h1>Edit Ingredient <i class="fas fa-apple-alt"></i></h1>
-            <div class="my-3">
-				<p>Id: {{item[0][0]}}</p>
-            </div>
-{% else %}
-			<h1>New Ingredient <i class="fas fa-apple-alt"></i></h1>
-{% endif %}
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            {% if ingredient %}
+                <h1>Edit Ingredient <i class="fas fa-apple-alt"></i></h1>
+                <div class="my-3">
+                    <p>ID: <span class="badge badge-info">{{ ingredient[0][0] }}</span></p>
+                </div>
+            {% else %}
+                <h1>New Ingredient <i class="fas fa-apple-alt"></i></h1>
+            {% endif %}
 
             <div class="my-3">
-                <h4>{% if item %}Edit{% else %}Set{% endif %} properties</h4>
-				<form method="post">
-{% if item %}
-                    <input type="hidden" name="item_id" value="{{item[0][0]}}">
-{% endif %}
-                    <label for="input_name" class="sr-only">Name</label>
-                    <div class="input-group mb-2">
-                        <div class="input-group-prepend">
-                            <div class="input-group-text">
-                                <i class="fa fa-star" aria-hidden="true"></i>
+                <form method="post">
+                    {% if ingredient %}
+                        <input type="hidden" name="ingredient_id" value="{{ ingredient[0][0] }}">
+                    {% endif %}
+
+                    <h4>{% if ingredient %}Edit{% else %}Set{% endif %} properties</h4>
+                    <div class="card-deck mb-3">
+                        <div class="card">
+                            <h5 class="card-header">Main Properties</h5>
+                            <div class="card-body">
+                                <label for="input_name">Name</label>
+                                <div class="input-group mb-2">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="fa fa-star" aria-hidden="true"></i>
+                                        </div>
+                                    </div>
+                                    <input
+                                            type="text"
+                                            name="name"
+                                            id="input_name"
+                                            class="form-control"
+                                            placeholder="Name"
+                                            autocomplete="off"
+                                            value="{% if ingredient %}{{ ingredient[0][1] }}{% endif %}"
+                                            autofocus
+                                            required>
+                                </div>
+
+                                <label for="input_tube">Tube</label>
+                                <select
+                                        name="tube"
+                                        id="input_tube"
+                                        class="form-control mb-2"
+                                        required>
+                                    <option
+                                            hidden
+                                            disabled
+                                            {% if not (ingredient and ingredient[0][3]) %}selected{% endif %}
+                                            value>
+                                        Select Tube
+                                    </option>
+                                    {% for tube in tubes %}
+                                        <option
+                                                value="{{ tube[0] }}"
+                                                {% if ingredient and ingredient[0][3] == tube[0] %}selected{% endif %}
+                                        >
+                                            Tube #{{ tube[0] }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
-                        <input
-                                type="test"
-                                name="name"
-                                id="input_name"
-                                class="form-control"
-                                placeholder="Name"
-                                autocomplete="off"
-                                value="{% if item %}{{item[0][1]}}{% endif %}"
-                                autofocus
-                                required>
+
+                        <div class="card">
+                            <h5 class="card-header">Allergy Information</h5>
+                            <div class="card-body">
+                                <div class="form-check">
+                                    <input
+                                            type="checkbox"
+                                            name="glutenfree"
+                                            value="true"
+                                            id="input_glutenfree"
+                                            class="form-check-input"
+                                            {% if ingredient and ingredient[0][4] %}checked{% endif %}>
+                                    <label for="input_glutenfree" class="form-check-label">Glutenfree</label>
+                                </div>
+                                <div class="form-check">
+                                    <input
+                                            type="checkbox"
+                                            name="lactosefree"
+                                            value="true"
+                                            id="input_lactosefree"
+                                            class="form-check-input"
+                                            {% if ingredient and ingredient[0][5] %}checked{% endif %}>
+                                    <label for="input_lactosefree" class="form-check-label">Lactosefree</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h5 class="card-header">Price</h5>
+                            <div class="card-body">
+                                <label for="input_price" class="sr-only">Price</label>
+                                <div class="input-group mb-2">
+                                    <input
+                                            type="number"
+                                            name="price"
+                                            id="input_price"
+                                            class="form-control"
+                                            min="0"
+                                            step="0.01"
+                                            value="{% if ingredient %}{{ ingredient[0][2] }}{% else %}0.00{% endif %}"
+                                            aria-describedby="price_addon">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text" id="price_addon">€ / g</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <label for="input_price" class="sr-only">Price</label>
-                    <input
-                            type="number"
-                            name="price"
-                            id="input_price"
-                            class="form-control mb-2"
-                            placeholder="0.00"
-                            min="0"
-                            step="0.01"
-                            value="{% if item %}{{item[0][2]}}{% endif %}">
-                    <label for="input_tube" class="sr-only">Tube</label>
-                    <select
-                            name="tube"
-                            id="input_tube"
-                            class="form-control mb-2">
-                        <option value="?" selected>Tube #?</option>
-                    </select>
-                    <label for="input_glutenfree" class="sr-only">Glutenfree</label>
-                    <input
-                            type="checkbox"
-                            name="glutenfree"
-                            id="input_glutenfree"
-                            class="form-control mb-2"
-                            {% if item and item[0][4] %}checked{% endif %}>
-                    <label for="input_lactosefree" class="sr-only">Glutenfree</label>
-                    <input
-                            type="checkbox"
-                            name="lactosefree"
-                            id="input_lactosefree"
-                            class="form-control mb-2"
-                            {% if item and item[0][5] %}checked{% endif %}>
-                    <button name="cmd" value="{% if item %}edit{% else %}add{% endif %}" class="btn btn-primary btn-lg btn-block">Save</button>
+
+                    <button name="cmd" value="{% if ingredient %}edit{% else %}add{% endif %}"
+                            class="btn btn-primary btn-lg btn-block">Save
+                    </button>
                 </form>
                 <p class="mt-2">
-					<i class="fa fa-star" aria-hidden="true"></i> Requiered
-				</p>
-			</div>
+                    <i class="fa fa-star" aria-hidden="true"></i> Requiered
+                </p>
+            </div>
             <div class="my-3">
-				<h4>Motor Tuning</h4>
-				<p>Not implemented yet</p>
-			</div>
-{% if item %}
-			<div class="my-3">
-				<h4>Danger Zone</h4>
-				<form method="post">
-					<button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">Delete {{item[0][1]}}</button>
-				</form>
-			</div>
-{% endif %}
-		</div>
-	</div>
+                <h4>Motor Tuning</h4>
+                <p>Not implemented yet</p>
+            </div>
+            {% if ingredient %}
+                <div class="my-3">
+                    <h4>Danger Zone</h4>
+                    <form method="post">
+                        <button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">
+                            Delete {{ ingredient[0][1] }}</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </main>
- 
+
 {% include "footer.html" %}

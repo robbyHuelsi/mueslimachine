@@ -3,48 +3,66 @@
 <main>
 
     <div class="jumbotron jumbotron-fluid">
-		<div class="container">
-			<h1>List of ingredients <i class="fas fa-apple-alt"></i></h1>
+        <div class="container">
+            <h1>List of Ingredients <i class="fas fa-apple-alt"></i></h1>
 
-			<div class="my-3">
-{% if items|length > 0 %}
-				<table class="table table-hover">
-					<thead>
-						<tr>
-							<th scope="col" class="align-middle">Name</th>
-							<th scope="col" class="align-middle">Price</th>
-							<th scope="col" class="align-middle">Tube</th>
-                            <th scope="col" class="align-middle">Glutenfree</th>
-                            <th scope="col" class="align-middle">Lactosefree</th>
-                            <th scope="col" class="align-middle">Motor Tuning</th>
-							<th scope="col" class="align-middle"></th>
-						</tr>
-					</thead>
-					<tbody>
-{% for item in items %}
-						<tr>
-							<th scope="row" class="align-middle">{{item[1]}}</th>
-							<td class="align-middle">{{item[2]}}</td>
-                            <td class="align-middle">{{item[3]}}</td>
-                            <td class="align-middle">{{item[4]}}</td>
-                            <td class="align-middle">{{item[5]}}</td>
-                            <td class="align-middle">{{item[6]}}</td>
-							<td class="align-middle">
-								<a class="btn btn-primary btn-sm" href="{{item[0]}}/" role="button">Edit</a>
-							</td>
-						</tr>
-{% endfor %}
-				</tbody>
-			</table>
-{% else %}
-			<p>No ingredient here.</p>
-{% endif %}
-			<div class="my-3">
-				<a class="btn btn-success btn-lg btn-block" href="add/" role="button">Add ingredient</a>
-			</div>
-		</div>
-	</div>
+            <div class="my-3">
+                {% if ingredients|length > 0 %}
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="align-middle">Name</th>
+                            <th scope="col" class="align-middle">Tube</th>
+                            <th scope="col" class="align-middle">Allergy Information</th>
+                            <th scope="col" class="align-middle">Price</th>
+                            {#                            <th scope="col" class="align-middle">Motor Tuning</th>#}
+                            <th scope="col" class="align-middle"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in ingredients %}
+                            <tr>
+                                <th scope="row" class="align-middle">{{ item[1] }}</th>
+                                <td class="align-middle"><a href="/tube/{{ item[3] }}/">#{{ item[3] }}</a></td>
+                                <td class="align-middle">
+                                    {% if item[4] == true %}
+                                        <span class="badge badge-info">GLUTENFREE</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">CONTAINS GLUTEN</span>
+                                    {% endif %}
+                                    {% if item[5] == true %}
+                                        <span class="badge badge-info">LACTOSEFREE</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">CONTAINS LACTOSE</span>
+                                    {% endif %}
+                                </td>
+                                <td class="align-middle">{{ item[2] }} € / g</td>
+                                {#                            <td class="align-middle">{{item[6]}}</td>#}
+                                <td class="align-middle">
+                                    <a class="btn btn-primary btn-sm" href="{{ item[0] }}/" role="button">Edit</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No ingredient here.</p>
+                {% endif %}
+
+                <div class="my-3">
+                    {% if tubes|length == 0 %}
+                        <p>You must first <a href="/tube/add/">add a tube</a> before you can add an ingredient.</p>
+                    {% endif %}
+                    <a
+                            class="btn btn-success btn-lg btn-block {% if tubes|length == 0 %}disabled{% endif %}"
+                            href="add/"
+                            role="button">
+                        Add Ingredient
+                    </a>
+                </div>
+            </div>
+        </div>
 
 </main>
- 
+
 {% include "footer.html" %}

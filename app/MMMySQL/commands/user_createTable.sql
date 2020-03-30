@@ -1,4 +1,4 @@
-CREATE TABLE `{2}`
+CREATE TABLE `{table}`
 (
     user_uid        BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_username   VARCHAR(20),

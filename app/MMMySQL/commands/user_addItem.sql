@@ -1,6 +1,6 @@
 CREATE
-    DEFINER = '{0}'@'{1}'
-    PROCEDURE `{2}_addItem`(IN in_username VARCHAR(20),
+    DEFINER = '{db_user}'@'{db_host}'
+    PROCEDURE `{table}_addItem`(IN in_username VARCHAR(20),
                             IN in_first_name VARCHAR(50),
                             IN in_last_name VARCHAR(50),
                             IN in_password VARCHAR(100),
@@ -10,13 +10,13 @@ BEGIN
     IF (
         SELECT EXISTS(
                        SELECT 1
-                       FROM `{2}`
+                       FROM `{table}`
                        WHERE user_username = in_username
                    )
     ) THEN
         SELECT 'item_exists' ;
     ELSE
-        INSERT INTO `{2}`(user_username,
+        INSERT INTO `{table}`(user_username,
                           user_first_name,
                           user_last_name,
                           user_password,

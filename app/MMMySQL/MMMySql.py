@@ -3,7 +3,7 @@ from werkzeug import security as sec
 import threading
 import time
 
-from MMMySQL.MMMySQLCommands import get_sql_command, get_sql_command_create_db
+from MMMySQL.MMMySQLCommander import MMMySqlCommander
 
 
 def constant(f):
@@ -62,6 +62,8 @@ class MMMySql:
 
         self.mysql.init_app(flask)
 
+        self.commander = MMMySqlCommander(db_name, user, host, self.CONST_TBL_NAMES)
+
         connecting_thread = threading.Thread(target=self.connect, args=[db_name, user, host])
         connecting_thread.daemon = True
         connecting_thread.start()
@@ -117,7 +119,7 @@ class MMMySql:
             self.cursor.execute("USE " + db_name)
             self.logger.log("Database '" + db_name + "' already exists")
         else:
-            self.cursor.execute(get_sql_command_create_db(db_name))
+            self.cursor.execute(self.commander.get_sql_command("_createDatabase"))
             self.cursor.execute("USE " + db_name)
             self.logger.log("Database '" + db_name + "' was created")
 
@@ -135,31 +137,25 @@ class MMMySql:
             if tbl_exists:
                 self.logger.log("Table '" + table + "' already exists")
             else:
+                self.cursor.execute(self.commander.get_sql_command(table+"_createTable", table))
+                self.cursor.execute(self.commander.get_sql_command("_getItems", table))
+                self.cursor.execute(self.commander.get_sql_command("_getItemById", table))
+                self.cursor.execute(self.commander.get_sql_command("_deleteItemById", table))
+
                 if table == self.CONST_TBL_NAMES.TBL_USER:
-                    self.cursor.execute(get_sql_command("user_createTable", user, host, table))
-                    self.cursor.execute(get_sql_command("user_addItem", user, host, table))
-                    self.cursor.execute(get_sql_command("user_getPassword", user, host, table))
+                    self.cursor.execute(self.commander.get_sql_command(table+"_addItem", table))
+                    self.cursor.execute(self.commander.get_sql_command(table+"_getPassword", table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_TUBE:
-                    self.cursor.execute(get_sql_command("tube_createTable", user, host, table))
-                    self.cursor.execute(get_sql_command("tube_addItem", user, host, table))
+                    self.cursor.execute(self.commander.get_sql_command(table+"_addItem", table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_INGREDIENT:
-                    self.cursor.execute(get_sql_command("ingredient_createTable", user, host, table,
-                                                        self.CONST_TBL_NAMES.TBL_TUBE))
+                    self.cursor.execute(self.commander.get_sql_command(table+"_addItem", table))
+
                 elif table == self.CONST_TBL_NAMES.TBL_RECIPE:
-                    self.cursor.execute(get_sql_command("recipe_createTable", user, host, table,
-                                                        self.CONST_TBL_NAMES.TBL_USER))
+                    pass
                 elif table == self.CONST_TBL_NAMES.TBL_IR:
-                    self.cursor.execute(get_sql_command("ir_createTable", user, host, table,
-                                                        self.CONST_TBL_NAMES.TBL_INGREDIENT,
-                                                        self.CONST_TBL_NAMES.TBL_RECIPE))
-
-                self.cursor.execute(get_sql_command("_getItems", user, host, table))
-
-                self.cursor.execute(get_sql_command("_getItemById", user, host, table))
-
-                self.cursor.execute(get_sql_command("_deleteItemById", user, host, table))
+                    pass
 
                 self.logger.log("Table '" + table + "' was created")
 
@@ -209,7 +205,9 @@ class MMMySql:
         if len(data) == 0 or len(data[0]) == 0:
             return False, None, "failed;"
         elif len(data) == 0 or len(data[0]) == 0 or data[0][0] == "item_exists":
-            return False, None, "item_exists;"
+            return False, None, "Item already exists."
+        elif len(data) == 0 or len(data[0]) == 0 or data[0][0] == "tube_in_use":
+            return False, None, "Chosen tube is already assigned."
 
         # Exit with ID of new item, if everything went well
         self.connection.commit()
