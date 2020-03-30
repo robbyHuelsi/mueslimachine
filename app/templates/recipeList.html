@@ -1,7 +1,31 @@
 {% include "header.html" %}
 
 <main>
-        
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1>List of Recipes <i class="fas fa-book"></i></h1>
+
+            <div class="my-3">
+                {% if recipes|length > 0 %}
+
+                {% else %}
+                    <p>No recipe here.</p>
+                {% endif %}
+
+                <div class="my-3">
+                    {% if ingredients|length == 0 %}
+                        <p>You must first <a href="/ingredient/add/">add an ingredient</a> before you can add a recipe.</p>
+                    {% endif %}
+                    <a
+                            class="btn btn-success btn-lg btn-block {% if ingredients|length == 0 %}disabled{% endif %}"
+                            href="add/"
+                            role="button">
+                        Add Recipe
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </main>
  
 {% include "footer.html" %}

@@ -18,18 +18,19 @@
                         <input type="hidden" name="ingredient_id" value="{{ ingredient[0][0] }}">
                     {% endif %}
 
-                    <h4>{% if ingredient %}Edit{% else %}Set{% endif %} properties</h4>
+                    <h4>{% if ingredient %}Edit{% else %}Set{% endif %} Properties</h4>
                     <div class="card-deck mb-3">
                         <div class="card">
                             <h5 class="card-header">Main Properties</h5>
                             <div class="card-body">
-                                <label for="input_name">Name</label>
+                                <p>Both fields are required:</p>
+                                <label for="input_name" class="sr-only">Name</label>
                                 <div class="input-group mb-2">
-                                    <div class="input-group-prepend">
-                                        <div class="input-group-text">
-                                            <i class="fa fa-star" aria-hidden="true"></i>
-                                        </div>
-                                    </div>
+{#                                    <div class="input-group-prepend">#}
+{#                                        <div class="input-group-text">#}
+{#                                            Name#}
+{#                                        </div>#}
+{#                                    </div>#}
                                     <input
                                             type="text"
                                             name="name"
@@ -42,7 +43,7 @@
                                             required>
                                 </div>
 
-                                <label for="input_tube">Tube</label>
+                                <label for="input_tube" class="sr-only">Tube</label>
                                 <select
                                         name="tube"
                                         id="input_tube"
@@ -119,9 +120,6 @@
                             class="btn btn-primary btn-lg btn-block">Save
                     </button>
                 </form>
-                <p class="mt-2">
-                    <i class="fa fa-star" aria-hidden="true"></i> Requiered
-                </p>
             </div>
             <div class="my-3">
                 <h4>Motor Tuning</h4>

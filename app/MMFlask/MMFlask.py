@@ -150,6 +150,9 @@ class MMFlaskViewForItemsRenderer(MethodView):
         if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
             tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
             return render_template(self.endpoint_name + "List.html", ingredients=items, tubes=tubes)
+        elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
+            ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
+            return render_template(self.endpoint_name + "List.html", recipes=items, ingredients=ingredients)
         else:
             return render_template(self.endpoint_name + "List.html", items=items)
 
@@ -157,6 +160,11 @@ class MMFlaskViewForItemsRenderer(MethodView):
         if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
             tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
             return render_template(self.endpoint_name + "Single.html", ingredient=item, tubes=tubes)
+        elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
+            all_ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_INGREDIENT)
+            used_ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_IR)
+            return render_template(self.endpoint_name + "Single.html", recipes=item,
+                                   all_ingredients=all_ingredients, used_ingredients=used_ingredients)
         else:
             return render_template(self.endpoint_name + "Single.html", item=item)
 

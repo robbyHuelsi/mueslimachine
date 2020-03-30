@@ -20,6 +20,12 @@
 	}
 }
 
+/* ----- Recipe Single ----- */
+.recipe_ingredient_list tr:first-child th,
+.recipe_ingredient_list tr:first-child td{
+    border-top: 0;
+}
+
 /* ----- Footer ----- */
 footer{
 	text-align: center;

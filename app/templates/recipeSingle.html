@@ -1,7 +1,128 @@
 {% include "header.html" %}
 
 <main>
-        
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            {% if recipe %}
+                <h1>Edit Recipe <i class="fas fa-file-alt"></i></h1>
+                <div class="my-3">
+                    <p>ID: <span class="badge badge-info">{{ recipe[0][0] }}</span></p>
+                    <p>Creator: <span class="badge badge-info">{{ recipe[0][2] }}</span></p>
+                </div>
+            {% else %}
+                <h1>New Recipe <i class="fas fa-file-alt"></i></h1>
+            {% endif %}
+
+            <div class="my-3">
+                <form method="post">
+                    {% if recipe %}
+                        <input type="hidden" name="recipe_id" value="{{ recipe[0][0] }}">
+                    {% endif %}
+
+                    <h4>{% if recipe %}Edit{% else %}Set{% endif %} Properties</h4>
+                    <label for="input_recipe_name" class="sr-only">Name</label>
+                    <input
+                            type="name"
+                            name="recipe_name"
+                            id="input_recipe_name"
+                            class="form-control mb-2"
+                            placeholder="Name"
+                            autocomplete="off"
+                            value="{% if recipe %}{{ recipe[0][1] }}{% endif %}"
+                            autofocus>
+
+{#                    <hr class="my-3">#}
+
+                    <div class="card-deck mb-3">
+                        <div class="card">
+                            <h5 class="card-header">List of Used Ingredients</h5>
+                            <div class="card-body p-0">
+                                <table class="table table-hover recipe_ingredient_list">
+                                    {% for ingredient in all_ingredients %}
+                                        <tr>
+                                            <th
+                                                    scope="row"
+                                                    class="align-middl pl-2"
+                                                    style="white-space: nowrap;">
+                                                0.
+                                            </th>
+                                            <td class="align-middle" style="white-space: nowrap;">
+                                                <label for="input_amount_0" class="sr-only">Amount</label>
+                                                <div class="input-group" style="min-width: 110px;">
+                                                    <input
+                                                            type="number"
+                                                            name="amount_0"
+                                                            id="input_amount_0"
+                                                            class="form-control"
+                                                            min="0"
+                                                            step="1"
+                                                            value="0"
+                                                            size="3"
+                                                            aria-describedby="addon_amount_0">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text" id="addon_amount_0">g</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="align-middle" width="99%">{{ ingredient[1] }}</td>
+                                            <td class="align-middle" style="white-space: nowrap;">
+                                                <button type="button" class="btn btn-primary">
+                                                    <i class="fas fa-chevron-up"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-primary">
+                                                    <i class="fas fa-chevron-down"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-danger">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h5 class="card-header">List of All Ingredients</h5>
+                            <div class="card-body p-0">
+                                <table class="table table-hover recipe_ingredient_list">
+                                    {% for ingredient in all_ingredients %}
+                                        <tr>
+                                            <th scope="row" class="align-middle">{{ ingredient[1] }}</th>
+                                            <td class="align-middle">
+                                                {% if ingredient[4] == true %}
+                                                    <span class="badge badge-info">GLUTENFREE</span>
+                                                {% else %}
+                                                    <span class="badge badge-danger">CONTAINS GLUTEN</span>
+                                                {% endif %}
+                                                {% if ingredient[5] == true %}
+                                                    <span class="badge badge-info">LACTOSEFREE</span>
+                                                {% else %}
+                                                    <span class="badge badge-danger">CONTAINS LACTOSE</span>
+                                                {% endif %}
+                                            </td>
+                                            <td class="align-middle" style="white-space: nowrap;">{{ ingredient[2] }} €
+                                                / g
+                                            </td>
+                                            <td class="align-middle">
+                                                <button type="button" class="btn btn-success">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button name="cmd" value="{% if recipe %}edit{% else %}add{% endif %}"
+                            class="btn btn-primary btn-lg btn-block">Save
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </main>
- 
+
 {% include "footer.html" %}

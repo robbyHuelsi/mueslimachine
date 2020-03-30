@@ -20,26 +20,26 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for item in ingredients %}
+                        {% for ingredient in ingredients %}
                             <tr>
-                                <th scope="row" class="align-middle">{{ item[1] }}</th>
-                                <td class="align-middle"><a href="/tube/{{ item[3] }}/">#{{ item[3] }}</a></td>
+                                <th scope="row" class="align-middle">{{ ingredient[1] }}</th>
+                                <td class="align-middle"><a href="/tube/{{ ingredient[3] }}/">#{{ ingredient[3] }}</a></td>
                                 <td class="align-middle">
-                                    {% if item[4] == true %}
+                                    {% if ingredient[4] == true %}
                                         <span class="badge badge-info">GLUTENFREE</span>
                                     {% else %}
                                         <span class="badge badge-danger">CONTAINS GLUTEN</span>
                                     {% endif %}
-                                    {% if item[5] == true %}
+                                    {% if ingredient[5] == true %}
                                         <span class="badge badge-info">LACTOSEFREE</span>
                                     {% else %}
                                         <span class="badge badge-danger">CONTAINS LACTOSE</span>
                                     {% endif %}
                                 </td>
-                                <td class="align-middle">{{ item[2] }} € / g</td>
+                                <td class="align-middle">{{ ingredient[2] }} € / g</td>
                                 {#                            <td class="align-middle">{{item[6]}}</td>#}
                                 <td class="align-middle">
-                                    <a class="btn btn-primary btn-sm" href="{{ item[0] }}/" role="button">Edit</a>
+                                    <a class="btn btn-primary btn-sm" href="{{ ingredient[0] }}/" role="button">Edit</a>
                                 </td>
                             </tr>
                         {% endfor %}
@@ -62,7 +62,7 @@
                 </div>
             </div>
         </div>
-
+    </div>
 </main>
 
 {% include "footer.html" %}
