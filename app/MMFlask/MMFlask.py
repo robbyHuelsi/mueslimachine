@@ -63,13 +63,15 @@ class MMFlaskViewDefaultRenderer(MethodView):
         if self.endpoint_name == "logout":
             return self.logout()
         elif self.endpoint_name == "status":
-            return render_template(self.templateName, status=self.mm.status.get_status())
+            return render_template(self.templateName, mm_version=self.mm.version,
+                                   status=self.mm.status.get_status())
         elif self.endpoint_name == "signup":
             first_name, last_name, username, email = session.pop("signup_inputs", ("", "", "", ""))
-            return render_template(self.templateName, first_name=first_name, last_name=last_name,
+            return render_template(self.templateName, mm_version=self.mm.version,
+                                   first_name=first_name, last_name=last_name,
                                    username=username, email=email)
         else:
-            return render_template(self.templateName)
+            return render_template(self.templateName, mm_version=self.mm.version)
 
     def post(self):
         if self.endpoint_name == "signup":
@@ -146,40 +148,51 @@ class MMFlaskViewForItemsRenderer(MethodView):
         view_add = super().as_view(self.endpoint_name + "Add", endpoint_name=self.endpoint_name, muesli_machine=self.mm)
         return view_list, view_single, view_add
 
-    def render_template_list(self, endpoint_name, items):
+    def render_template_list(self, items):
+        self.mm.logger.log(str(items))
         if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
             tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
-            return render_template(self.endpoint_name + "List.html", ingredients=items, tubes=tubes)
+            return render_template(self.endpoint_name + "List.html", mm_version=self.mm.version,
+                                   ingredients=items, tubes=tubes)
         elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
             ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
-            return render_template(self.endpoint_name + "List.html", recipes=items, ingredients=ingredients)
+            return render_template(self.endpoint_name + "List.html", mm_version=self.mm.version,
+                                   recipes=items, ingredients=ingredients)
         else:
-            return render_template(self.endpoint_name + "List.html", items=items)
+            return render_template(self.endpoint_name + "List.html", mm_version=self.mm.version,
+                                   items=items)
 
-    def render_template_single(self, endpoint_name, item):
+    def render_template_single(self, item):
+        self.mm.logger.log(str(item))
         if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
             tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
-            return render_template(self.endpoint_name + "Single.html", ingredient=item, tubes=tubes)
+            return render_template(self.endpoint_name + "Single.html", mm_version=self.mm.version,
+                                   ingredient=item, tubes=tubes)
         elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
             all_ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_INGREDIENT)
-            used_ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_IR)
-            return render_template(self.endpoint_name + "Single.html", recipes=item,
-                                   all_ingredients=all_ingredients, used_ingredients=used_ingredients)
+            self.mm.logger.log("ir_get_ingredients_by_recipe_id: " + str(item))
+            if item is None:
+                used_ingredients = []
+            else:
+                used_ingredients = self.mm.mySQL.ir_get_ingredients_by_recipe_id(item[0])
+            return render_template(self.endpoint_name + "Single.html", mm_version=self.mm.version,
+                                   recipes=item, all_ingredients=all_ingredients, used_ingredients=used_ingredients)
         else:
-            return render_template(self.endpoint_name + "Single.html", item=item)
+            return render_template(self.endpoint_name + "Single.html", mm_version=self.mm.version,
+                                   item=item)
 
     def get(self, item_id):
         if item_id is None:
             # self.mm.logger.log("Show List of " + self.endpoint_name)
             items = self.mm.mySQL.get_items(self.endpoint_name)
-            return self.render_template_list(self.endpoint_name, items=items)
+            return self.render_template_list(items=items)
         elif item_id == "add":
-            return self.render_template_single(self.endpoint_name, item=None)
+            return self.render_template_single(item=None)
         else:
             # self.mm.logger.log("Show Single View of " + self.endpoint_name + "Id " + str(item_id))
             item = self.mm.mySQL.get_item_by_id(self.endpoint_name, item_id)
             if len(item) == 1:
-                return self.render_template_single(self.endpoint_name, item=item)
+                return self.render_template_single(item=item)
             else:
                 # If number of MySQL response items are 0 or > 1:
                 return redirect(url_for(self.endpoint_name))

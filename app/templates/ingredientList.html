@@ -1,3 +1,11 @@
+{% macro allergy_info(value, name_free, name_contains) -%}
+    {% if value == true %}
+        <span class="badge badge-info">{{ name_free }}</span>
+    {% else %}
+        <span class="badge badge-danger">{{ name_contains }}</span>
+    {% endif %}
+{%- endmacro %}
+
 {% include "header.html" %}
 
 <main>
@@ -22,24 +30,23 @@
                         <tbody>
                         {% for ingredient in ingredients %}
                             <tr>
-                                <th scope="row" class="align-middle">{{ ingredient[1] }}</th>
-                                <td class="align-middle"><a href="/tube/{{ ingredient[3] }}/">#{{ ingredient[3] }}</a></td>
+                                <th scope="row" class="align-middle">{{ ingredient['ingredient_name'] }}</th>
                                 <td class="align-middle">
-                                    {% if ingredient[4] == true %}
-                                        <span class="badge badge-info">GLUTENFREE</span>
-                                    {% else %}
-                                        <span class="badge badge-danger">CONTAINS GLUTEN</span>
-                                    {% endif %}
-                                    {% if ingredient[5] == true %}
-                                        <span class="badge badge-info">LACTOSEFREE</span>
-                                    {% else %}
-                                        <span class="badge badge-danger">CONTAINS LACTOSE</span>
-                                    {% endif %}
+                                    <a href="/tube/{{ ingredient['ingredient_tube'] }}/">
+                                        #{{ ingredient['ingredient_tube'] }}
+                                    </a>
                                 </td>
-                                <td class="align-middle">{{ ingredient[2] }} € / g</td>
+                                <td class="align-middle">
+                                    {{ allergy_info(value=ingredient['ingredient_glutenfree'],
+                                                    name_free='GLUTENFREE', name_contains='CONTAINS GLUTEN') }}
+                                    {{ allergy_info(value=ingredient['ingredient_lactosefree'],
+                                                    name_free='LACTOSEFREE', name_contains='CONTAINS LACTOSE') }}
+                                </td>
+                                <td class="align-middle">{{ ingredient['ingredient_price'] }} € / g</td>
                                 {#                            <td class="align-middle">{{item[6]}}</td>#}
                                 <td class="align-middle">
-                                    <a class="btn btn-primary btn-sm" href="{{ ingredient[0] }}/" role="button">Edit</a>
+                                    <a class="btn btn-primary btn-sm" href="{{ ingredient['ingredient_uid'] }}/"
+                                       role="button">Edit</a>
                                 </td>
                             </tr>
                         {% endfor %}

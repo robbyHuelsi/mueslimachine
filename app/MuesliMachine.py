@@ -26,6 +26,8 @@ class MuesliMachine:
 
         self.arduino = MMArduino(self.logger, self.status, arduino_port)
 
+        self.version = "beta 0.3"
+
         # self.ledRed = MMGpioOutBinary(4,0,"LED Red", self.status)
         # self.ledYellow = MMGpioOutBinary(17,0,"LED Yellow", self.status)
         # self.servo1 = MMGpioServo(22, "Servo 1", self.status)

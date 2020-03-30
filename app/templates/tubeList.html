@@ -20,16 +20,16 @@
 					<tbody>
 {% for item in items %}
 						<tr>
-							<th scope="row" class="align-middle">{{item[0]}}</th>
+							<th scope="row" class="align-middle">{{item['tube_uid']}}</th>
 							<td class="align-middle">
-								<span class="badge badge-info">{{item[1]}}</span>
-								<span class="badge badge-info">{{item[2]}}</span>
-								<span class="badge badge-info">{{item[3]}}</span>
-								<span class="badge badge-info">{{item[4]}}</span>
+								<span class="badge badge-info">{{item['tube_gpio_1']}}</span>
+								<span class="badge badge-info">{{item['tube_gpio_2']}}</span>
+								<span class="badge badge-info">{{item['tube_gpio_3']}}</span>
+								<span class="badge badge-info">{{item['tube_gpio_4']}}</span>
 							</td>
 							<td class="align-middle"></td>
 							<td class="align-middle">
-								<a class="btn btn-primary btn-sm" href="{{item[0]}}/" role="button">Edit</a>
+								<a class="btn btn-primary btn-sm" href="{{item['tube_uid']}}/" role="button">Edit</a>
 							</td>
 						</tr>
 {% endfor %}

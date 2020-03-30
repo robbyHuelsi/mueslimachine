@@ -4,12 +4,12 @@
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
 {% if item %}
-			<h1>{{item[0][1]}} <i class="fas fa-user"></i></h1>
+			<h1>{{item[0]['user_username']}} <i class="fas fa-user"></i></h1>
             <div class="my-3">
                 <p>
-                    ID: <span class="badge badge-info">{{item[0][0]}}</span><br>
-                    Registration Date: <span class="badge badge-info">{{item[0][7]}}</span><br>
-                    Role: <span class="badge badge-info">{{item[0][6].upper()}}</span></p>
+                    ID: <span class="badge badge-info">{{item[0]['user_uid']}}</span><br>
+                    Registration Date: <span class="badge badge-info">{{item[0]['user_reg_date']}}</span><br>
+                    Role: <span class="badge badge-info">{{item[0]['user_role'].upper()}}</span></p>
             </div>
 {% else %}
 			<h1>New User <i class="fas fa-user"></i></h1>
@@ -19,7 +19,7 @@
                 <h4>{% if item %}Edit{% else %}Set{% endif %} name and email address</h4>
 				<form method="post">
 {% if item %}
-                <input type="hidden" name="item_id" value="{{item[0][0]}}">
+                <input type="hidden" name="item_id" value="{{item[0]['user_uid']}}">
 {% endif %}
                 <label for="input_first_name" class="sr-only">Name</label>
                 <input
@@ -29,7 +29,7 @@
                         class="form-control mb-2"
                         placeholder="First Name"
                         autocomplete="off"
-                        value="{% if item %}{{item[0][2]}}{% endif %}"
+                        value="{% if item %}{{item[0]['user_first_name']}}{% endif %}"
                         autofocus>
 
                 <label for="input_last_name" class="sr-only">Name</label>
@@ -40,7 +40,7 @@
                         class="form-control mb-2"
                         placeholder="Last Name"
                         autocomplete="off"
-                        value="{% if item %}{{item[0][3]}}{% endif %}">
+                        value="{% if item %}{{item[0]['user_last_name']}}{% endif %}">
 
                 <div class="input-group mb-2">
                     <div class="input-group-prepend">
@@ -55,7 +55,7 @@
                             class="form-control"
                             placeholder="Username"
                             autocomplete="off"
-                            value="{% if item %}{{item[0][1]}}{% endif %}"
+                            value="{% if item %}{{item[0]['user_username']}}{% endif %}"
                             required>
                 </div>
 
@@ -72,7 +72,7 @@
                             class="form-control"
                             placeholder="Email Address"
                             autocomplete="off"
-                            value="{% if item %}{{item[0][5]}}{% endif %}"
+                            value="{% if item %}{{item[0]['user_email']}}{% endif %}"
                             required>
                 </div>
 {% if not item %}
@@ -93,7 +93,7 @@
 			<div class="my-3">
 				<h4>Danger Zone</h4>
 				<form method="post">
-					<button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">Delete {{item[0][1]}}</button>
+					<button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">Delete {{item[0]['user_username']}}</button>
 				</form>
 			</div>
 {% endif %}

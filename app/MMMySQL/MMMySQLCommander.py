@@ -24,6 +24,6 @@ class MMMySqlCommander:
 
 
 if __name__ == '__main__':
-    table_names = MMMySQL.MMMySql._ConstTableNames
+    table_names = MMMySQL.MMMySql._ConstTableNames()
     commander = MMMySqlCommander('mm_db', 'root', 'db', table_names)
-    print(commander.get_sql_command('user_addItem', 'user'))
+    print(commander.get_sql_command('ir_getIngredientsByRecipeId', 'user'))

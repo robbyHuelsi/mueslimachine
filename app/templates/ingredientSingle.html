@@ -6,7 +6,7 @@
             {% if ingredient %}
                 <h1>Edit Ingredient <i class="fas fa-apple-alt"></i></h1>
                 <div class="my-3">
-                    <p>ID: <span class="badge badge-info">{{ ingredient[0][0] }}</span></p>
+                    <p>ID: <span class="badge badge-info">{{ ingredient['ingredient_uid'] }}</span></p>
                 </div>
             {% else %}
                 <h1>New Ingredient <i class="fas fa-apple-alt"></i></h1>
@@ -15,7 +15,7 @@
             <div class="my-3">
                 <form method="post">
                     {% if ingredient %}
-                        <input type="hidden" name="ingredient_id" value="{{ ingredient[0][0] }}">
+                        <input type="hidden" name="ingredient_id" value="{{ ingredient['ingredient_uid'] }}">
                     {% endif %}
 
                     <h4>{% if ingredient %}Edit{% else %}Set{% endif %} Properties</h4>
@@ -38,7 +38,7 @@
                                             class="form-control"
                                             placeholder="Name"
                                             autocomplete="off"
-                                            value="{% if ingredient %}{{ ingredient[0][1] }}{% endif %}"
+                                            value="{% if ingredient %}{{ ingredient[0]['ingredient_name'] }}{% endif %}"
                                             autofocus
                                             required>
                                 </div>
@@ -52,16 +52,16 @@
                                     <option
                                             hidden
                                             disabled
-                                            {% if not (ingredient and ingredient[0][3]) %}selected{% endif %}
+                                            {% if not (ingredient and ingredient[0]['ingredient_tube']) %}selected{% endif %}
                                             value>
                                         Select Tube
                                     </option>
                                     {% for tube in tubes %}
                                         <option
-                                                value="{{ tube[0] }}"
-                                                {% if ingredient and ingredient[0][3] == tube[0] %}selected{% endif %}
+                                                value="{{ tube['tube_uid'] }}"
+                                                {% if ingredient and ingredient[0]['ingredient_tube'] == tube['tube_uid'] %}selected{% endif %}
                                         >
-                                            Tube #{{ tube[0] }}
+                                            Tube #{{ tube['tube_uid'] }}
                                         </option>
                                     {% endfor %}
                                 </select>
@@ -78,7 +78,7 @@
                                             value="true"
                                             id="input_glutenfree"
                                             class="form-check-input"
-                                            {% if ingredient and ingredient[0][4] %}checked{% endif %}>
+                                            {% if ingredient and ingredient[0]['ingredient_glutenfree'] %}checked{% endif %}>
                                     <label for="input_glutenfree" class="form-check-label">Glutenfree</label>
                                 </div>
                                 <div class="form-check">
@@ -88,7 +88,7 @@
                                             value="true"
                                             id="input_lactosefree"
                                             class="form-check-input"
-                                            {% if ingredient and ingredient[0][5] %}checked{% endif %}>
+                                            {% if ingredient and ingredient[0]['ingredient_lactosefree'] %}checked{% endif %}>
                                     <label for="input_lactosefree" class="form-check-label">Lactosefree</label>
                                 </div>
                             </div>
@@ -106,7 +106,7 @@
                                             class="form-control"
                                             min="0"
                                             step="0.01"
-                                            value="{% if ingredient %}{{ ingredient[0][2] }}{% else %}0.00{% endif %}"
+                                            value="{% if ingredient %}{{ ingredient[0]['ingredient_price'] }}{% else %}0.00{% endif %}"
                                             aria-describedby="price_addon">
                                     <div class="input-group-append">
                                         <span class="input-group-text" id="price_addon">€ / g</span>
@@ -130,7 +130,7 @@
                     <h4>Danger Zone</h4>
                     <form method="post">
                         <button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">
-                            Delete {{ ingredient[0][1] }}</button>
+                            Delete {{ ingredient[0]['ingredient_name'] }}</button>
                     </form>
                 </div>
             {% endif %}

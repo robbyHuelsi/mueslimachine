@@ -1,4 +1,5 @@
 from flaskext.mysql import MySQL
+from pymysql.cursors import DictCursor
 from werkzeug import security as sec
 import threading
 import time
@@ -92,7 +93,7 @@ class MMMySql:
                     self.logger.log("Wait 5 seconds and try again.", flush=True)
                     time.sleep(5)
             self.set_status(2)
-            self.cursor = self.connection.cursor()
+            self.cursor = self.connection.cursor(cursor=DictCursor)
             self.__check_and_set_up_db(db_name)
             self.__check_and_set_up_tables(user, host)
             self.set_status(3)
@@ -112,7 +113,7 @@ class MMMySql:
         self.cursor.execute("SHOW DATABASES")
         db_exists = 0
         for (database) in self.cursor:
-            if database[0] == db_name:
+            if database['Database'] == db_name:
                 db_exists = 1
                 break
         if db_exists:
@@ -126,47 +127,38 @@ class MMMySql:
     def __check_and_set_up_tables(self, user, host):
         self.cursor.execute("SHOW TABLES")
         search_tables = self.cursor.fetchall()
-
+        self.logger.log(str(search_tables))
         for table in self.CONST_TBL_NAMES.TABLES:
             tbl_exists = 0
-            for (searchTable,) in search_tables:
-                if searchTable == table:
+            for searchTable in search_tables:
+                if searchTable['Tables_in_mm_db'] == table:
                     tbl_exists = 1
                     break
 
             if tbl_exists:
                 self.logger.log("Table '" + table + "' already exists")
             else:
-                self.cursor.execute(self.commander.get_sql_command(table+"_createTable", table))
+                self.cursor.execute(self.commander.get_sql_command(table + "_createTable", table))
+                self.cursor.execute(self.commander.get_sql_command(table + "_addItem", table))
                 self.cursor.execute(self.commander.get_sql_command("_getItems", table))
                 self.cursor.execute(self.commander.get_sql_command("_getItemById", table))
                 self.cursor.execute(self.commander.get_sql_command("_deleteItemById", table))
 
                 if table == self.CONST_TBL_NAMES.TBL_USER:
-                    self.cursor.execute(self.commander.get_sql_command(table+"_addItem", table))
                     self.cursor.execute(self.commander.get_sql_command(table+"_getPassword", table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_TUBE:
-                    self.cursor.execute(self.commander.get_sql_command(table+"_addItem", table))
+                    pass
 
                 elif table == self.CONST_TBL_NAMES.TBL_INGREDIENT:
-                    self.cursor.execute(self.commander.get_sql_command(table+"_addItem", table))
+                    pass
 
                 elif table == self.CONST_TBL_NAMES.TBL_RECIPE:
                     pass
                 elif table == self.CONST_TBL_NAMES.TBL_IR:
-                    pass
+                    self.cursor.execute(self.commander.get_sql_command(table + "_getIngredientsByRecipeId", table))
 
                 self.logger.log("Table '" + table + "' was created")
-
-    def user_check_user_password(self, in_username, in_password):
-        self.cursor.callproc("user_getPassword", (in_username,))
-        hashed_password = self.cursor.fetchall()
-        # self.logger.log("Username: " + in_username)
-        # self.logger.log("Password: " + in_password)
-        # self.logger.log("HashedPw: " + str(hashed_password))
-        if hashed_password:
-            return sec.check_password_hash(hashed_password[0][0], in_password)
 
     def get_items(self, table):
         if table in self.CONST_TBL_NAMES.TABLES:
@@ -204,14 +196,14 @@ class MMMySql:
         # Exit with error, if adding failed
         if len(data) == 0 or len(data[0]) == 0:
             return False, None, "failed;"
-        elif len(data) == 0 or len(data[0]) == 0 or data[0][0] == "item_exists":
+        elif len(data) == 0 or len(data[0]) == 0 or data[0]['LAST_INSERT_ID()'] == "item_exists":
             return False, None, "Item already exists."
-        elif len(data) == 0 or len(data[0]) == 0 or data[0][0] == "tube_in_use":
+        elif len(data) == 0 or len(data[0]) == 0 or data[0]['LAST_INSERT_ID()'] == "tube_in_use":
             return False, None, "Chosen tube is already assigned."
 
         # Exit with ID of new item, if everything went well
         self.connection.commit()
-        return True, data[0][0], ""
+        return True, data[0]['LAST_INSERT_ID()'], ""
 
     def edit_item_by_id(self, table, item_id, data):
         if table in self.CONST_TBL_NAMES.TABLES:
@@ -234,6 +226,22 @@ class MMMySql:
                 return True
             else:
                 return False
+
+    def user_check_user_password(self, in_username, in_password):
+        self.cursor.callproc(self.CONST_TBL_NAMES.TBL_USER + "_getPassword", (in_username,))
+        hashed_password = self.cursor.fetchall()
+        # self.logger.log("Username: " + in_username)
+        # self.logger.log("Password: " + in_password)
+        # self.logger.log("HashedPw: " + str(hashed_password))
+        if hashed_password:
+            return sec.check_password_hash(hashed_password[0][0], in_password)  #TODO: DICT statt LIST
+
+    def ir_get_ingredients_by_recipe_id(self, recipe_id):
+        self.cursor.callproc(self.CONST_TBL_NAMES.TBL_IR + "_getIngredientsByRecipeId", (recipe_id,))
+        # self.logger.log("Item " + str(item_id) + " of table " + table + ":", flush = True)
+        ingredients = self.cursor.fetchall()
+        # self.logger.log(str(item), flush = True)
+        return ingredients
 
     def check_and_patch_properties(self, table, properties):
         success = True

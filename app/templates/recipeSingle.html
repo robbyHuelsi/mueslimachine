@@ -1,3 +1,11 @@
+{% macro allergy_info(name, value) -%}
+    {% if value == true %}
+{#        <span class="badge badge-info">GLUTENFREE</span>#}
+    {% else %}
+        <span class="badge badge-danger">{{ name }}</span>
+    {% endif %}
+{%- endmacro %}
+
 {% include "header.html" %}
 
 <main>
@@ -6,8 +14,8 @@
             {% if recipe %}
                 <h1>Edit Recipe <i class="fas fa-file-alt"></i></h1>
                 <div class="my-3">
-                    <p>ID: <span class="badge badge-info">{{ recipe[0][0] }}</span></p>
-                    <p>Creator: <span class="badge badge-info">{{ recipe[0][2] }}</span></p>
+                    <p>ID: <span class="badge badge-info">{{ recipe[0]['recipe_uid'] }}</span></p>
+                    <p>Creator: <span class="badge badge-info">{{ recipe[0]['recipe_creator'] }}</span></p>
                 </div>
             {% else %}
                 <h1>New Recipe <i class="fas fa-file-alt"></i></h1>
@@ -16,7 +24,7 @@
             <div class="my-3">
                 <form method="post">
                     {% if recipe %}
-                        <input type="hidden" name="recipe_id" value="{{ recipe[0][0] }}">
+                        <input type="hidden" name="recipe_id" value="{{ recipe[0]['recipe_uid'] }}">
                     {% endif %}
 
                     <h4>{% if recipe %}Edit{% else %}Set{% endif %} Properties</h4>
@@ -28,44 +36,45 @@
                             class="form-control mb-2"
                             placeholder="Name"
                             autocomplete="off"
-                            value="{% if recipe %}{{ recipe[0][1] }}{% endif %}"
+                            value="{% if recipe %}{{ recipe[0]['recipe_name'] }}{% endif %}"
                             autofocus>
 
-{#                    <hr class="my-3">#}
+                    {#                    <hr class="my-3">#}
 
                     <div class="card-deck mb-3">
                         <div class="card">
                             <h5 class="card-header">List of Used Ingredients</h5>
                             <div class="card-body p-0">
-                                <table class="table table-hover recipe_ingredient_list">
+                                <table class="table table-hover m-0 recipe_ingredient_list">
                                     {% for ingredient in all_ingredients %}
                                         <tr>
                                             <th
                                                     scope="row"
-                                                    class="align-middl pl-2"
-                                                    style="white-space: nowrap;">
-                                                0.
+                                                    class="align-middle"
+                                                    style="white-space: nowrap; padding-left: 20px;">
+                                                {{ loop.revindex }}.
                                             </th>
                                             <td class="align-middle" style="white-space: nowrap;">
-                                                <label for="input_amount_0" class="sr-only">Amount</label>
+                                                <label for="input_amount_{{ loop.revindex }}" class="sr-only">Amount</label>
                                                 <div class="input-group" style="min-width: 110px;">
                                                     <input
                                                             type="number"
-                                                            name="amount_0"
-                                                            id="input_amount_0"
+                                                            name="amount_{{ loop.revindex }}"
+                                                            id="input_amount_{{ loop.revindex }}"
                                                             class="form-control"
                                                             min="0"
                                                             step="1"
                                                             value="0"
                                                             size="3"
-                                                            aria-describedby="addon_amount_0">
+                                                            dir="rtl"
+                                                            aria-describedby="addon_amount_{{ loop.revindex }}">
                                                     <div class="input-group-append">
-                                                        <span class="input-group-text" id="addon_amount_0">g</span>
+                                                        <span class="input-group-text" id="addon_amount_{{ loop.revindex }}">g</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="align-middle" width="99%">{{ ingredient[1] }}</td>
-                                            <td class="align-middle" style="white-space: nowrap;">
+                                            <td class="align-middle" width="99%">{{ ingredient['ingredient_name'] }}</td>
+                                            <td class="align-middle" style="white-space: nowrap; padding-right: 20px;">
                                                 <button type="button" class="btn btn-primary">
                                                     <i class="fas fa-chevron-up"></i>
                                                 </button>
@@ -85,26 +94,24 @@
                         <div class="card">
                             <h5 class="card-header">List of All Ingredients</h5>
                             <div class="card-body p-0">
-                                <table class="table table-hover recipe_ingredient_list">
+                                <table class="table table-hover m-0 recipe_ingredient_list">
                                     {% for ingredient in all_ingredients %}
                                         <tr>
-                                            <th scope="row" class="align-middle">{{ ingredient[1] }}</th>
-                                            <td class="align-middle">
-                                                {% if ingredient[4] == true %}
-                                                    <span class="badge badge-info">GLUTENFREE</span>
-                                                {% else %}
-                                                    <span class="badge badge-danger">CONTAINS GLUTEN</span>
-                                                {% endif %}
-                                                {% if ingredient[5] == true %}
-                                                    <span class="badge badge-info">LACTOSEFREE</span>
-                                                {% else %}
-                                                    <span class="badge badge-danger">CONTAINS LACTOSE</span>
-                                                {% endif %}
+                                            <th
+                                                    scope="row"
+                                                    class="align-middle"
+                                                    style="padding-left: 20px;"
+                                                    width="99%">
+                                                {{ ingredient['ingredient_name'] }}
+                                            </th>
+                                            <td class="align-middle" style="white-space: nowrap;">
+                                                {{ allergy_info('G', ingredient['ingredient_glutenfree']) }}
+                                                {{ allergy_info('L', ingredient['ingredient_lactosefree']) }}
                                             </td>
-                                            <td class="align-middle" style="white-space: nowrap;">{{ ingredient[2] }} €
+                                            <td class="align-middle" style="white-space: nowrap;">{{ ingredient['ingredient_price'] }} €
                                                 / g
                                             </td>
-                                            <td class="align-middle">
+                                            <td class="align-middle" style="padding-right: 20px;">
                                                 <button type="button" class="btn btn-success">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
