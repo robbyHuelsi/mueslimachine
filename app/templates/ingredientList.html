@@ -1,10 +1,4 @@
-{% macro allergy_info(value, name_free, name_contains) -%}
-    {% if value == true %}
-        <span class="badge badge-info">{{ name_free }}</span>
-    {% else %}
-        <span class="badge badge-danger">{{ name_contains }}</span>
-    {% endif %}
-{%- endmacro %}
+{% from '_macros.html' import allergy_badge as allergy_badge %}
 
 {% include "header.html" %}
 
@@ -37,9 +31,9 @@
                                     </a>
                                 </td>
                                 <td class="align-middle">
-                                    {{ allergy_info(value=ingredient['ingredient_glutenfree'],
+                                    {{ allergy_badge(value=ingredient['ingredient_glutenfree'],
                                                     name_free='GLUTENFREE', name_contains='CONTAINS GLUTEN') }}
-                                    {{ allergy_info(value=ingredient['ingredient_lactosefree'],
+                                    {{ allergy_badge(value=ingredient['ingredient_lactosefree'],
                                                     name_free='LACTOSEFREE', name_contains='CONTAINS LACTOSE') }}
                                 </td>
                                 <td class="align-middle">{{ ingredient['ingredient_price'] }} € / g</td>

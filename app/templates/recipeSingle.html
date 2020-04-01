@@ -1,11 +1,5 @@
-{% macro allergy_info(name, value) -%}
-    {% if value == true %}
-{#        <span class="badge badge-info">GLUTENFREE</span>#}
-    {% else %}
-        <span class="badge badge-danger">{{ name }}</span>
-    {% endif %}
-{%- endmacro %}
-
+{% from '_macros.html' import allergy_badge as allergy_badge %}
+{% from '_macros.html' import recipeSingle_usedIngredientsTr as usedIngredientsTr %}
 {% include "header.html" %}
 
 <main>
@@ -45,47 +39,10 @@
                         <div class="card">
                             <h5 class="card-header">List of Used Ingredients</h5>
                             <div class="card-body p-0">
-                                <table class="table table-hover m-0 recipe_ingredient_list">
+                                <table id="recipeSingle_usedIngredientsTable"
+                                       class="table table-hover m-0 recipe_ingredient_list">
                                     {% for ingredient in all_ingredients %}
-                                        <tr>
-                                            <th
-                                                    scope="row"
-                                                    class="align-middle"
-                                                    style="white-space: nowrap; padding-left: 20px;">
-                                                {{ loop.revindex }}.
-                                            </th>
-                                            <td class="align-middle" style="white-space: nowrap;">
-                                                <label for="input_amount_{{ loop.revindex }}" class="sr-only">Amount</label>
-                                                <div class="input-group" style="min-width: 110px;">
-                                                    <input
-                                                            type="number"
-                                                            name="amount_{{ loop.revindex }}"
-                                                            id="input_amount_{{ loop.revindex }}"
-                                                            class="form-control"
-                                                            min="0"
-                                                            step="1"
-                                                            value="0"
-                                                            size="3"
-                                                            dir="rtl"
-                                                            aria-describedby="addon_amount_{{ loop.revindex }}">
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text" id="addon_amount_{{ loop.revindex }}">g</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td class="align-middle" width="99%">{{ ingredient['ingredient_name'] }}</td>
-                                            <td class="align-middle" style="white-space: nowrap; padding-right: 20px;">
-                                                <button type="button" class="btn btn-primary">
-                                                    <i class="fas fa-chevron-up"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-primary">
-                                                    <i class="fas fa-chevron-down"></i>
-                                                </button>
-                                                <button type="button" class="btn btn-danger">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
+                                        {{ usedIngredientsTr(loop.revindex, ingredient['ingredient_name'], ingredient['ingredient_uid']) }}
                                     {% endfor %}
                                 </table>
                             </div>
@@ -105,14 +62,16 @@
                                                 {{ ingredient['ingredient_name'] }}
                                             </th>
                                             <td class="align-middle" style="white-space: nowrap;">
-                                                {{ allergy_info('G', ingredient['ingredient_glutenfree']) }}
-                                                {{ allergy_info('L', ingredient['ingredient_lactosefree']) }}
+                                                {{ allergy_badge(ingredient['ingredient_glutenfree'], '', 'G') }}
+                                                {{ allergy_badge(ingredient['ingredient_lactosefree'], '', 'L') }}
                                             </td>
-                                            <td class="align-middle" style="white-space: nowrap;">{{ ingredient['ingredient_price'] }} €
+                                            <td class="align-middle"
+                                                style="white-space: nowrap;">{{ ingredient['ingredient_price'] }} €
                                                 / g
                                             </td>
                                             <td class="align-middle" style="padding-right: 20px;">
-                                                <button type="button" class="btn btn-success">
+                                                <button type="button" class="btn btn-success"
+                                                        onclick='add_ingredient({{ ingredient|tojson }});'>
                                                     <i class="fas fa-plus"></i>
                                                 </button>
                                             </td>
@@ -131,5 +90,23 @@
         </div>
     </div>
 </main>
+
+{#<script src="../static/js/recipeSingle.js"></script>#}
+
+<script type="application/javascript">
+    function get_tr_html(index, ingredient_name, ingredient_uid) {
+        {% set new_tr_html = usedIngredientsTr("' + index + '", "' + ingredient_name + '", "' + ingredient_uid + '") %}
+        return '{{ new_tr_html|replace("\n", " ")|replace("    ", " ") }}';
+    }
+
+    function add_ingredient(ingredient) {
+        let tbl_body = document.getElementById('recipeSingle_usedIngredientsTable').getElementsByTagName('tbody')[0];
+        let index = tbl_body.childElementCount + 1;
+        let new_tr_html = get_tr_html(index, ingredient['ingredient_name'], ingredient['ingredient_uid']);
+        let old_inner = tbl_body.innerHTML;
+        tbl_body.innerHTML = new_tr_html + old_inner;
+    }
+
+</script>
 
 {% include "footer.html" %}
