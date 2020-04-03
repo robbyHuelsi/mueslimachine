@@ -17,8 +17,9 @@ class MMFlask(Flask):
         self.nav = MMFlaskNav(self)
 
         self.register_urls_default("index")
+        self.register_urls_default('welcome')
         self.register_urls_default("status")
-        self.register_urls_default("signup")
+        # self.register_urls_default("signup")
         self.register_urls_default("login")
         self.register_urls_default("logout")
 
@@ -51,6 +52,21 @@ class MMFlask(Flask):
         self.add_url_rule(url + "add/", view_func=view_func_add, methods=['GET', ], defaults={"item_id": "add"})
         self.add_url_rule(url + "add/", view_func=view_func_add, methods=['POST', ], defaults={"item_id": "add"})
 
+    def check_get_permission(self, endpoint_name, session):
+        is_setup_mode = self.mm.mySQL.setting_is_setup_mode()
+        is_logged_in = 'user_uid' in session
+        if is_setup_mode and endpoint_name != 'welcome':
+            return False, 'welcome'
+        elif not is_logged_in and endpoint_name != 'login':
+            return False, 'login'
+
+        elif not is_setup_mode and endpoint_name == 'welcome':
+            return False, 'index'
+        elif is_logged_in and endpoint_name == 'login':
+            return False, 'index'
+
+        return True, ''
+
 
 class MMFlaskViewDefaultRenderer(MethodView):
     def __init__(self, endpoint_name, muesli_machine):
@@ -60,22 +76,29 @@ class MMFlaskViewDefaultRenderer(MethodView):
         super().__init__()
 
     def get(self):
+        allowed, redirect_url = self.mm.flask.check_get_permission(self.endpoint_name, session)
+        if not allowed:
+            return redirect(url_for(redirect_url))
+
         if self.endpoint_name == "logout":
             return self.logout()
         elif self.endpoint_name == "status":
             return render_template(self.templateName, mm_version=self.mm.version,
                                    status=self.mm.status.get_status())
-        elif self.endpoint_name == "signup":
-            first_name, last_name, username, email = session.pop("signup_inputs", ("", "", "", ""))
-            return render_template(self.templateName, mm_version=self.mm.version,
-                                   first_name=first_name, last_name=last_name,
-                                   username=username, email=email)
+        # elif self.endpoint_name == "signup":
+        #     first_name, last_name, username, email = session.pop("signup_inputs", ("", "", "", ""))
+        #     return render_template(self.templateName, mm_version=self.mm.version,
+        #                            first_name=first_name, last_name=last_name,
+        #                            username=username, email=email)
         else:
             return render_template(self.templateName, mm_version=self.mm.version)
 
     def post(self):
-        if self.endpoint_name == "signup":
-            return self.signup()
+        if self.endpoint_name == "welcome":
+            return self.setup()
+
+        # if self.endpoint_name == "signup":
+        #     return self.signup()
 
         if self.endpoint_name == "login":
             return self.login()
@@ -86,7 +109,7 @@ class MMFlaskViewDefaultRenderer(MethodView):
         else:
             return ""
 
-    def signup(self):
+    def setup(self):
         in_first_name = request.form.get("first_name")
         in_last_name = request.form.get("last_name")
         in_username = request.form.get("username")
@@ -95,33 +118,69 @@ class MMFlaskViewDefaultRenderer(MethodView):
         in_password_confirm = request.form.get("password_confirm")
         in_role = "admin"
 
-        if in_password != in_password_confirm:
-            self.mm.status.add_one_time_notification_error("Confirmed password was different")
-            session["signup_inputs"] = (in_first_name, in_last_name, in_username, in_email)
-            return redirect(url_for('signup'))
+        success = True
+        err_msg = ''
 
-        tbl = self.mm.mySQL.get_tbl_names().TBL_USER
-        properties = (in_username, in_first_name,
-                      in_last_name, in_password,
-                      in_email, in_role)
-        success, item, err_msg = self.mm.mySQL.add_item(tbl, properties)
+        if in_password != in_password_confirm:
+            success = False
+            err_msg = "Confirmed password was different"
+
         if success:
-            session['username'] = in_username
+            tbl = self.mm.mySQL.get_tbl_names().TBL_USER
+            properties = (in_username, in_first_name,
+                          in_last_name, in_password,
+                          in_email, in_role)
+            success, item, err_msg = self.mm.mySQL.add_item(tbl, properties)
+            # TODO: Rewrite error messages
+
+        if success:
+            self.mm.mySQL.setting_update_value_by_key('setup_mode', 'false')
             return redirect(url_for('index'))
         else:
-            # TODO: Rewrite error messages
             self.mm.status.add_one_time_notification_error(err_msg)
+            user = {'user_username': in_username,
+                    'user_first_name': in_first_name,
+                    'user_last_name': in_last_name,
+                    'user_email': in_email}
+            return render_template(self.templateName, user=user, mm_version=self.mm.version)
 
-        session["signup_inputs"] = (in_first_name, in_last_name, in_username, in_email)
-        return redirect(url_for('signup'))
+    # def signup(self):
+    #     in_first_name = request.form.get("first_name")
+    #     in_last_name = request.form.get("last_name")
+    #     in_username = request.form.get("username")
+    #     in_email = request.form.get("email")
+    #     in_password = request.form.get("password")
+    #     in_password_confirm = request.form.get("password_confirm")
+    #     in_role = "admin"
+    #
+    #     if in_password != in_password_confirm:
+    #         self.mm.status.add_one_time_notification_error("Confirmed password was different")
+    #         session["signup_inputs"] = (in_first_name, in_last_name, in_username, in_email)
+    #         return redirect(url_for('signup'))
+    #
+    #     tbl = self.mm.mySQL.get_tbl_names().TBL_USER
+    #     properties = (in_username, in_first_name,
+    #                   in_last_name, in_password,
+    #                   in_email, in_role)
+    #     success, item, err_msg = self.mm.mySQL.add_item(tbl, properties)
+    #     if success:
+    #         session['username'] = in_username
+    #         return redirect(url_for('index'))
+    #     else:
+    #         # TODO: Rewrite error messages
+    #         self.mm.status.add_one_time_notification_error(err_msg)
+    #
+    #     session["signup_inputs"] = (in_first_name, in_last_name, in_username, in_email)
+    #     return redirect(url_for('signup'))
 
     def login(self):
         in_username = request.form['username']
         in_password = request.form['password']
 
         if in_username and in_password:
-            if self.mm.mySQL.user_check_user_password(in_username, in_password):
-                session['username'] = in_username
+            password_okay, user_uid = self.mm.mySQL.user_check_user_password(in_username, in_password)
+            if password_okay:
+                session['user_uid'] = user_uid
                 return redirect(url_for('index'))
             else:
                 self.mm.status.add_one_time_notification_error("Login failed!")
@@ -130,8 +189,8 @@ class MMFlaskViewDefaultRenderer(MethodView):
 
     @staticmethod
     def logout():
-        if 'username' in session:
-            session.pop('username', None)
+        if 'user_uid' in session:
+            session.pop('user_uid', None)
         return redirect(url_for('index'))
 
 
@@ -182,6 +241,10 @@ class MMFlaskViewForItemsRenderer(MethodView):
                                    item=item)
 
     def get(self, item_id):
+        allowed, redirect_url = self.mm.flask.check_get_permission(self.endpoint_name, session)
+        if not allowed:
+            return redirect(url_for(redirect_url))
+
         if item_id is None:
             # self.mm.logger.log("Show List of " + self.endpoint_name)
             items = self.mm.mySQL.get_items(self.endpoint_name)
@@ -225,6 +288,22 @@ class MMFlaskViewForItemsRenderer(MethodView):
                 in_lactosefree = True if "lactosefree" in request.form else False
                 in_motortuning = 0
                 properties = (in_name, in_price, in_tube, in_glutenfree, in_lactosefree, in_motortuning)
+            elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
+                self.mm.logger.log(str(request.form))
+                in_name = request.form.get("recipe_name")
+                in_creator = 'None';
+                in_ingredients = []
+                for key, value in request.form.items():
+                    if key[0:5] == 'irId_':
+                        order = key[5:]
+                        ingredient = {
+                            'order': order,
+                            'ir_id': value,
+                            'ingredient_id': request.form.get("ingredientId_{}".format(order)),
+                            'amount': request.form.get("amount_{}".format(order))
+                        }
+                        in_ingredients.append(ingredient)
+                properties = (in_name, in_creator, in_ingredients)
             else:
                 properties = ()
 
@@ -233,7 +312,23 @@ class MMFlaskViewForItemsRenderer(MethodView):
 
             # If properties are available, add new item
             if len(properties) > 0:
-                success, item_id, err_msg = self.mm.mySQL.add_item(self.endpoint_name, properties)
+                if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
+                    (recipe_name, recipe_creator, ingredients) = properties
+                    recipe_properties = (recipe_name, recipe_creator)
+                    success, item_id, err_msg = self.mm.mySQL.add_item(self.mm.mySQL.get_tbl_names().TBL_RECIPE,
+                                                                       recipe_properties)
+                    if success:
+                        for ing in ingredients:
+                            ing_properties = (ing['ingredient_id'], item_id, ing['amount'], ing['order'])
+                            ir_success, ir_id, ir_err_msg = self.mm.mySQL.add_item(self.mm.mySQL.get_tbl_names().TBL_IR,
+                                                                                   ing_properties)
+                            if not ir_success:
+                                success = False
+                                err_msg = 'IR_UID {}: {}'.format(ir_id, ir_err_msg)
+                                break
+
+                else:
+                    success, item_id, err_msg = self.mm.mySQL.add_item(self.endpoint_name, properties)
 
                 # If adding new item was successful go to its single page or if not go to list page
                 if success:

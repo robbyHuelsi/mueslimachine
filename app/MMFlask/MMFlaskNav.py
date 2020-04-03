@@ -14,20 +14,22 @@ class MMFlaskNav:
 
     @staticmethod
     def mm_top_nav(logged_in):
-        items = [View('Recipes', 'recipe'),
-                 View('Ingredients', 'ingredient'),
-                 View('Tubes', 'tube'),
-                 View('Users', 'user')]
+        items = []
 
         if logged_in:
+            items.append(View('Recipes', 'recipe'))
+            items.append(View('Ingredients', 'ingredient'))
+            items.append(View('Tubes', 'tube'))
+            items.append(View('Users', 'user'))
             # items.append(View('Scale', 'scale'))
             # items.append(View('LED', 'led'))
             items.append(View('Log out', 'logout'))
+            items.append(View('Status', 'status'))
         else:
-            items.append(View('Log in', 'login'))
-            items.append(View('Sign up', 'signup'))
-
-        items.append(View('Status', 'status'))
+            # items.append(View('Log in', 'login'))
+            # items.append(View('Sign up', 'signup'))
+            pass
+        pass
 
         return Navbar('', *items)
 

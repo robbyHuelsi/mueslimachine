@@ -19,6 +19,10 @@ def constant(f):
 
 class _ConstTableNames(object):
     @constant
+    def TBL_SETTING(self):
+        return "setting"
+
+    @constant
     def TBL_USER(self):
         return "user"
 
@@ -41,7 +45,7 @@ class _ConstTableNames(object):
     @constant
     def TABLES(self):
         CONST = _ConstTableNames()
-        return [CONST.TBL_USER, CONST.TBL_TUBE, CONST.TBL_INGREDIENT, CONST.TBL_RECIPE, CONST.TBL_IR]
+        return [CONST.TBL_SETTING, CONST.TBL_USER, CONST.TBL_TUBE, CONST.TBL_INGREDIENT, CONST.TBL_RECIPE, CONST.TBL_IR]
 
 
 class MMMySql:
@@ -96,6 +100,7 @@ class MMMySql:
             self.cursor = self.connection.cursor(cursor=DictCursor)
             self.__check_and_set_up_db(db_name)
             self.__check_and_set_up_tables(user, host)
+            self.__check_and_set_up_entries(user, host)
             self.set_status(3)
             self.logger.log("Database connected", flush=True)
             return True
@@ -144,8 +149,12 @@ class MMMySql:
                 self.cursor.execute(self.commander.get_sql_command("_getItemById", table))
                 self.cursor.execute(self.commander.get_sql_command("_deleteItemById", table))
 
-                if table == self.CONST_TBL_NAMES.TBL_USER:
-                    self.cursor.execute(self.commander.get_sql_command(table+"_getPassword", table))
+                if table == self.CONST_TBL_NAMES.TBL_SETTING:
+                    self.cursor.execute(self.commander.get_sql_command(table + "_getValueByKey", table))
+                    self.cursor.execute(self.commander.get_sql_command(table + "_updateValueByKey", table))
+
+                elif table == self.CONST_TBL_NAMES.TBL_USER:
+                    self.cursor.execute(self.commander.get_sql_command(table + "_getUserByUsername", table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_TUBE:
                     pass
@@ -159,6 +168,24 @@ class MMMySql:
                     self.cursor.execute(self.commander.get_sql_command(table + "_getIngredientsByRecipeId", table))
 
                 self.logger.log("Table '" + table + "' was created")
+
+    def __check_and_set_up_entries(self, user, host):
+
+        # Check count users and enter setup mode if necessary
+        users = self.get_items(self.CONST_TBL_NAMES.TBL_USER)
+        setup_mode_necessary = True
+        for user in users:
+            if user['user_role'] == 'admin':
+                setup_mode_necessary = False
+                self.logger.log('Admin user found')
+                break
+        is_setup_mode = self.setting_is_setup_mode()
+        if setup_mode_necessary and not is_setup_mode:
+            self.logger.log('set setup mode to TRUE, because NO admin user found')
+            self.setting_update_value_by_key('setup_mode', 'true')
+        elif not setup_mode_necessary and is_setup_mode:
+            self.logger.log('set setup mode to FALSE, because AN admin user found')
+            self.setting_update_value_by_key('setup_mode', 'false')
 
     def get_items(self, table):
         if table in self.CONST_TBL_NAMES.TABLES:
@@ -227,14 +254,44 @@ class MMMySql:
             else:
                 return False
 
+    def setting_get_value_by_key(self, in_key):
+        self.cursor.callproc(self.CONST_TBL_NAMES.TBL_SETTING + '_getValueByKey', (in_key,))
+        item = self.cursor.fetchall()
+        self.logger.log(str(item), flush=True)
+        if len(item) == 0:
+            return False
+        else:
+            return item[0]
+
+    def setting_update_value_by_key(self, in_key, in_value):
+        self.cursor.callproc(self.CONST_TBL_NAMES.TBL_SETTING + '_updateValueByKey', (in_key, in_value,))
+        self.connection.commit()
+        # item = self.cursor.fetchall()
+        #self.logger.log(str(item), flush=True)
+        return True
+
+    def setting_is_setup_mode(self):
+        self.cursor.callproc(self.CONST_TBL_NAMES.TBL_SETTING + '_getValueByKey', ('setup_mode',))
+        setting_setup_mode = self.cursor.fetchall()
+        self.logger.log(str(setting_setup_mode), flush=True)
+        if len(setting_setup_mode) == 0:
+            self.add_item(self.CONST_TBL_NAMES.TBL_SETTING, ('setup_mode', 'false'))
+            is_setup_mode = False
+        else:
+            is_setup_mode = setting_setup_mode[0]['setting_value'] == 'true'
+        self.logger.log('Setup Mode' if is_setup_mode else 'No Setup Mode')
+        return is_setup_mode
+
     def user_check_user_password(self, in_username, in_password):
-        self.cursor.callproc(self.CONST_TBL_NAMES.TBL_USER + "_getPassword", (in_username,))
-        hashed_password = self.cursor.fetchall()
-        # self.logger.log("Username: " + in_username)
-        # self.logger.log("Password: " + in_password)
-        # self.logger.log("HashedPw: " + str(hashed_password))
-        if hashed_password:
-            return sec.check_password_hash(hashed_password[0][0], in_password)  #TODO: DICT statt LIST
+        self.cursor.callproc(self.CONST_TBL_NAMES.TBL_USER + "_getUserByUsername", (in_username,))
+        user = self.cursor.fetchall()
+        if user and len(user) > 0:
+            user_uid = user[0]['user_uid']
+            hashed_password = user[0]['user_password']
+            password_okay = sec.check_password_hash(hashed_password, in_password)
+            if password_okay:
+                return True, user_uid
+        return False, -1
 
     def ir_get_ingredients_by_recipe_id(self, recipe_id):
         self.cursor.callproc(self.CONST_TBL_NAMES.TBL_IR + "_getIngredientsByRecipeId", (recipe_id,))
@@ -246,7 +303,9 @@ class MMMySql:
     def check_and_patch_properties(self, table, properties):
         success = True
         err_msg = ""
-        if table == self.CONST_TBL_NAMES.TBL_USER:
+        if table == self.CONST_TBL_NAMES.TBL_SETTING:
+            pass  # TODO: Check all properties
+        elif table == self.CONST_TBL_NAMES.TBL_USER:
             username, first_name, last_name, password, email, role = properties
             if not username:
                 success = False

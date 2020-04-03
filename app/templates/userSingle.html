@@ -1,104 +1,42 @@
+{% from '_macros.html' import user_form as user_form %}
 {% include "header.html" %}
 
 <main>
-	<div class="jumbotron jumbotron-fluid">
-		<div class="container">
-{% if item %}
-			<h1>{{item[0]['user_username']}} <i class="fas fa-user"></i></h1>
-            <div class="my-3">
-                <p>
-                    ID: <span class="badge badge-info">{{item[0]['user_uid']}}</span><br>
-                    Registration Date: <span class="badge badge-info">{{item[0]['user_reg_date']}}</span><br>
-                    Role: <span class="badge badge-info">{{item[0]['user_role'].upper()}}</span></p>
-            </div>
-{% else %}
-			<h1>New User <i class="fas fa-user"></i></h1>
-{% endif %}
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            {% if item %}
+                <h1>{{ item[0]['user_username'] }} <i class="fas fa-user"></i></h1>
+                <div class="my-3">
+                    <p>
+                        ID: <span class="badge badge-info">{{ item[0]['user_uid'] }}</span><br>
+                        Registration Date: <span class="badge badge-info">{{ item[0]['user_reg_date'] }}</span><br>
+                        Role: <span class="badge badge-info">{{ item[0]['user_role'].upper() }}</span></p>
+                </div>
+            {% else %}
+                <h1>New User <i class="fas fa-user"></i></h1>
+            {% endif %}
 
             <div class="my-3">
                 <h4>{% if item %}Edit{% else %}Set{% endif %} name and email address</h4>
-				<form method="post">
-{% if item %}
-                <input type="hidden" name="item_id" value="{{item[0]['user_uid']}}">
-{% endif %}
-                <label for="input_first_name" class="sr-only">Name</label>
-                <input
-                        type="name"
-                        name="first_name"
-                        id="input_first_name"
-                        class="form-control mb-2"
-                        placeholder="First Name"
-                        autocomplete="off"
-                        value="{% if item %}{{item[0]['user_first_name']}}{% endif %}"
-                        autofocus>
+                {{ user_form(user) }}
+            </div>
 
-                <label for="input_last_name" class="sr-only">Name</label>
-                <input
-                        type="name"
-                        name="last_name"
-                        id="input_last_name"
-                        class="form-control mb-2"
-                        placeholder="Last Name"
-                        autocomplete="off"
-                        value="{% if item %}{{item[0]['user_last_name']}}{% endif %}">
-
-                <div class="input-group mb-2">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">
-                            <i class="fa fa-star" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                    <input
-                            type="name"
-                            name="username"
-                            id="input_username"
-                            class="form-control"
-                            placeholder="Username"
-                            autocomplete="off"
-                            value="{% if item %}{{item[0]['user_username']}}{% endif %}"
-                            required>
+            {% if item %}
+                <div class="my-3">
+                    <h4>Edit password</h4>
+                    <p>Not implemented yet</p>
                 </div>
 
-                <div class="input-group mb-2">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text">
-                            <i class="fa fa-star" aria-hidden="true"></i>
-                        </div>
-                    </div>
-                    <input
-                            type="email"
-                            name="email"
-                            id="input_email"
-                            class="form-control"
-                            placeholder="Email Address"
-                            autocomplete="off"
-                            value="{% if item %}{{item[0]['user_email']}}{% endif %}"
-                            required>
+                <div class="my-3">
+                    <h4>Danger Zone</h4>
+                    <form method="post">
+                        <button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">
+                            Delete {{ item[0]['user_username'] }}</button>
+                    </form>
                 </div>
-{% if not item %}
-                <p>Password: password</p>
-{% endif %}
-					<button name="cmd" value="{% if item %}edit{% else %}add{% endif %}" class="btn btn-primary btn-lg btn-block">Save</button>
-				</form>
-                <p class="mt-2">
-					<i class="fa fa-star" aria-hidden="true"></i> Required
-				</p>
-			</div>
-{% if item %}
-			<div class="my-3">
-				<h4>Edit password</h4>
-				<p>Not implemented yet</p>
-			</div>
-
-			<div class="my-3">
-				<h4>Danger Zone</h4>
-				<form method="post">
-					<button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">Delete {{item[0]['user_username']}}</button>
-				</form>
-			</div>
-{% endif %}
-		</div>
-	</div>
+            {% endif %}
+        </div>
+    </div>
 </main>
 
 {% include "footer.html" %}

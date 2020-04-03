@@ -41,9 +41,15 @@
                             <div class="card-body p-0">
                                 <table id="recipeSingle_usedIngredientsTable"
                                        class="table table-hover m-0 recipe_ingredient_list">
-                                    {% for ingredient in all_ingredients %}
-                                        {{ usedIngredientsTr(loop.revindex, ingredient['ingredient_name'], ingredient['ingredient_uid']) }}
+                                    <tbody>
+                                    {% for ingredient in used_ingredients %}
+                                        {% set i = loop.index %}
+                                        {% set ing_id = ingredient['ingredient_uid'] %}
+                                        {% set ing_name = ingredient['ingredient_name'] %}
+                                        {% set ir_id = ingredient['ir_uid'] %}
+                                        {{ usedIngredientsTr(i, ing_id, ing_name, ir_id) }}
                                     {% endfor %}
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -52,31 +58,33 @@
                             <h5 class="card-header">List of All Ingredients</h5>
                             <div class="card-body p-0">
                                 <table class="table table-hover m-0 recipe_ingredient_list">
-                                    {% for ingredient in all_ingredients %}
-                                        <tr>
-                                            <th
-                                                    scope="row"
-                                                    class="align-middle"
-                                                    style="padding-left: 20px;"
-                                                    width="99%">
-                                                {{ ingredient['ingredient_name'] }}
-                                            </th>
-                                            <td class="align-middle" style="white-space: nowrap;">
-                                                {{ allergy_badge(ingredient['ingredient_glutenfree'], '', 'G') }}
-                                                {{ allergy_badge(ingredient['ingredient_lactosefree'], '', 'L') }}
-                                            </td>
-                                            <td class="align-middle"
-                                                style="white-space: nowrap;">{{ ingredient['ingredient_price'] }} €
-                                                / g
-                                            </td>
-                                            <td class="align-middle" style="padding-right: 20px;">
-                                                <button type="button" class="btn btn-success"
-                                                        onclick='add_ingredient({{ ingredient|tojson }});'>
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
+                                    <tbody>
+                                        {% for ingredient in all_ingredients %}
+                                            <tr>
+                                                <th
+                                                        scope="row"
+                                                        class="align-middle"
+                                                        style="padding-left: 20px;"
+                                                        width="99%">
+                                                    {{ ingredient['ingredient_name'] }}
+                                                </th>
+                                                <td class="align-middle" style="white-space: nowrap;">
+                                                    {{ allergy_badge(ingredient['ingredient_glutenfree'], '', 'G') }}
+                                                    {{ allergy_badge(ingredient['ingredient_lactosefree'], '', 'L') }}
+                                                </td>
+                                                <td class="align-middle"
+                                                    style="white-space: nowrap;">{{ ingredient['ingredient_price'] }} €
+                                                    / g
+                                                </td>
+                                                <td class="align-middle" style="padding-right: 20px;">
+                                                    <button type="button" class="btn btn-success"
+                                                            onclick='add_ingredient({{ ingredient|tojson }});'>
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -94,15 +102,15 @@
 {#<script src="../static/js/recipeSingle.js"></script>#}
 
 <script type="application/javascript">
-    function get_tr_html(index, ingredient_name, ingredient_uid) {
-        {% set new_tr_html = usedIngredientsTr("' + index + '", "' + ingredient_name + '", "' + ingredient_uid + '") %}
+    function get_tr_html(i, ing_id, ing_name, ir_id) {
+        {% set new_tr_html = usedIngredientsTr("' + i + '", "' + ing_id + '", "' + ing_name + '", "' + ir_id + '") %}
         return '{{ new_tr_html|replace("\n", " ")|replace("    ", " ") }}';
     }
 
-    function add_ingredient(ingredient) {
+    function add_ingredient(ing) {
         let tbl_body = document.getElementById('recipeSingle_usedIngredientsTable').getElementsByTagName('tbody')[0];
         let index = tbl_body.childElementCount + 1;
-        let new_tr_html = get_tr_html(index, ingredient['ingredient_name'], ingredient['ingredient_uid']);
+        let new_tr_html = get_tr_html(index, ing['ingredient_uid'], ing['ingredient_name'], "" );
         let old_inner = tbl_body.innerHTML;
         tbl_body.innerHTML = new_tr_html + old_inner;
     }

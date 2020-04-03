@@ -1,0 +1,27 @@
+{% from '_macros.html' import user_form as user_form %}
+{% include "header.html" %}
+
+<main>
+    <div class="container my-3">
+        <div class="card text-center">
+            <div class="card-header">
+                <h1>Welcome to your Muesli Machine <i class="fas fa-heart"></i></h1>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Setup Admin User</h5>
+                {% if not user %}
+                    {% set user = {'user_username': 'admin',
+                                   'user_first_name': '',
+                                   'user_last_name': '',
+                                   'user_email': ''} %}
+                {% endif %}
+                {{ user_form(user, 'signup') }}
+            </div>
+            <div class="card-footer text-muted">
+                {% include "footer_statusbar.html" %}
+            </div>
+        </div>
+    </div>
+</main>
+
+{% include "footer.html" %}

@@ -1,3 +1,114 @@
+{% macro user_form(user, mode) -%}
+    {# modes: add, edit, signup, login #}
+    <form method="post">
+        {% if mode == 'edit' and user %}
+            <input type="hidden" name="item_id" value="{{ user.user_uid }}">
+        {% endif %}
+        <label for="input_first_name" class="sr-only">Name</label>
+        <input
+                type="name"
+                name="first_name"
+                id="input_first_name"
+                class="form-control mb-2"
+                placeholder="First Name"
+                autocomplete="{% if mode == 'signup' %}given-name{% else %}off{% endif %}"
+                value="{% if user %}{{ user.user_first_name }}{% endif %}"
+                autofocus>
+
+        <label for="input_last_name" class="sr-only">Name</label>
+        <input
+                type="name"
+                name="last_name"
+                id="input_last_name"
+                class="form-control mb-2"
+                placeholder="Last Name"
+                autocomplete="{% if mode == 'signup' %}family-name{% else %}off{% endif %}"
+                value="{% if user %}{{ user.user_last_name }}{% endif %}">
+
+        <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                </div>
+            </div>
+            <input
+                    type="name"
+                    name="username"
+                    id="input_username"
+                    class="form-control"
+                    placeholder="Username"
+                    autocomplete="{% if mode == 'signup' %}nickname{% else %}off{% endif %}"
+                    value="{% if user %}{{ user.user_username }}{% endif %}"
+                    required>
+        </div>
+
+        <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                </div>
+            </div>
+            <input
+                    type="email"
+                    name="email"
+                    id="input_email"
+                    class="form-control"
+                    placeholder="Email Address"
+                    autocomplete="{% if mode == 'signup' %}email{% else %}off{% endif %}"
+                    value="{% if user %}{{ user.user_email }}{% endif %}"
+                    required>
+        </div>
+        {#        {% if mode == 'edit' %}#}
+        <div class="input-group mb-2">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <i class="fa fa-star" aria-hidden="true"></i>
+                </div>
+            </div>
+            <input
+                    type="password"
+                    name="password"
+                    id="input_password"
+                    class="form-control"
+                    placeholder="Password"
+                    autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
+                    required>
+        </div>
+        {% if mode != 'login' %}
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">
+                        <i class="fa fa-star" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <input
+                        type="password"
+                        name="password_confirm"
+                        id="input_password_confirm"
+                        class="form-control"
+                        placeholder="Confirm Password"
+                        autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
+                        required>
+            </div>
+        {% endif %}
+        <button name="cmd" value="{{ mode }}"
+                class="btn btn-primary btn-lg btn-block mt-4">
+            {% if mode == 'add' %}
+                Add
+            {% elif mode == 'edit' %}
+                Save
+            {% elif mode == 'signup' %}
+                Sign Up
+            {% elif mode == 'login' %}
+                Log In
+            {% endif %}
+        </button>
+    </form>
+    <p class="mt-2">
+        <i class="fa fa-star" aria-hidden="true"></i> Required
+    </p>
+{%- endmacro %}
+
 {% macro allergy_badge(value, name_free, name_contains) -%}
     {% if value == true %}
         <span class="badge badge-info">{{ name_free }}</span>
@@ -6,8 +117,8 @@
     {% endif %}
 {%- endmacro %}
 
-{% macro recipeSingle_usedIngredientsTr(index, ingredient_name, ingredient_uid) -%}
-{% autoescape false%}{# to echo special characters in js variable definition #}
+{% macro recipeSingle_usedIngredientsTr(index, ingredient_uid, ingredient_name, ir_uid) -%}
+{% autoescape false %}{# to echo special characters in js variable definition #}
 <tr>
     <th
             scope="row"
@@ -37,6 +148,7 @@
     <td class="align-middle" width="99%">
         {{ ingredient_name }}
         <input type="hidden" name="ingredientId_{{ index }}" value="{{ ingredient_uid }}">
+        <input type="hidden" name="irId_{{ index }}" value="{{ ir_uid }}">
     </td>
     <td class="align-middle" style="white-space: nowrap; padding-right: 20px;">
         <button type="button" class="btn btn-primary">

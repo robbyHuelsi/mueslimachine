@@ -1,11 +1,13 @@
+{% from '_macros.html' import user_form as user_form %}
 {% include "header.html" %}
 
-<main>       
-	<div class="jumbotron jumbotron-fluid">
-		<div class="container">
-			<h1>Log In</h1>
-			
-			<div class="my-3">
+<main>
+    <div class="container my-3">
+        <div class="card text-center">
+            <div class="card-header">
+                <h1>Muesli Machine</h1>
+            </div>
+            <div class="card-body">
 				<form class="form-login" method="post">
 					<div class="input-group mb-2">
 						<div class="input-group-prepend">
@@ -43,8 +45,11 @@
 					<button type="submit" value=login class="btn btn-lg btn-primary btn-block">Log In</button>
 				</form>
 			</div>
-		</div>
-	</div>
+            <div class="card-footer text-muted">
+                {% include "footer_statusbar.html" %}
+            </div>
+        </div>
+    </div>
 </main>
- 
+
 {% include "footer.html" %}
