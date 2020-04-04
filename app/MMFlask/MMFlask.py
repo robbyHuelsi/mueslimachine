@@ -175,7 +175,7 @@ class MMFlask(Flask):
         self.mm.logger.log(str(session))
         if 'user_uid' in session:
             user = self.mm.mySQL.get_item_by_id(self.mm.mySQL.get_tbl_names().TBL_USER, session['user_uid'])
-            if len(user) > 0:
+            if user and len(user) > 0:
                 current_user = {'user_uid': user[0]['user_uid'],
                                 'user_username': user[0]['user_username'],
                                 'user_first_name': user[0]['user_first_name'],
@@ -253,11 +253,12 @@ class MMFlaskViewDefaultRenderer(MethodView):
             properties = (in_username, in_first_name,
                           in_last_name, in_password,
                           in_email, in_role)
-            success, item, err_msg = self.mm.mySQL.add_item(tbl, properties)
+            success, user_uid, err_msg = self.mm.mySQL.add_item(tbl, properties)
             # TODO: Rewrite error messages
 
         if success and is_setup:
             self.mm.mySQL.setting_update_value_by_key('setup_mode', 'false')
+            session['user_uid'] = user_uid
             return redirect(url_for('index'))
         elif success:
             return redirect(url_for('index'))

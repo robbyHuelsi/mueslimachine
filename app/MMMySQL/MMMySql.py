@@ -232,9 +232,9 @@ class MMMySql:
         # Exit with error, if adding failed
         if len(data) == 0 or len(data[0]) == 0:
             return False, None, "failed;"
-        elif len(data) == 0 or len(data[0]) == 0 or data[0]['LAST_INSERT_ID()'] == "item_exists":
+        elif len(data) == 0 or len(data[0]) == 0 or 'item_exists' in data[0]:
             return False, None, "Item already exists."
-        elif len(data) == 0 or len(data[0]) == 0 or data[0]['LAST_INSERT_ID()'] == "tube_in_use":
+        elif len(data) == 0 or len(data[0]) == 0 or 'tube_in_use' in data[0]:
             return False, None, "Chosen tube is already assigned."
 
         # Exit with ID of new item, if everything went well

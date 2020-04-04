@@ -8,7 +8,7 @@ function mmAjax(site, data) {
     // TODO: Find better solution than overwriting web server status or not overwriting it when offline
     this.updateWebServerStatus(null);
 
-    var req = new XMLHttpRequest();
+    let req = new XMLHttpRequest();
     req.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             responseHandler(JSON.parse(this.responseText));
@@ -42,7 +42,7 @@ function mmAjaxSignUp(form) {
     console.log(JSON.stringify(obj));
     mmAjax("ajaxSignUp", JSON.stringify(obj));*/
 
-    var elements = form.elements;
+    let elements = form.elements;
     var data = "";
     for (var i = 0; i < elements.length; i++) {
         var item = elements.item(i);
@@ -77,7 +77,7 @@ function responseHandler(res) {
     //console.log(res);
 
     // Show full JSON Text on status page
-    var fullStatusJsonTextElement = document.getElementById("fullStatusJsonText");
+    let fullStatusJsonTextElement = document.getElementById("fullStatusJsonText");
     if (fullStatusJsonTextElement != null) {
         fullStatusJsonTextElement.innerHTML = JSON.stringify(res);
     }
@@ -129,13 +129,13 @@ function updateWebServerStatus(request_id) {
         updateDatabaseStatus(-1);
         updateArduinoStatus(-1);
     }
-    var webserverStatusIndicatorElements = document.getElementsByClassName("webserverStatusIndicator");
+    let webserverStatusIndicatorElements = document.getElementsByClassName("webserverStatusIndicator");
     if (webserverStatusIndicatorElements != null) {
         for (var i = 0; i < webserverStatusIndicatorElements.length; i++) {
             webserverStatusIndicatorElements[i].innerHTML = indicatorInnerHTML;
         }
     }
-    var webserverStatusTextElement = document.getElementById("webserverStatusText");
+    let webserverStatusTextElement = document.getElementById("webserverStatusText");
     if (webserverStatusTextElement != null) {
         webserverStatusTextElement.innerHTML = statusInnerHTML;
     }
@@ -166,13 +166,13 @@ function updateDatabaseStatus(status) {
             statusInnerHTML = "";
             break;
     }
-    var databaseStatusIndicatorElements = document.getElementsByClassName("databaseStatusIndicator");
+    let databaseStatusIndicatorElements = document.getElementsByClassName("databaseStatusIndicator");
     if (databaseStatusIndicatorElements != null) {
         for (var i = 0; i < databaseStatusIndicatorElements.length; i++) {
             databaseStatusIndicatorElements[i].innerHTML = indicatorInnerHTML;
         }
     }
-    var databaseStatusTextElement = document.getElementById("databaseStatusText");
+    let databaseStatusTextElement = document.getElementById("databaseStatusText");
     if (databaseStatusTextElement != null) {
         databaseStatusTextElement.innerHTML = statusInnerHTML;
     }
@@ -203,13 +203,13 @@ function updateArduinoStatus(status) {
             statusInnerHTML = "";
             break;
     }
-    var arduinoStatusIndicatorElements = document.getElementsByClassName("arduinoStatusIndicator");
+    let arduinoStatusIndicatorElements = document.getElementsByClassName("arduinoStatusIndicator");
     if (arduinoStatusIndicatorElements != null) {
         for (var i = 0; i < arduinoStatusIndicatorElements.length; i++) {
             arduinoStatusIndicatorElements[i].innerHTML = indicatorInnerHTML;
         }
     }
-    var arduinoStatusTextElement = document.getElementById("arduinoStatusText");
+    let arduinoStatusTextElement = document.getElementById("arduinoStatusText");
     if (arduinoStatusTextElement != null) {
         arduinoStatusTextElement.innerHTML = statusInnerHTML;
     }
