@@ -18,7 +18,7 @@
 
 <body>
 <div id="notification"></div>
-{% if not request.url_rule.endpoint in ['welcome', 'login'] %}
+{% if not request.url_rule.endpoint in ['welcome', 'startup', 'signup', 'login'] %}
     <header class="header">
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
             <a class="navbar-brand" href="/">Muesli Machine</a>

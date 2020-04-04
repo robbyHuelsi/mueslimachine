@@ -1,108 +1,21 @@
+{% from '_macros.html' import user_form as user_form %}
 {% include "header.html" %}
 
 <main>
-	<div class="jumbotron jumbotron-fluid">
-		<div class="container">
-			<h1>Sign Up</h1>
-			
-			<div class="my-3">
-				<form class="form-signup" method="post">
-					<label for="input_first_name" class="sr-only">Name</label>
-					<input
-                            type="name"
-                            name="first_name"
-                            id="input_first_name"
-                            class="form-control mb-2"
-                            placeholder="First Name"
-                            autocomplete="given-name"
-                            value="{{first_name}}"
-                            autofocus>
-
-					<label for="input_last_name" class="sr-only">Name</label>
-					<input
-                            type="name"
-                            name="last_name"
-                            id="input_last_name"
-                            class="form-control mb-4"
-                            placeholder="Last Name"
-                            autocomplete="family-name"
-                            value="{{last_name}}">
-
-					<div class="input-group mb-2">
-						<div class="input-group-prepend">
-							<div class="input-group-text">
-								<i class="fa fa-star" aria-hidden="true"></i>
-							</div>
-						</div>
-						<input
-                                type="name"
-                                name="username"
-                                id="input_username"
-                                class="form-control"
-                                placeholder="Username"
-                                autocomplete="nickname"
-                                value="{{username}}"
-                                required>
-					</div>
-
-					<div class="input-group mb-4">
-						<div class="input-group-prepend">
-							<div class="input-group-text">
-								<i class="fa fa-star" aria-hidden="true"></i>
-							</div>
-						</div>
-						<input
-                                type="email"
-                                name="email"
-                                id="input_email"
-                                class="form-control"
-                                placeholder="Email Address"
-                                autocomplete="email"
-                                value="{{email}}"
-                                required>
-					</div>
-
-					<div class="input-group mb-2">
-						<div class="input-group-prepend">
-							<div class="input-group-text">
-								<i class="fa fa-star" aria-hidden="true"></i>
-							</div>
-						</div>
-						<input
-                                type="password"
-                                name="password"
-                                id="input_password"
-                                class="form-control"
-                                placeholder="Password"
-                                autocomplete="new-password"
-                                required>
-					</div>
-
-                    <div class="input-group mb-4">
-						<div class="input-group-prepend">
-							<div class="input-group-text">
-								<i class="fa fa-star" aria-hidden="true"></i>
-							</div>
-						</div>
-						<input
-                                type="password"
-                                name="password_confirm"
-                                id="input_password_confirm"
-                                class="form-control"
-                                placeholder="Confirm Password"
-                                autocomplete="new-password"
-                                required>
-					</div>
-					
-                    <button type="submit" value=signup class="btn btn-lg btn-primary btn-block">Sign Up</button>
-				</form>
-			
-				<p class="mt-4">
-					<i class="fa fa-star" aria-hidden="true"></i> Requiered
-				</p>
-			</div>
-		</div>
-	</div>
+    <div class="container my-3">
+        <div class="card text-center">
+            <div class="card-header">
+                <h1>Sign up to get a muesli <i class="fas fa-utensil-spoon"></i></h1>
+            </div>
+            <div class="card-body">
+                <p class="text-right mb-2"><a href="/login">I already have an account</a></p>
+                {{ user_form(user, 'signup') }}
+            </div>
+            <div class="card-footer text-muted">
+                {% include "footer_statusbar.html" %}
+            </div>
+        </div>
+    </div>
 </main>
- 
+
 {% include "footer.html" %}

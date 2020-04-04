@@ -22,6 +22,14 @@ class MMFlask(Flask):
                                       'pending': False,
                                       'user': True,
                                       'admin': True}},
+                      {'url': 'startup',
+                       'name': 'Start Up',
+                       'nav': {'top': False},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': True,
+                                      'pending': True,
+                                      'user': True,
+                                      'admin': True}},
                       {'url': 'welcome',
                        'name': 'Welcome',
                        'nav': {'top': False},
@@ -86,14 +94,14 @@ class MMFlask(Flask):
                                       'pending': False,
                                       'user': False,
                                       'admin': True}},
-                      # {'url': 'signup',
-                      #  'name': 'Sign Up',
-                      #  'nav': {'top': False},
-                      #  'reg_func': self.register_urls_default,
-                      #  'permission': {'anonymous': True,
-                      #                 'pending': False,
-                      #                 'user': False,
-                      #                 'admin': False}},
+                      {'url': 'signup',
+                       'name': 'Sign Up',
+                       'nav': {'top': False},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': True,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': False}},
                       {'url': 'login',
                        'name': 'Log In',
                        'nav': {'top': True},
@@ -144,6 +152,12 @@ class MMFlask(Flask):
         self.add_url_rule(url + "add/", view_func=view_func_add, methods=['POST', ], defaults={"item_id": "add"})
 
     def check_get_permission(self, endpoint_name, user_role):
+        db_not_ready = self.mm.status.get_status()['database'] != 3
+        if db_not_ready and endpoint_name != 'startup':
+            return False, 'startup'
+        elif not db_not_ready and endpoint_name == 'startup':
+            return False, self.redirections[user_role]
+
         is_setup_mode = self.mm.mySQL.setting_is_setup_mode()
         if is_setup_mode and endpoint_name != 'welcome':
             return False, 'welcome'
@@ -169,6 +183,8 @@ class MMFlask(Flask):
                                 'user_email': user[0]['user_email'],
                                 'user_role': user[0]['user_role']}
                 return current_user
+            else:
+                del session['user_uid']
         current_user = {'user_uid': -1,
                         'user_role': 'anonymous'}
         return current_user
@@ -192,26 +208,20 @@ class MMFlaskViewDefaultRenderer(MethodView):
         elif self.endpoint_name == "status":
             return render_template(self.templateName,
                                    mm_current_user=mm_current_user,
-                                   mm_version=self.mm.version,
-                                   status=self.mm.status.get_status())
-        # elif self.endpoint_name == "signup":
-        #     first_name, last_name, username, email = session.pop("signup_inputs", ("", "", "", ""))
-        #     return render_template(self.templateName,
-        #                            mm_current_user=mm_current_user
-        #                            mm_version=self.mm.version,
-        #                            first_name=first_name, last_name=last_name,
-        #                            username=username, email=email)
+                                   mm_status=self.mm.status.get_status(),
+                                   mm_version=self.mm.version)
         else:
             return render_template(self.templateName,
                                    mm_current_user=mm_current_user,
+                                   mm_status=self.mm.status.get_status(),
                                    mm_version=self.mm.version)
 
     def post(self):
         if self.endpoint_name == "welcome":
-            return self.setup()
+            return self.setup_or_signup(True)
 
-        # if self.endpoint_name == "signup":
-        #     return self.signup()
+        if self.endpoint_name == "signup":
+            return self.setup_or_signup(False)
 
         if self.endpoint_name == "login":
             return self.login()
@@ -222,14 +232,14 @@ class MMFlaskViewDefaultRenderer(MethodView):
         else:
             return ""
 
-    def setup(self):
+    def setup_or_signup(self, is_setup):
         in_first_name = request.form.get("first_name")
         in_last_name = request.form.get("last_name")
         in_username = request.form.get("username")
         in_email = request.form.get("email")
         in_password = request.form.get("password")
         in_password_confirm = request.form.get("password_confirm")
-        in_role = "admin"
+        in_role = "admin" if is_setup else 'pending'
 
         success = True
         err_msg = ''
@@ -246,8 +256,10 @@ class MMFlaskViewDefaultRenderer(MethodView):
             success, item, err_msg = self.mm.mySQL.add_item(tbl, properties)
             # TODO: Rewrite error messages
 
-        if success:
+        if success and is_setup:
             self.mm.mySQL.setting_update_value_by_key('setup_mode', 'false')
+            return redirect(url_for('index'))
+        elif success:
             return redirect(url_for('index'))
         else:
             self.mm.status.add_one_time_notification_error(err_msg)
@@ -256,35 +268,6 @@ class MMFlaskViewDefaultRenderer(MethodView):
                     'user_last_name': in_last_name,
                     'user_email': in_email}
             return render_template(self.templateName, user=user, mm_version=self.mm.version)
-
-    # def signup(self):
-    #     in_first_name = request.form.get("first_name")
-    #     in_last_name = request.form.get("last_name")
-    #     in_username = request.form.get("username")
-    #     in_email = request.form.get("email")
-    #     in_password = request.form.get("password")
-    #     in_password_confirm = request.form.get("password_confirm")
-    #     in_role = "admin"
-    #
-    #     if in_password != in_password_confirm:
-    #         self.mm.status.add_one_time_notification_error("Confirmed password was different")
-    #         session["signup_inputs"] = (in_first_name, in_last_name, in_username, in_email)
-    #         return redirect(url_for('signup'))
-    #
-    #     tbl = self.mm.mySQL.get_tbl_names().TBL_USER
-    #     properties = (in_username, in_first_name,
-    #                   in_last_name, in_password,
-    #                   in_email, in_role)
-    #     success, item, err_msg = self.mm.mySQL.add_item(tbl, properties)
-    #     if success:
-    #         session['username'] = in_username
-    #         return redirect(url_for('index'))
-    #     else:
-    #         # TODO: Rewrite error messages
-    #         self.mm.status.add_one_time_notification_error(err_msg)
-    #
-    #     session["signup_inputs"] = (in_first_name, in_last_name, in_username, in_email)
-    #     return redirect(url_for('signup'))
 
     def login(self):
         in_username = request.form['username']
@@ -303,7 +286,7 @@ class MMFlaskViewDefaultRenderer(MethodView):
     @staticmethod
     def logout():
         if 'user_uid' in session:
-            session.pop('user_uid', None)
+            del session['user_uid']
         return redirect(url_for('index'))
 
 

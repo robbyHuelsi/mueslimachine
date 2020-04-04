@@ -1,9 +1,12 @@
-            {% if not request.url_rule.endpoint in ['welcome', 'login'] %}
+            {% if not request.url_rule.endpoint in ['welcome', 'startup', 'signup', 'login'] %}
             <footer class="container-fluid bg-light">
                 {% include "footer_statusbar.html" %}
             </footer>
             {% endif %}
         </div>
+
+        {{ session|tojson }}
+
     </body>
 
     <script>
