@@ -4,8 +4,8 @@
     <div class="container my-3">
         <div class="card text-center">
             <div class="card-body">
-                <h1 class="card-title">Waiting for database.</h1>
-                <h5>
+                <h1 class="card-title">Waiting for Database</h1>
+                <h5 id="startup-db-status-text">
                     {# 0 => disconnected / 1 => connecting / 2 => setting up / 3 => connected #}
                     {% if mm_status.database == 0 %}
                         Database is disconnected.

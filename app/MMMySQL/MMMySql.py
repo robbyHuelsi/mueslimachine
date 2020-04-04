@@ -170,15 +170,16 @@ class MMMySql:
                 self.logger.log("Table '" + table + "' was created")
 
     def __check_and_set_up_entries(self, user, host):
-
+        self.logger.log('__check_and_set_up_entries')
         # Check count users and enter setup mode if necessary
         users = self.get_items(self.CONST_TBL_NAMES.TBL_USER)
         setup_mode_necessary = True
-        for user in users:
-            if user['user_role'] == 'admin':
-                setup_mode_necessary = False
-                self.logger.log('Admin user found')
-                break
+        if users:
+            for user in users:
+                if user['user_role'] == 'admin':
+                    setup_mode_necessary = False
+                    self.logger.log('Admin user found')
+                    break
         is_setup_mode = self.setting_is_setup_mode()
         if setup_mode_necessary and not is_setup_mode:
             self.logger.log('set setup mode to TRUE, because NO admin user found')
@@ -188,22 +189,30 @@ class MMMySql:
             self.setting_update_value_by_key('setup_mode', 'false')
 
     def get_items(self, table):
-        if table in self.CONST_TBL_NAMES.TABLES:
-            self.cursor.callproc(table + "_getItems", ())
-            items = self.cursor.fetchall()
-            # self.logger.log("All items of table " + table + ":", flush = True)
-            # self.logger.log(str(items), flush = True)
-            return items
+        if self.status in [0, 1]:
+            return False
+        if table not in self.CONST_TBL_NAMES.TABLES:
+            return False
+        self.cursor.callproc(table + "_getItems", ())
+        items = self.cursor.fetchall()
+        # self.logger.log("All items of table " + table + ":", flush = True)
+        # self.logger.log(str(items), flush = True)
+        return items
 
     def get_item_by_id(self, table, item_id):
-        if table in self.CONST_TBL_NAMES.TABLES:
-            self.cursor.callproc(table + "_getItemById", (item_id,))
-            # self.logger.log("Item " + str(item_id) + " of table " + table + ":", flush = True)
-            item = self.cursor.fetchall()
-            # self.logger.log(str(item), flush = True)
-            return item
+        if self.status in [0, 1]:
+            return False
+        if table not in self.CONST_TBL_NAMES.TABLES:
+            return False
+        self.cursor.callproc(table + "_getItemById", (item_id,))
+        # self.logger.log("Item " + str(item_id) + " of table " + table + ":", flush = True)
+        item = self.cursor.fetchall()
+        # self.logger.log(str(item), flush = True)
+        return item
 
     def add_item(self, table, properties):
+        if self.status in [0, 1]:
+            return False, None, 'database not connected'
         # Exit with error, if table is unknown
         if table not in self.CONST_TBL_NAMES.TABLES:
             return False, None, "table_unknown;"
@@ -233,28 +242,36 @@ class MMMySql:
         return True, data[0]['LAST_INSERT_ID()'], ""
 
     def edit_item_by_id(self, table, item_id, data):
-        if table in self.CONST_TBL_NAMES.TABLES:
-            self.cursor.callproc(table + "_getItemById", (item_id,))
-            item = self.cursor.fetchall()
-            if len(item) == 1:
-                # TODO: Implement editing item (Take care at user: password!)
-                # self.cursor.callproc(table + "_editItemById",(item_id,...))
-                # return True
-                return False
-            else:
-                return False
+        if self.status in [0, 1]:
+            return False
+        if table not in self.CONST_TBL_NAMES.TABLES:
+            return False
+        self.cursor.callproc(table + "_getItemById", (item_id,))
+        item = self.cursor.fetchall()
+        if len(item) == 1:
+            # TODO: Implement editing item (Take care at user: password!)
+            # self.cursor.callproc(table + "_editItemById",(item_id,...))
+            # return True
+            return False
+        else:
+            return False
 
     def delete_item_by_id(self, table, item_id):
-        if table in self.CONST_TBL_NAMES.TABLES:
-            self.cursor.callproc(table + "_getItemById", (item_id,))
-            item = self.cursor.fetchall()
-            if len(item) == 1:
-                self.cursor.callproc(table + "_deleteItemById", (item_id,))
-                return True
-            else:
-                return False
+        if self.status in [0, 1]:
+            return False
+        if table not in self.CONST_TBL_NAMES.TABLES:
+            return False
+        self.cursor.callproc(table + "_getItemById", (item_id,))
+        item = self.cursor.fetchall()
+        if len(item) == 1:
+            self.cursor.callproc(table + "_deleteItemById", (item_id,))
+            return True
+        else:
+            return False
 
     def setting_get_value_by_key(self, in_key):
+        if self.status in [0, 1]:
+            return False
         self.cursor.callproc(self.CONST_TBL_NAMES.TBL_SETTING + '_getValueByKey', (in_key,))
         item = self.cursor.fetchall()
         self.logger.log(str(item), flush=True)
@@ -264,6 +281,8 @@ class MMMySql:
             return item[0]
 
     def setting_update_value_by_key(self, in_key, in_value):
+        if self.status in [0, 1]:
+            return False
         self.cursor.callproc(self.CONST_TBL_NAMES.TBL_SETTING + '_updateValueByKey', (in_key, in_value,))
         self.connection.commit()
         # item = self.cursor.fetchall()
@@ -271,9 +290,11 @@ class MMMySql:
         return True
 
     def setting_is_setup_mode(self):
+        if self.status in [0, 1]:
+            return False
         self.cursor.callproc(self.CONST_TBL_NAMES.TBL_SETTING + '_getValueByKey', ('setup_mode',))
         setting_setup_mode = self.cursor.fetchall()
-        self.logger.log(str(setting_setup_mode), flush=True)
+        # self.logger.log(str(setting_setup_mode), flush=True)
         if len(setting_setup_mode) == 0:
             self.add_item(self.CONST_TBL_NAMES.TBL_SETTING, ('setup_mode', 'false'))
             is_setup_mode = False
@@ -283,6 +304,8 @@ class MMMySql:
         return is_setup_mode
 
     def user_check_user_password(self, in_username, in_password):
+        if self.status in [0, 1]:
+            return False
         self.cursor.callproc(self.CONST_TBL_NAMES.TBL_USER + "_getUserByUsername", (in_username,))
         user = self.cursor.fetchall()
         if user and len(user) > 0:
@@ -294,6 +317,8 @@ class MMMySql:
         return False, -1
 
     def ir_get_ingredients_by_recipe_id(self, recipe_id):
+        if self.status in [0, 1]:
+            return False
         self.cursor.callproc(self.CONST_TBL_NAMES.TBL_IR + "_getIngredientsByRecipeId", (recipe_id,))
         # self.logger.log("Item " + str(item_id) + " of table " + table + ":", flush = True)
         ingredients = self.cursor.fetchall()
