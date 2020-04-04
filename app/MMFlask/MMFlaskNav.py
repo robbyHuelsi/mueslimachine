@@ -8,43 +8,32 @@ class MMFlaskNav:
     def __init__(self, app):
         self.nav = Nav()
         self.nav.init_app(app)
-        self.nav.register_element('mmTopNavLoggedIn', self.mm_top_nav(True))
-        self.nav.register_element('mmTopNavLoggedOut', self.mm_top_nav(False))
+        self.nav.register_element('top', self.mm_top_nav(app.sites))
         register_renderer(app, 'MMTopNavRenderer', MMTopNavRenderer)
 
     @staticmethod
-    def mm_top_nav(logged_in):
+    def mm_top_nav(sites):
         items = []
 
-        if logged_in:
-            items.append(View('Recipes', 'recipe'))
-            items.append(View('Ingredients', 'ingredient'))
-            items.append(View('Tubes', 'tube'))
-            items.append(View('Users', 'user'))
-            # items.append(View('Scale', 'scale'))
-            # items.append(View('LED', 'led'))
-            items.append(View('Log out', 'logout'))
-            items.append(View('Status', 'status'))
-        else:
-            # items.append(View('Log in', 'login'))
-            # items.append(View('Sign up', 'signup'))
-            pass
-        pass
+        for site in sites:
+            if site['nav']['top']:
+                items.append({'view': View(site['name'], site['url']),
+                              'permission': site['permission']})
 
         return Navbar('', *items)
 
 
 class MMTopNavRenderer(Renderer):
-    def visit_Navbar(self, node):
-        # sub = []
-        # for item in node.items:
-        # sub.append(self.visit(item))
+    def __init__(self, user_role):
+        self.user_role = user_role
 
+    def visit_Navbar(self, node):
         nav_html = tags.div(id="navbarNav", Class="collapse navbar-collapse")
 
         with nav_html.add(tags.ul(Class="navbar-nav")):
             for item in node.items:
-                self.visit(item)
+                if item['permission'][self.user_role] is True:
+                    self.visit(item['view'])
 
         return nav_html
 

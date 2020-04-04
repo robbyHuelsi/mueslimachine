@@ -14,22 +14,113 @@ class MMFlask(Flask):
         self.static_folder = "../static"
         self.template_folder = "../templates"
 
+        self.sites = [{'url': 'index',
+                       'name': 'Index',
+                       'nav': {'top': False},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': False,
+                                      'pending': False,
+                                      'user': True,
+                                      'admin': True}},
+                      {'url': 'welcome',
+                       'name': 'Welcome',
+                       'nav': {'top': False},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': True,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': False}},
+                      {'url': 'recipe',
+                       'name': 'Recipes',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_for_items,
+                       'permission': {'anonymous': False,
+                                      'pending': False,
+                                      'user': True,
+                                      'admin': True}},
+                      {'url': 'ingredient',
+                       'name': 'Ingredients',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_for_items,
+                       'permission': {'anonymous': False,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': True}},
+                      {'url': 'tube',
+                       'name': 'Tubes',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_for_items,
+                       'permission': {'anonymous': False,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': True}},
+                      {'url': 'user',
+                       'name': 'Users',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_for_items,
+                       'permission': {'anonymous': False,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': True}},
+                      {'url': 'led',
+                       'name': 'LED',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': False,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': True}},
+                      {'url': 'scale',
+                       'name': 'Scale',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': False,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': True}},
+                      {'url': 'status',
+                       'name': 'Status',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': False,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': True}},
+                      # {'url': 'signup',
+                      #  'name': 'Sign Up',
+                      #  'nav': {'top': False},
+                      #  'reg_func': self.register_urls_default,
+                      #  'permission': {'anonymous': True,
+                      #                 'pending': False,
+                      #                 'user': False,
+                      #                 'admin': False}},
+                      {'url': 'login',
+                       'name': 'Log In',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': True,
+                                      'pending': False,
+                                      'user': False,
+                                      'admin': False}},
+                      {'url': 'logout',
+                       'name': 'Log Out',
+                       'nav': {'top': True},
+                       'reg_func': self.register_urls_default,
+                       'permission': {'anonymous': False,
+                                      'pending': True,
+                                      'user': True,
+                                      'admin': True}},
+                      ]
+
+        self.redirections = {'anonymous': 'login',
+                             'pending': 'login',
+                             'user': 'index',
+                             'admin': 'index'}
+
         self.nav = MMFlaskNav(self)
 
-        self.register_urls_default("index")
-        self.register_urls_default('welcome')
-        self.register_urls_default("status")
-        # self.register_urls_default("signup")
-        self.register_urls_default("login")
-        self.register_urls_default("logout")
-
-        # self.register_urls_default("led")
-        # self.register_urls_default("scale")
-
-        self.register_urls_for_items("user")
-        self.register_urls_for_items("tube")
-        self.register_urls_for_items("ingredient")
-        self.register_urls_for_items("recipe")
+        for site in self.sites:
+            site['reg_func'](site['url'])
 
         self.add_url_rule('/ajaxStatus', methods=['POST'],
                           view_func=MMFlaskViewAjaxStatus.as_view('flaskAjaxStatus', muesli_machine=self.mm))
@@ -52,20 +143,35 @@ class MMFlask(Flask):
         self.add_url_rule(url + "add/", view_func=view_func_add, methods=['GET', ], defaults={"item_id": "add"})
         self.add_url_rule(url + "add/", view_func=view_func_add, methods=['POST', ], defaults={"item_id": "add"})
 
-    def check_get_permission(self, endpoint_name, session):
+    def check_get_permission(self, endpoint_name, user_role):
         is_setup_mode = self.mm.mySQL.setting_is_setup_mode()
-        is_logged_in = 'user_uid' in session
         if is_setup_mode and endpoint_name != 'welcome':
             return False, 'welcome'
-        elif not is_logged_in and endpoint_name != 'login':
-            return False, 'login'
-
         elif not is_setup_mode and endpoint_name == 'welcome':
-            return False, 'index'
-        elif is_logged_in and endpoint_name == 'login':
-            return False, 'index'
+            return False, self.redirections[user_role]
+
+        for site in self.sites:
+            if site['url'] == endpoint_name:
+                if not site['permission'][user_role]:
+                    return False, self.redirections[user_role]
 
         return True, ''
+
+    def get_user_by_id(self, session):
+        self.mm.logger.log(str(session))
+        if 'user_uid' in session:
+            user = self.mm.mySQL.get_item_by_id(self.mm.mySQL.get_tbl_names().TBL_USER, session['user_uid'])
+            if len(user) > 0:
+                current_user = {'user_uid': user[0]['user_uid'],
+                                'user_username': user[0]['user_username'],
+                                'user_first_name': user[0]['user_first_name'],
+                                'user_last_name': user[0]['user_last_name'],
+                                'user_email': user[0]['user_email'],
+                                'user_role': user[0]['user_role']}
+                return current_user
+        current_user = {'user_uid': -1,
+                        'user_role': 'anonymous'}
+        return current_user
 
 
 class MMFlaskViewDefaultRenderer(MethodView):
@@ -76,22 +182,29 @@ class MMFlaskViewDefaultRenderer(MethodView):
         super().__init__()
 
     def get(self):
-        allowed, redirect_url = self.mm.flask.check_get_permission(self.endpoint_name, session)
+        mm_current_user = self.mm.flask.get_user_by_id(session)
+        allowed, redirect_url = self.mm.flask.check_get_permission(self.endpoint_name, mm_current_user['user_role'])
         if not allowed:
             return redirect(url_for(redirect_url))
 
         if self.endpoint_name == "logout":
             return self.logout()
         elif self.endpoint_name == "status":
-            return render_template(self.templateName, mm_version=self.mm.version,
+            return render_template(self.templateName,
+                                   mm_current_user=mm_current_user,
+                                   mm_version=self.mm.version,
                                    status=self.mm.status.get_status())
         # elif self.endpoint_name == "signup":
         #     first_name, last_name, username, email = session.pop("signup_inputs", ("", "", "", ""))
-        #     return render_template(self.templateName, mm_version=self.mm.version,
+        #     return render_template(self.templateName,
+        #                            mm_current_user=mm_current_user
+        #                            mm_version=self.mm.version,
         #                            first_name=first_name, last_name=last_name,
         #                            username=username, email=email)
         else:
-            return render_template(self.templateName, mm_version=self.mm.version)
+            return render_template(self.templateName,
+                                   mm_current_user=mm_current_user,
+                                   mm_version=self.mm.version)
 
     def post(self):
         if self.endpoint_name == "welcome":
@@ -207,25 +320,33 @@ class MMFlaskViewForItemsRenderer(MethodView):
         view_add = super().as_view(self.endpoint_name + "Add", endpoint_name=self.endpoint_name, muesli_machine=self.mm)
         return view_list, view_single, view_add
 
-    def render_template_list(self, items):
+    def render_template_list(self, items, mm_current_user):
         self.mm.logger.log(str(items))
         if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
             tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
-            return render_template(self.endpoint_name + "List.html", mm_version=self.mm.version,
+            return render_template(self.endpoint_name + "List.html",
+                                   mm_current_user=mm_current_user,
+                                   mm_version=self.mm.version,
                                    ingredients=items, tubes=tubes)
         elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
             ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
-            return render_template(self.endpoint_name + "List.html", mm_version=self.mm.version,
+            return render_template(self.endpoint_name + "List.html",
+                                   mm_current_user=mm_current_user,
+                                   mm_version=self.mm.version,
                                    recipes=items, ingredients=ingredients)
         else:
-            return render_template(self.endpoint_name + "List.html", mm_version=self.mm.version,
+            return render_template(self.endpoint_name + "List.html",
+                                   mm_current_user=mm_current_user,
+                                   mm_version=self.mm.version,
                                    items=items)
 
-    def render_template_single(self, item):
+    def render_template_single(self, item, mm_current_user):
         self.mm.logger.log(str(item))
         if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
             tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
-            return render_template(self.endpoint_name + "Single.html", mm_version=self.mm.version,
+            return render_template(self.endpoint_name + "Single.html",
+                                   mm_current_user=mm_current_user,
+                                   mm_version=self.mm.version,
                                    ingredient=item, tubes=tubes)
         elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
             all_ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_INGREDIENT)
@@ -234,28 +355,33 @@ class MMFlaskViewForItemsRenderer(MethodView):
                 used_ingredients = []
             else:
                 used_ingredients = self.mm.mySQL.ir_get_ingredients_by_recipe_id(item[0])
-            return render_template(self.endpoint_name + "Single.html", mm_version=self.mm.version,
+            return render_template(self.endpoint_name + "Single.html",
+                                   mm_current_user=mm_current_user,
+                                   mm_version=self.mm.version,
                                    recipes=item, all_ingredients=all_ingredients, used_ingredients=used_ingredients)
         else:
-            return render_template(self.endpoint_name + "Single.html", mm_version=self.mm.version,
+            return render_template(self.endpoint_name + "Single.html",
+                                   mm_current_user=mm_current_user,
+                                   mm_version=self.mm.version,
                                    item=item)
 
     def get(self, item_id):
-        allowed, redirect_url = self.mm.flask.check_get_permission(self.endpoint_name, session)
+        mm_current_user = self.mm.flask.get_user_by_id(session)
+        allowed, redirect_url = self.mm.flask.check_get_permission(self.endpoint_name, mm_current_user['user_role'])
         if not allowed:
             return redirect(url_for(redirect_url))
 
         if item_id is None:
             # self.mm.logger.log("Show List of " + self.endpoint_name)
             items = self.mm.mySQL.get_items(self.endpoint_name)
-            return self.render_template_list(items=items)
+            return self.render_template_list(items=items, mm_current_user=mm_current_user)
         elif item_id == "add":
-            return self.render_template_single(item=None)
+            return self.render_template_single(item=None, mm_current_user=mm_current_user)
         else:
             # self.mm.logger.log("Show Single View of " + self.endpoint_name + "Id " + str(item_id))
             item = self.mm.mySQL.get_item_by_id(self.endpoint_name, item_id)
             if len(item) == 1:
-                return self.render_template_single(item=item)
+                return self.render_template_single(item=item, mm_current_user=mm_current_user)
             else:
                 # If number of MySQL response items are 0 or > 1:
                 return redirect(url_for(self.endpoint_name))
@@ -274,7 +400,8 @@ class MMFlaskViewForItemsRenderer(MethodView):
                 in_last_name = request.form.get("last_name")
                 in_username = request.form.get("username")
                 in_email = request.form.get("email")
-                in_password = "password"
+                in_password = request.form.get("password")
+                in_password_confirm = request.form.get("password_confirm")
                 in_role = "admin"
                 properties = (in_username, in_first_name, in_last_name, in_password, in_email, in_role)
             elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_TUBE:

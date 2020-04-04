@@ -4,13 +4,7 @@
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
 			<h1>Welcome to Muesli Machine! <i class="fas fa-utensil-spoon"></i></h1>
-{#{% if session['username'] %}#}
-{#			<p>Hello {{ session['username'] }}!</p>#}
-{#{% else %}#}
-			<p>Sign up or log in to get some cereals.</p>
-			<a class="btn btn-success btn-lg" href="/signup/" role="button">Sign Up</a>
-			<a class="btn btn-secondary btn-lg" href="/login/" role="button">Log In</a>
-{#{% endif %}#}
+			<p>Hello {{ mm_current_user.user_username }}!</p>
 		</div>
 	</div>
 </main>

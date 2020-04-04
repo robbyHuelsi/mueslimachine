@@ -58,7 +58,7 @@
                     value="{% if user %}{{ user.user_email }}{% endif %}"
                     required>
         </div>
-        {#        {% if mode == 'edit' %}#}
+        {% if mode not in ['edit'] %}
         <div class="input-group mb-2">
             <div class="input-group-prepend">
                 <div class="input-group-text">
@@ -74,7 +74,8 @@
                     autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
                     required>
         </div>
-        {% if mode != 'login' %}
+        {% endif %}
+        {% if mode not in ['edit', 'login'] %}
             <div class="input-group mb-2">
                 <div class="input-group-prepend">
                     <div class="input-group-text">

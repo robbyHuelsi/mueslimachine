@@ -17,8 +17,8 @@
             {% endif %}
 
             <div class="my-3">
-                <h4>{% if item %}Edit{% else %}Set{% endif %} name and email address</h4>
-                {{ user_form(user) }}
+                <h4>{% if item %}Edit name or email address{% else %}Set properties of new user{% endif %}</h4>
+                {{ user_form(item[0], 'edit' if item else 'add') }}
             </div>
 
             {% if item %}
