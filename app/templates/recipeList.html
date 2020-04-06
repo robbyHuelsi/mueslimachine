@@ -13,7 +13,9 @@
                 {% endif %}
 
                 <div class="my-3">
-                    {% if ingredients|length == 0 %}
+                    {% if tubes|length == 0 %}
+                        <p>You must first <a href="/tube/add/">add a tube </a> and an ingredient before you can add a recipe.</p>
+                    {% elif ingredients|length == 0 %}
                         <p>You must first <a href="/ingredient/add/">add an ingredient</a> before you can add a recipe.</p>
                     {% endif %}
                     <a

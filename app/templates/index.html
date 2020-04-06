@@ -1,12 +1,113 @@
 {% include "header.html" %}
 
 <main>
-	<div class="jumbotron jumbotron-fluid">
-		<div class="container">
-			<h1>Welcome to Muesli Machine! <i class="fas fa-utensil-spoon"></i></h1>
-			<p>Hello {{ mm_current_user.user_username }}!</p>
-		</div>
-	</div>
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+            <h1>Welcome to Muesli Machine! <i class="fas fa-utensil-spoon"></i></h1>
+            <p>Hello {{ mm_current_user.user_username }}!</p>
+
+            {% if tubes|length == 0 or ingredients|length == 0 or recipes|length == 0 %}
+                 {% set todo_next_step = '' %}
+                {% if tubes|length == 0 %}
+                    {% set todo_next_step = 'tube' %}
+                {% elif ingredients|length == 0 %}
+                    {% set todo_next_step = 'ingredient' %}
+                {% elif recipes|length == 0 %}
+                    {% set todo_next_step = 'recipe' %}
+                {% endif %}
+
+                <table class="table" id="todo-table">
+                    <thead class="thead-dark">
+                    <tr class="table-light">
+                        <th colspan="3"><h5 class="mb-0">Before you get some cereal:</h5></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr class="table-light table-hover task-row">
+                        {% if tubes|length == 0 %}
+                            <th scope="row" class="check-no">
+                                <i class="far fa-circle"></i>
+                            </th>
+                            <th scope="row" class="check-hover">
+                                <i class="far fa-check-circle"></i>
+                            </th>
+                        {% else %}
+                            <th scope="row">
+                                <i class="fas fa-check-circle"></i>
+                            </th>
+                        {% endif %}
+                        <td width="99%">
+                            <p class="mb-0 {% if todo_next_step == 'tube' %}font-weight-bold{% endif %}">
+                                1. add a tube
+                            </p>
+                        </td>
+                        <td>
+                            {% if todo_next_step == 'tube' %}
+                                <a class="btn btn-primary btn-sm"
+                                   href="/tube/add/"
+                                   role="button"><i class="fas fa-arrow-right"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <tr class="table-light task-row">
+                        {% if ingredients|length == 0 %}
+                            <th scope="row" class="check-no">
+                                <i class="far fa-circle"></i>
+                            </th>
+                            <th scope="row" class="check-hover">
+                                <i class="far fa-check-circle"></i>
+                            </th>
+                        {% else %}
+                            <th scope="row">
+                                <i class="fas fa-check-circle"></i>
+                            </th>
+                        {% endif %}
+                        <td>
+                            <p class="mb-0 {% if todo_next_step == 'ingredient' %}font-weight-bold{% endif %}">
+                                2. add an ingredient
+                            </p>
+                        </td>
+                        <td>
+                            {% if todo_next_step == 'ingredient' %}
+                                <a class="btn btn-primary btn-sm"
+                                   href="/ingredient/add/"
+                                   role="button"><i class="fas fa-arrow-right"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    <tr class="table-light task-row">
+                        {% if recipes|length == 0 %}
+                            <th scope="row" class="check-no">
+                                <i class="far fa-circle"></i>
+                            </th>
+                            <th scope="row" class="check-hover">
+                                <i class="far fa-check-circle"></i>
+                            </th>
+                        {% else %}
+                            <th scope="row">
+                                <i class="fas fa-check-circle"></i>
+                            </th>
+                        {% endif %}
+                        <td>
+                            <p class="mb-0 {% if todo_next_step == 'recipe' %}font-weight-bold{% endif %}">
+                                3. add a recipe
+                            </p>
+                        </td>
+                        <td>
+                            {% if todo_next_step == 'recipe' %}
+                                <a class="btn btn-primary btn-sm"
+                                   href="/recipe/add/"
+                                   role="button"><i class="fas fa-arrow-right"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+    </div>
 </main>
- 
+
 {% include "footer.html" %}

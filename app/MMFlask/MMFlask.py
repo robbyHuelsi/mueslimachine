@@ -210,10 +210,18 @@ class MMFlaskViewDefaultRenderer(MethodView):
                                    mm_current_user=mm_current_user,
                                    mm_status=self.mm.status.get_status(),
                                    mm_version=self.mm.version)
-        else:
+        elif self.endpoint_name == "index":
+            tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
+            ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_INGREDIENT)
+            recipes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_RECIPE)
             return render_template(self.templateName,
                                    mm_current_user=mm_current_user,
                                    mm_status=self.mm.status.get_status(),
+                                   mm_version=self.mm.version,
+                                   tubes=tubes, ingredients=ingredients, recipes=recipes)
+        else:
+            return render_template(self.templateName,
+                                   mm_current_user=mm_current_user,
                                    mm_version=self.mm.version)
 
     def post(self):
@@ -313,11 +321,12 @@ class MMFlaskViewForItemsRenderer(MethodView):
                                    mm_version=self.mm.version,
                                    ingredients=items, tubes=tubes)
         elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
-            ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
+            ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_INGREDIENT)
+            tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
             return render_template(self.endpoint_name + "List.html",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
-                                   recipes=items, ingredients=ingredients)
+                                   recipes=items, ingredients=ingredients, tubes=tubes)
         else:
             return render_template(self.endpoint_name + "List.html",
                                    mm_current_user=mm_current_user,

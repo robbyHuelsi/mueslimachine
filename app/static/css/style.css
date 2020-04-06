@@ -7,6 +7,22 @@
 	left: 10px;
 }
 
+/* ----- Index ----- */
+#todo-table {
+    max-width: 350px;
+}
+#todo-table .task-row .check-hover {
+    display: none;
+}
+
+#todo-table .task-row:hover .check-no {
+    display: none;
+}
+
+#todo-table .task-row:hover .check-hover {
+    display: table-cell;
+}
+
 /* ----- Status ----- */
 #statusTable tr > th{
 	width: 50px;
