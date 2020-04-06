@@ -347,11 +347,11 @@ class MMFlaskViewForItemsRenderer(MethodView):
             if item is None:
                 used_ingredients = []
             else:
-                used_ingredients = self.mm.mySQL.ir_get_ingredients_by_recipe_id(item[0])
+                used_ingredients = self.mm.mySQL.ir_get_ingredients_by_recipe_id(item['recipe_uid'])
             return render_template(self.endpoint_name + "Single.html",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
-                                   recipes=item, all_ingredients=all_ingredients, used_ingredients=used_ingredients)
+                                   recipe=item, all_ingredients=all_ingredients, used_ingredients=used_ingredients)
         else:
             return render_template(self.endpoint_name + "Single.html",
                                    mm_current_user=mm_current_user,
@@ -374,7 +374,7 @@ class MMFlaskViewForItemsRenderer(MethodView):
             # self.mm.logger.log("Show Single View of " + self.endpoint_name + "Id " + str(item_id))
             item = self.mm.mySQL.get_item_by_id(self.endpoint_name, item_id)
             if len(item) == 1:
-                return self.render_template_single(item=item, mm_current_user=mm_current_user)
+                return self.render_template_single(item=item[0], mm_current_user=mm_current_user)
             else:
                 # If number of MySQL response items are 0 or > 1:
                 return redirect(url_for(self.endpoint_name))
@@ -411,7 +411,7 @@ class MMFlaskViewForItemsRenderer(MethodView):
             elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
                 self.mm.logger.log(str(request.form))
                 in_name = request.form.get("recipe_name")
-                in_creator = 'None';
+                in_creator = session['user_uid'];
                 in_ingredients = []
                 for key, value in request.form.items():
                     if key[0:5] == 'irId_':

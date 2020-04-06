@@ -1,3 +1,5 @@
+import os
+
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
 from werkzeug import security as sec
@@ -67,7 +69,7 @@ class MMMySql:
 
         self.mysql.init_app(flask)
 
-        self.commander = MMMySqlCommander(db_name, user, host, self.CONST_TBL_NAMES)
+        self.cmder = MMMySqlCommander(db_name, user, host, self.CONST_TBL_NAMES)
 
         connecting_thread = threading.Thread(target=self.connect, args=[db_name, user, host])
         connecting_thread.daemon = True
@@ -125,7 +127,7 @@ class MMMySql:
             self.cursor.execute("USE " + db_name)
             self.logger.log("Database '" + db_name + "' already exists")
         else:
-            self.cursor.execute(self.commander.get_sql_command("_createDatabase"))
+            self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd("_createDatabase"))
             self.cursor.execute("USE " + db_name)
             self.logger.log("Database '" + db_name + "' was created")
 
@@ -143,18 +145,18 @@ class MMMySql:
             if tbl_exists:
                 self.logger.log("Table '" + table + "' already exists")
             else:
-                self.cursor.execute(self.commander.get_sql_command(table + "_createTable", table))
-                self.cursor.execute(self.commander.get_sql_command(table + "_addItem", table))
-                self.cursor.execute(self.commander.get_sql_command("_getItems", table))
-                self.cursor.execute(self.commander.get_sql_command("_getItemById", table))
-                self.cursor.execute(self.commander.get_sql_command("_deleteItemById", table))
+                # Add general procedures
+                procedures = ['createTable', 'addItem', 'getItems', 'getItemById', 'deleteItemById']
+                for procedure in procedures:
+                    self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd(procedure, table))
 
+                # Add specific procedures
                 if table == self.CONST_TBL_NAMES.TBL_SETTING:
-                    self.cursor.execute(self.commander.get_sql_command(table + "_getValueByKey", table))
-                    self.cursor.execute(self.commander.get_sql_command(table + "_updateValueByKey", table))
+                    self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd('getValueByKey', table))
+                    self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd('updateValueByKey', table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_USER:
-                    self.cursor.execute(self.commander.get_sql_command(table + "_getUserByUsername", table))
+                    self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd('getUserByUsername', table))
 
                 elif table == self.CONST_TBL_NAMES.TBL_TUBE:
                     pass
@@ -165,7 +167,7 @@ class MMMySql:
                 elif table == self.CONST_TBL_NAMES.TBL_RECIPE:
                     pass
                 elif table == self.CONST_TBL_NAMES.TBL_IR:
-                    self.cursor.execute(self.commander.get_sql_command(table + "_getIngredientsByRecipeId", table))
+                    self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd('getIngredientsByRecipeId', table))
 
                 self.logger.log("Table '" + table + "' was created")
 
@@ -264,6 +266,11 @@ class MMMySql:
         self.cursor.callproc(table + "_getItemById", (item_id,))
         item = self.cursor.fetchall()
         if len(item) == 1:
+            if table == self.CONST_TBL_NAMES.TBL_RECIPE:
+                ir_list = self.ir_get_ingredients_by_recipe_id(item_id)
+                if ir_list:
+                    for ir in ir_list:
+                        self.delete_item_by_id(self.CONST_TBL_NAMES.TBL_IR, ir['ir_uid'])
             self.cursor.callproc(table + "_deleteItemById", (item_id,))
             return True
         else:
