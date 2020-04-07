@@ -118,47 +118,50 @@
     {% endif %}
 {%- endmacro %}
 
-{% macro recipeSingle_usedIngredientsTr(index, ingredient_uid, ingredient_name, ir_uid) -%}
+{% macro recipeSingle_usedIngredientsTr(index0, index1, ingredient_uid, ingredient_name,
+                                        amount, ir_uid, disabled_first, disabled_last) -%}
 {% autoescape false %}{# to echo special characters in js variable definition #}
 <tr>
     <th
             scope="row"
             class="align-middle"
             style="white-space: nowrap; padding-left: 20px;">
-        {{ index }}.
+        {{ index1 }}.
     </th>
     <td class="align-middle" style="white-space: nowrap;">
-        <label for="input_amount_{{ index }}" class="sr-only">Amount</label>
+        <label for="input_amount_{{ index0 }}" class="sr-only">Amount</label>
         <div class="input-group" style="min-width: 110px;">
             <input
                     type="number"
-                    name="amount_{{ index }}"
-                    id="input_amount_{{ index }}"
+                    name="amount_{{ index0 }}"
+                    id="input_amount_{{ index0 }}"
                     class="form-control"
                     min="0"
                     step="1"
-                    value="0"
+                    value="{{ amount }}"
                     size="3"
                     dir="rtl"
-                    aria-describedby="addon_amount_{{ index }}">
+                    aria-describedby="addon_amount_{{ index0 }}">
             <div class="input-group-append">
-                <span class="input-group-text" id="addon_amount_{{ index }}">g</span>
+                <span class="input-group-text" id="addon_amount_{{ index0 }}">g</span>
             </div>
         </div>
     </td>
     <td class="align-middle" width="99%">
         {{ ingredient_name }}
-        <input type="hidden" name="ingredientId_{{ index }}" value="{{ ingredient_uid }}">
-        <input type="hidden" name="irId_{{ index }}" value="{{ ir_uid }}">
+        <input type="hidden" name="ingredientId_{{ index0 }}" value="{{ ingredient_uid }}">
+        <input type="hidden" name="irId_{{ index0 }}" value="{{ ir_uid }}">
     </td>
     <td class="align-middle" style="white-space: nowrap; padding-right: 20px;">
-        <button type="button" class="btn btn-primary">
+        <button type="button" class="btn btn-primary"
+                onclick="move_up_ingredient({{ index0 }});" {{ disabled_first }}>
             <i class="fas fa-chevron-up"></i>
         </button>
-        <button type="button" class="btn btn-primary">
+        <button type="button" class="btn btn-primary"
+                onclick="move_down_ingredient({{ index0 }});" {{ disabled_last }}>
             <i class="fas fa-chevron-down"></i>
         </button>
-        <button type="button" class="btn btn-danger">
+        <button type="button" class="btn btn-danger" onclick="delete_ingredient({{ index0 }}, {{ ingredient_uid }});">
             <i class="fas fa-trash-alt"></i>
         </button>
     </td>

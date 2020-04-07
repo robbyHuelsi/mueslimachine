@@ -1,7 +1,7 @@
 CREATE TABLE `{table}`
 (
-    ingredient_uid         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    ingredient_name        VARCHAR(20),
+    ingredient_uid         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    ingredient_name        VARCHAR(20)     NOT NULL,
     ingredient_price       FLOAT(5),
     ingredient_tube        BIGINT UNSIGNED NOT NULL,
     ingredient_glutenfree  BOOL,

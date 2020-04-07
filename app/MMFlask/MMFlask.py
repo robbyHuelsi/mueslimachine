@@ -222,6 +222,7 @@ class MMFlaskViewDefaultRenderer(MethodView):
         else:
             return render_template(self.templateName,
                                    mm_current_user=mm_current_user,
+                                   mm_status=self.mm.status.get_status(),
                                    mm_version=self.mm.version)
 
     def post(self):
