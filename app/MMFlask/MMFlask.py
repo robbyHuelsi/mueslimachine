@@ -412,6 +412,8 @@ class MMFlaskViewForItemsRenderer(MethodView):
             elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
                 self.mm.logger.log(str(request.form))
                 in_name = request.form.get("recipe_name")
+                in_draft = True if "recipe_draft" in request.form else False
+                in_description = request.form.get("recipe_description")
                 in_creator = session['user_uid'];
                 in_ingredients = []
                 for key, value in request.form.items():
@@ -424,7 +426,7 @@ class MMFlaskViewForItemsRenderer(MethodView):
                             'amount': request.form.get("amount_{}".format(order))
                         }
                         in_ingredients.append(ingredient)
-                properties = (in_name, in_creator, in_ingredients)
+                properties = (in_name, in_creator, in_description, in_draft, in_ingredients)
             else:
                 properties = ()
 
@@ -434,8 +436,8 @@ class MMFlaskViewForItemsRenderer(MethodView):
             # If properties are available, add new item
             if len(properties) > 0:
                 if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
-                    (recipe_name, recipe_creator, ingredients) = properties
-                    recipe_properties = (recipe_name, recipe_creator)
+                    (recipe_name, recipe_creator, recipe_description, recipe_draft, ingredients) = properties
+                    recipe_properties = (recipe_name, recipe_creator, recipe_description, recipe_draft)
                     success, item_id, err_msg = self.mm.mySQL.add_item(self.mm.mySQL.get_tbl_names().TBL_RECIPE,
                                                                        recipe_properties)
                     if success:

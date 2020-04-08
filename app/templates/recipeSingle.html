@@ -23,19 +23,31 @@
                     {% endif %}
 
                     <h4>{% if recipe %}Edit{% else %}Set{% endif %} Properties</h4>
-                    <label for="input_recipe_name" class="sr-only">Name</label>
-                    <input
-                            type="name"
-                            name="recipe_name"
-                            id="input_recipe_name"
-                            class="form-control mb-2"
-                            placeholder="Name"
-                            autocomplete="off"
-                            value="{% if recipe %}{{ recipe.recipe_name }}{% endif %}"
-                            autofocus
-                            required>
-
-                    {#                    <hr class="my-3">#}
+                    <div class="input-group mb-2">
+                        <label for="input_recipe_name" class="sr-only">Name</label>
+                        <input
+                                type="name"
+                                name="recipe_name"
+                                id="input_recipe_name"
+                                class="form-control"
+                                placeholder="Name"
+                                autocomplete="off"
+                                aria-describedby="basic-addon2"
+                                value="{% if recipe %}{{ recipe.recipe_name }}{% endif %}"
+                                autofocus
+                                required>
+                        <div class="input-group-append">
+                            <span class="input-group-text" style="padding-left: 32px;" id="basic-addon2">
+                                <input class="form-check-input" type="checkbox"
+                                       name="recipe_draft" id="checkbox_draft"
+                                       {% if not recipe or recipe.recipe_draft == true%}checked{% endif %}
+                                >
+                                <label class="form-check-label" for="checkbox_draft">
+                                    Draft
+                                </label>
+                            </span>
+                        </div>
+                    </div>
 
                     <div class="card-deck mb-3">
                         <div class="card">
@@ -101,6 +113,13 @@
                                 </table>
                             </div>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <h4><label for="textarea_description" class="mb-0">Example textarea</label></h4>
+                        <textarea class="form-control" id="textarea_description" name="recipe_description" rows="5">
+                            {%- if recipe -%}{{ recipe.recipe_description }}{%- endif -%}
+                        </textarea>
                     </div>
 
                     <button name="cmd" value="{% if recipe %}edit{% else %}add{% endif %}"

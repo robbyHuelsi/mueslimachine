@@ -1,10 +1,10 @@
 CREATE
     DEFINER = '{db_user}'@'{db_host}'
-    PROCEDURE `{table}_addItem`(IN in_username VARCHAR(20),
-                                IN in_first_name VARCHAR(50),
-                                IN in_last_name VARCHAR(50),
-                                IN in_password VARCHAR(100),
-                                IN in_email VARCHAR(20),
+    PROCEDURE `{table}_addItem`(IN in_username VARCHAR(50),
+                                IN in_first_name VARCHAR(100),
+                                IN in_last_name VARCHAR(100),
+                                IN in_password VARCHAR(255),
+                                IN in_email VARCHAR(100),
                                 IN in_role ENUM ('pending', 'user', 'admin'))
 BEGIN
     IF (

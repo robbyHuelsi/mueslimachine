@@ -1,6 +1,6 @@
 CREATE
     DEFINER = '{db_user}'@'{db_host}'
-    PROCEDURE `{table}_addItem`(IN in_name VARCHAR(20),
+    PROCEDURE `{table}_addItem`(IN in_name VARCHAR(50),
                                 IN in_price FLOAT(5),
                                 IN in_tube BIGINT,
                                 IN in_glutenfree BOOL,
