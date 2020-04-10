@@ -349,6 +349,12 @@ class MMFlaskViewForItemsRenderer(MethodView):
                 used_ingredients = []
             else:
                 used_ingredients = self.mm.mySQL.ir_get_ingredients_by_recipe_id(item['recipe_uid'])
+            # all_icons = []
+            # with open('../static/fontawesome-free-5.8.1-web/metadata/icons.json') as json_file:
+            #     data = json.load(json_file)
+            #     for icon, properties in data:
+            #         all_icons.append(icon)
+
             return render_template(self.endpoint_name + "Single.html",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
@@ -413,7 +419,6 @@ class MMFlaskViewForItemsRenderer(MethodView):
                 self.mm.logger.log(str(request.form))
                 in_name = request.form.get("recipe_name")
                 in_draft = True if "recipe_draft" in request.form else False
-                in_description = request.form.get("recipe_description")
                 in_creator = session['user_uid'];
                 in_ingredients = []
                 for key, value in request.form.items():
@@ -426,7 +431,12 @@ class MMFlaskViewForItemsRenderer(MethodView):
                             'amount': request.form.get("amount_{}".format(order))
                         }
                         in_ingredients.append(ingredient)
-                properties = (in_name, in_creator, in_description, in_draft, in_ingredients)
+                in_description = request.form.get("recipe_description")
+                in_icon = request.form.get("recipe_icon")
+                in_bgcolor1 = request.form.get("recipe_bgcolor1")
+                in_bgcolor2 = request.form.get("recipe_bgcolor2")
+                properties = (in_name, in_creator, in_draft, in_description,
+                              in_icon, in_bgcolor1, in_bgcolor2, in_ingredients)
             else:
                 properties = ()
 
@@ -436,8 +446,8 @@ class MMFlaskViewForItemsRenderer(MethodView):
             # If properties are available, add new item
             if len(properties) > 0:
                 if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
-                    (recipe_name, recipe_creator, recipe_description, recipe_draft, ingredients) = properties
-                    recipe_properties = (recipe_name, recipe_creator, recipe_description, recipe_draft)
+                    (name, creator, draft, description, icon, bgcolor1, bgcolor2, ingredients) = properties
+                    recipe_properties = (name, creator, draft, description, icon, bgcolor1, bgcolor2)
                     success, item_id, err_msg = self.mm.mySQL.add_item(self.mm.mySQL.get_tbl_names().TBL_RECIPE,
                                                                        recipe_properties)
                     if success:

@@ -1,16 +1,26 @@
 /* ----- General ----- */
-#notification{
-	position: fixed;
-	z-index: 100;
-	width: calc(100% - 20px);
-	top: 10px;
-	left: 10px;
+#notification {
+    position: fixed;
+    z-index: 100;
+    width: calc(100% - 20px);
+    top: 10px;
+    left: 10px;
 }
 
 /* ----- Index ----- */
 #todo-table {
     max-width: 350px;
 }
+
+.muesli-card-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    height: 150px;
+    text-align: center;
+}
+
 #todo-table .task-row .check-hover {
     display: none;
 }
@@ -24,37 +34,53 @@
 }
 
 /* ----- Status ----- */
-#statusTable tr > th{
-	width: 50px;
-	text-align: center;
-}
-
-/* ----- Tube Single ----- */
-@media (max-width: 400px) { 
-	.inputPinNumber{
-		min-width: 120px;
-	}
+#statusTable tr > th {
+    width: 50px;
+    text-align: center;
 }
 
 /* ----- Recipe Single ----- */
 .recipe_ingredient_list tr:first-child th,
-.recipe_ingredient_list tr:first-child td{
+.recipe_ingredient_list tr:first-child td {
     border-top: 0;
 }
 
+#icon-picker-card .iconpicker-popover{
+    width: initial;
+}
+
+#picker_icon_list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-height: 324px;
+    padding: 6px;
+}
+
+#picker_icon_list span{
+    margin: 6px;
+}
+
+/* ----- Tube Single ----- */
+@media (max-width: 400px) {
+    .inputPinNumber {
+        min-width: 120px;
+    }
+}
+
 /* ----- Footer ----- */
-footer{
-	text-align: center;
+footer {
+    text-align: center;
 }
 
 /*.preIndicatorBadage{*/
 /*    padding-top: 3px;*/
 /*}*/
 
-.indicatorBadage span{
-	margin-right: 5px;
+.indicatorBadage span {
+    margin-right: 5px;
 }
 
-.indicatorBadage span:last-child{
-	margin-right: 0px;
+.indicatorBadage span:last-child {
+    margin-right: 0px;
 }

@@ -7,7 +7,7 @@
             <p>Hello {{ mm_current_user.user_username }}!</p>
 
             {% if tubes|length == 0 or ingredients|length == 0 or recipes|length == 0 %}
-                 {% set todo_next_step = '' %}
+                {% set todo_next_step = '' %}
                 {% if tubes|length == 0 %}
                     {% set todo_next_step = 'tube' %}
                 {% elif ingredients|length == 0 %}
@@ -105,6 +105,22 @@
                     </tr>
                     </tbody>
                 </table>
+            {% else %}
+                <div class="card-columns">
+                    {% for recipe in recipes %}
+                        {% if recipe.recipe_draft == false %}
+                            <div class="card">
+                                <img src="..." class="card-img-top" alt="...">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ recipe.recipe_title }}</h5>
+                                    <p class="card-text">{{ recipe.recipe_description }}</p>
+                                    <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                                    <a href="#" class="btn btn-primary">Make Muesli</a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             {% endif %}
         </div>
     </div>

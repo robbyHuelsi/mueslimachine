@@ -1,5 +1,6 @@
 {% from '_macros.html' import allergy_badge as allergy_badge %}
 {% from '_macros.html' import recipeSingle_usedIngredientsTr as usedIngredientsTr %}
+{% from '_macros.html' import muesli_card_inner as muesli_card_inner %}
 {% include "header.html" %}
 
 <main>
@@ -16,14 +17,14 @@
                 <p>Creator: <span class="badge badge-info">{{ mm_current_user.user_username }}</span></p>
             {% endif %}
 
-            <div class="my-3">
+            <div class="mt-3">
                 <form method="post">
                     {% if recipe %}
                         <input type="hidden" name="recipe_id" value="{{ recipe.recipe_uid }}">
                     {% endif %}
 
                     <h4>{% if recipe %}Edit{% else %}Set{% endif %} Properties</h4>
-                    <div class="input-group mb-2">
+                    <div class="input-group">
                         <label for="input_recipe_name" class="sr-only">Name</label>
                         <input
                                 type="name"
@@ -34,13 +35,17 @@
                                 autocomplete="off"
                                 aria-describedby="basic-addon2"
                                 value="{% if recipe %}{{ recipe.recipe_name }}{% endif %}"
+                                onchange="update_muesli_card_delay();"
+                                onkeydown="update_muesli_card_delay();"
+                                oncut="update_muesli_card_delay();"
+                                onpaste="update_muesli_card_delay();"
                                 autofocus
                                 required>
                         <div class="input-group-append">
                             <span class="input-group-text" style="padding-left: 32px;" id="basic-addon2">
                                 <input class="form-check-input" type="checkbox"
                                        name="recipe_draft" id="checkbox_draft"
-                                       {% if not recipe or recipe.recipe_draft == true%}checked{% endif %}
+                                       {% if not recipe or recipe.recipe_draft == true %}checked{% endif %}
                                 >
                                 <label class="form-check-label" for="checkbox_draft">
                                     Draft
@@ -49,7 +54,7 @@
                         </div>
                     </div>
 
-                    <div class="card-deck mb-3">
+                    <div class="card-deck mt-3">
                         <div class="card">
                             <h5 class="card-header">List of Used Ingredients</h5>
                             <div class="card-body p-0">
@@ -115,20 +120,94 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <h4><label for="textarea_description" class="mb-0">Example textarea</label></h4>
-                        <textarea class="form-control" id="textarea_description" name="recipe_description" rows="5">
-                            {%- if recipe -%}{{ recipe.recipe_description }}{%- endif -%}
-                        </textarea>
+                    <h5 class="mt-3">Give your creation a face</h5>
+                    <div class="card-deck">
+                        <div class="card">
+                            <h5 class="card-header"><label for="input_recipe_description"
+                                                           class="mb-0">Description</label></h5>
+                            <div class="card-body text-center">
+                                <textarea class="form-control" id="input_recipe_description"
+                                          onchange="update_muesli_card_delay();"
+                                          onkeydown="update_muesli_card_delay();"
+                                          oncut="update_muesli_card_delay();"
+                                          onpaste="update_muesli_card_delay();"
+                                          name="recipe_description"
+                                          style="height: 451px" rows="5">
+                                    {%- if recipe -%}{{ recipe.recipe_description }}{%- endif -%}
+                                </textarea>
+                            </div>
+                        </div>
+                        <div class="card" id="icon-picker-card">
+                            <h5 class="card-header">Icon</h5>
+                            <div class="card-body text-center">
+                                <input type="text" class="form-control input-lg mb-2" id="input_recipe_icon"
+                                       name="recipe_icon" value="{{ recipe.recipe_icon }}"
+                                       onchange="muesli_card_properties['icon'] = this.value; update_muesli_card();">
+                                <label data-title="Inline picker" data-placement="inline"
+                                       class="icp icp-auto mt-0"
+                                       data-selected="fa-align-justify"></label>
+                                <span class="btn btn-primary btn-block"
+                                      onclick="random_icon();">Random Icon</span>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h5 class="card-header">Background Color Gradient</h5>
+                            <div class="card-body text-center">
+                                <div id="colorpicker_bg1"
+                                     class="mb-2"
+                                     title="Color Picker 1">
+                                    <div class="input-group mb-2 mx-auto" style="width: 196px;">
+                                        <div class="input-group-prepend">
+                                            <label for="input_recipe_bgcolor1"
+                                                   class="input-group-text" id="basic-addon1">Color 1</label>
+                                        </div>
+                                        <input type="text" class="form-control input-lg" id="input_recipe_bgcolor1"
+                                               name="recipe_bgcolor1" value="{{ recipe.recipe_bgcolor1 }}"
+                                               onchange="update_muesli_card_delay();"
+                                               onkeydown="update_muesli_card_delay();"
+                                               oncut="update_muesli_card_delay();"
+                                               onpaste="update_muesli_card_delay();"/>
+                                    </div>
+                                </div>
+                                <div id="colorpicker_bg2"
+                                     class="mb-3"
+                                     title="Color Picker 2">
+                                    <div class="input-group mb-2 mx-auto" style="width: 196px;">
+                                        <div class="input-group-prepend">
+                                            <label for="input_recipe_bgcolor2"
+                                                   class="input-group-text" id="basic-addon2">Color 1</span>
+                                        </div>
+                                        <input type="text" class="form-control input-lg" id="input_recipe_bgcolor2"
+                                               name="recipe_bgcolor2" value="{{ recipe.recipe_bgcolor2 }}"
+                                               onchange="update_muesli_card_delay();"
+                                               onkeydown="update_muesli_card_delay();"
+                                               oncut="update_muesli_card_delay();"
+                                               onpaste="update_muesli_card_delay();"/>
+                                    </div>
+                                </div>
+                                <span class="btn btn-primary"
+                                      style="width: 196px;"
+                                      onclick="random_color();">Random Color</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mt-3">Preview</h5>
+                    <div class="card-deck mt-3">
+                        <div class="card" id="muesli_card">
+                            {{ muesli_card_inner(recipe.recipe_name, recipe.recipe_description,
+                                                 recipe.recipe_bgcolor1, recipe.recipe_bgcolor2,
+                                                 recipe.recipe_icon) }}
+                        </div>
                     </div>
 
                     <button name="cmd" value="{% if recipe %}edit{% else %}add{% endif %}"
-                            class="btn btn-primary btn-lg btn-block">Save
+                            class="btn btn-primary btn-lg btn-block mt-3">Save
                     </button>
                 </form>
             </div>
             {% if recipe %}
-                <div class="my-3">
+                <div class="mt-3">
                     <h4>Danger Zone</h4>
                     <form method="post">
                         <button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">
@@ -140,9 +219,8 @@
     </div>
 </main>
 
-{#<script src="../static/js/recipeSingle.js"></script>#}
-
 <script type="application/javascript">
+    // Table buttons
     var ingredients_dict = {};
     {% for ingredient in used_ingredients %}
         {% set i = loop.index0 %}
@@ -238,6 +316,99 @@
 
         update_tbl();
     }
+
+    // Icon Picker
+    $('.icp-auto').iconpicker({
+        title: false,
+        selected: false,
+        defaultValue: {% if recipe %}'{{ recipe.recipe_icon }}'{% else %}false{% endif %},
+        selectedCustomClass: 'bg-primary',
+        {#            mustAccept: true,#}
+        {#            placement: 'bottomRight',#}
+        {#            showFooter: true,#}
+        {#            // note that this is ignored cause we have an accept button:#}
+        hideOnSelect: false,
+        fontAwesome5: true,
+        templates: {
+            iconpicker: '<div class="iconpicker"><div class="iconpicker-items" id="picker_icon_list"></div></div>',
+            iconpickerItem: '<span class="iconpicker-item"><i></i></span>',
+        }
+    });
+
+    $('.icp').on('iconpickerSelected', function (e) {
+        {#$('.lead .picker-target').get(0).className = 'picker-target fa-3x ' +#}
+        {#    e.iconpickerInstance.options.iconBaseClass + ' ' +#}
+        {#    e.iconpickerInstance.options.fullClassFormatter(e.iconpickerValue);#}
+        document.getElementById("input_recipe_icon").value = e.iconpickerValue;
+        update_muesli_card_delay();
+    });
+
+    function random_icon() {
+        let icons = document.getElementById('picker_icon_list').childNodes;
+        let rand = Math.floor(Math.random() * icons.length);
+        icons[rand].click();
+    }
+
+    // Color Pickers
+    $('#colorpicker_bg1').colorpicker({
+        inline: true,
+        format: null
+    });
+
+    $('#colorpicker_bg2').colorpicker({
+        inline: true,
+        format: null
+    });
+
+    function random_color() {
+        let r1 = Math.floor(Math.random() * 255);
+        let g1 = Math.floor(Math.random() * 255);
+        let b1 = Math.floor(Math.random() * 255);
+        let r2 = Math.floor(Math.random() * 255);
+        let g2 = Math.floor(Math.random() * 255);
+        let b2 = Math.floor(Math.random() * 255);
+        let color_text1 = 'rgb(' + r1 + ', ' + g1 + ', ' + b1 + ')';
+        let color_text2 = 'rgb(' + r2 + ', ' + g2 + ', ' + b2 + ')';
+        $('#colorpicker_bg1').colorpicker('setValue', color_text1)
+        $('#colorpicker_bg2').colorpicker('setValue', color_text2)
+    }
+
+    // Muesli Card
+    var muesli_card_properties = {
+        'name': '{{ recipe.recipe_name }}',
+        'description': '{{ recipe.recipe_description }}',
+        'bgcolor1': '{{ recipe.recipe_bgcolor1 }}',
+        'bgcolor2': '{{ recipe.recipe_bgcolor2 }}',
+        'icon': '{{ recipe.recipe_icon }}',
+    }
+
+    function get_muesli_card_inner(properties) {
+        {% set new_card_html = muesli_card_inner("' + properties.name + '", "' + properties.description + '",
+                                                 "' + properties.bgcolor1 + '", "' + properties.bgcolor2 + '",
+                                                 "' + properties.icon + '") %}
+        return '{{ new_card_html|replace("\n", " ")|replace("    ", " ") }}';
+    }
+
+    function update_muesli_card() {
+        muesli_card_properties['name'] = document.getElementById('input_recipe_name').value;
+        muesli_card_properties['description'] = document.getElementById('input_recipe_description').value;
+        muesli_card_properties['bgcolor1'] = document.getElementById('input_recipe_bgcolor1').value;
+        muesli_card_properties['bgcolor2'] = document.getElementById('input_recipe_bgcolor2').value;
+        muesli_card_properties['icon'] = document.getElementById('input_recipe_icon').value;
+        document.getElementById('muesli_card').innerHTML = get_muesli_card_inner(muesli_card_properties);
+    }
+
+    function update_muesli_card_delay() {
+        update_muesli_card();
+        setTimeout(function (input) {
+            update_muesli_card();
+        }, 200);
+    }
+
+    {% if not recipe %}
+        random_icon();
+        random_color();
+    {% endif %}
 
 </script>
 

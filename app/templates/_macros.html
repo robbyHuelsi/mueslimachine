@@ -59,21 +59,21 @@
                     required>
         </div>
         {% if mode not in ['edit'] %}
-        <div class="input-group mb-2">
-            <div class="input-group-prepend">
-                <div class="input-group-text">
-                    <i class="fa fa-star" aria-hidden="true"></i>
+            <div class="input-group mb-2">
+                <div class="input-group-prepend">
+                    <div class="input-group-text">
+                        <i class="fa fa-star" aria-hidden="true"></i>
+                    </div>
                 </div>
+                <input
+                        type="password"
+                        name="password"
+                        id="input_password"
+                        class="form-control"
+                        placeholder="Password"
+                        autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
+                        required>
             </div>
-            <input
-                    type="password"
-                    name="password"
-                    id="input_password"
-                    class="form-control"
-                    placeholder="Password"
-                    autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
-                    required>
-        </div>
         {% endif %}
         {% if mode not in ['edit', 'login'] %}
             <div class="input-group mb-2">
@@ -166,5 +166,19 @@
         </button>
     </td>
 </tr>
+{% endautoescape %}
+{%- endmacro %}
+
+{% macro muesli_card_inner(name, description, bgcolor1, bgcolor2, icon) -%}
+{% autoescape false %}{# to echo special characters in js variable definition #}
+<div class="card-img-top muesli-card-top"
+     style="background: linear-gradient(to bottom right, {{ bgcolor1 }} 0%, {{ bgcolor2 }} 100%);">
+    <i class="{{ icon }} fa-5x"></i>
+</div>
+<div class="card-body">
+    <h5 class="card-title">{{ name }}</h5>
+    <p class="card-text">{{ description }}</p>
+    <button class="btn btn-primary" disabled>Make Muesli</button>
+</div>
 {% endautoescape %}
 {%- endmacro %}

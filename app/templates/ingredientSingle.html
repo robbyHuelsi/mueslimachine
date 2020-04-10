@@ -12,7 +12,7 @@
                 <h1>New Ingredient <i class="fas fa-apple-alt"></i></h1>
             {% endif %}
 
-            <div class="my-3">
+            <div class="mt-3">
                 <form method="post">
                     {% if ingredient %}
                         <input type="hidden" name="ingredient_id" value="{{ ingredient.ingredient_uid }}">
@@ -121,12 +121,12 @@
                     </button>
                 </form>
             </div>
-            <div class="my-3">
+            <div class="mt-3">
                 <h4>Motor Tuning</h4>
                 <p>Not implemented yet</p>
             </div>
             {% if ingredient %}
-                <div class="my-3">
+                <div class="mt-3">
                     <h4>Danger Zone</h4>
                     <form method="post">
                         <button name="cmd" value="delete" class="btn btn-danger btn-lg btn-block">

@@ -146,7 +146,7 @@ class MMMySql:
                 self.logger.log("Table '" + table + "' already exists")
             else:
                 # Add general procedures
-                procedures = ['createTable', 'addItem', 'getItems', 'getItemById', 'deleteItemById']
+                procedures = ['createTable', 'addItem', 'getItems', 'getItemById', 'deleteItemById', 'updateItemById']
                 for procedure in procedures:
                     self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd(procedure, table))
 
