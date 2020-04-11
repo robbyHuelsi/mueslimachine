@@ -7,6 +7,10 @@
     left: 10px;
 }
 
+.overflow_x_scroll {
+    overflow-x: scroll;
+}
+
 /* ----- Index ----- */
 #todo-table {
     max-width: 350px;

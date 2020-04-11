@@ -8,7 +8,7 @@
         <div class="container">
             <h1>List of Ingredients <i class="fas fa-apple-alt"></i></h1>
 
-            <div class="my-3">
+            <div class="my-3 overflow_x_scroll">
                 {% if ingredients|length > 0 %}
                     <table class="table table-hover">
                         <thead>
@@ -54,14 +54,14 @@
                     {% if tubes|length == 0 %}
                         <p>You must first <a href="/tube/add/">add a tube</a> before you can add an ingredient.</p>
                     {% endif %}
-                    <a
-                            class="btn btn-success btn-lg btn-block {% if tubes|length == 0 %}disabled{% endif %}"
-                            href="add/"
-                            role="button">
-                        Add Ingredient
-                    </a>
                 </div>
             </div>
+            <a
+                    class="btn btn-success btn-lg btn-block {% if tubes|length == 0 %}disabled{% endif %}"
+                    href="add/"
+                    role="button">
+                Add Ingredient
+            </a>
         </div>
     </div>
 </main>
