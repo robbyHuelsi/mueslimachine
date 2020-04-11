@@ -39,13 +39,29 @@
     text-align: center;
 }
 
+/* ----- Recipe List ----- */
+.recipe_list_row_icon_badge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    width: 45px;
+    height: 45px;
+    margin: -20px -6px;
+
+    font-size: 22px;
+    text-align: center;
+
+    border-radius: 3.2px;
+}
+
 /* ----- Recipe Single ----- */
 .recipe_ingredient_list tr:first-child th,
 .recipe_ingredient_list tr:first-child td {
     border-top: 0;
 }
 
-#icon-picker-card .iconpicker-popover{
+#icon-picker-card .iconpicker-popover {
     width: initial;
 }
 
@@ -57,7 +73,7 @@
     padding: 6px;
 }
 
-#picker_icon_list span{
+#picker_icon_list span {
     margin: 6px;
 }
 

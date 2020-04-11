@@ -22,7 +22,10 @@
                         {% for recipe in recipes %}
                             <tr>
                                 <td class="align-middle">
-                                    <i class="{{ recipe.recipe_icon }}"></i>
+                                    <div class="recipe_list_row_icon_badge"
+                                         style="background: linear-gradient(to bottom right, {{ recipe.recipe_bgcolor1 }} -20%, {{ recipe.recipe_bgcolor2 }} 120%);">
+                                            <i class="{{ recipe.recipe_icon }}"></i>
+                                    </div>
                                 </td>
                                 <th scope="row" class="align-middle">
                                     {{ recipe.recipe_name }}
