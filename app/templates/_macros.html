@@ -177,14 +177,15 @@
 {% endautoescape %}
 {%- endmacro %}
 
-{% macro muesli_card_inner(name, description, bgcolor1, bgcolor2, icon) -%}
+{% macro muesli_card_inner(name, creator, gluten, lactose, description, bgcolor1, bgcolor2, icon) -%}
 {% autoescape false %}{# to echo special characters in js variable definition #}
 <div class="card-img-top muesli-card-top"
      style="background: linear-gradient(to bottom right, {{ bgcolor1 }} 0%, {{ bgcolor2 }} 100%);">
     <i class="{{ icon }} fa-5x"></i>
 </div>
 <div class="card-body">
-    <h5 class="card-title">{{ name }}</h5>
+    <h5 class="card-title">{{ name }} <span class="font-weight-normal text-secondary">by {{ creator }}</span></h5>
+    <p>{{ gluten }} {{ lactose }}</p>
     <p class="card-text">{{ description }}</p>
     <button class="btn btn-primary" disabled>Make Muesli</button>
 </div>

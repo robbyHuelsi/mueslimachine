@@ -10,31 +10,42 @@
                     <table class="table table-hover">
                         <thead>
                         <tr>
-                            <th scope="col" class="align-middle">Name</th>
+                            <th scope="col" class="align-middle" width="1%"></th>
+                            <th scope="col" class="align-middle" colspan="2">Name</th>
                             <th scope="col" class="align-middle">Ingredients</th>
                             <th scope="col" class="align-middle">Allergy Information</th>
                             <th scope="col" class="align-middle">Price</th>
-                            <th scope="col" class="align-middle"></th>
+                            <th scope="col" class="align-middle" width="1%"></th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for recipe in recipes %}
                             <tr>
+                                <td class="align-middle">
+                                    <i class="{{ recipe.recipe_icon }}"></i>
+                                </td>
                                 <th scope="row" class="align-middle">
                                     {{ recipe.recipe_name }}
-                                    <span class="font-weight-normal text-secondary"> by {{ recipe['user_username'] }}</span>
+                                    <span class="font-weight-normal text-secondary"> by {{ recipe.user_username }}</span>
                                 </th>
+
                                 <td class="align-middle">
-                                    ###
+                                    {% if recipe.recipe_draft %}
+                                        <span class="badge badge-info">DRAFT</span>
+                                    {% endif %}
+                                </td>
+
+                                <td class="align-middle">
+
                                 </td>
                                 <td class="align-middle">
-{#                                    {{ allergy_badge(value=ingredient['ingredient_glutenfree'],#}
-{#                                                    name_free='GLUTENFREE', name_contains='CONTAINS GLUTEN') }}#}
-{#                                    {{ allergy_badge(value=ingredient['ingredient_lactosefree'],#}
-{#                                                    name_free='LACTOSEFREE', name_contains='CONTAINS LACTOSE') }}#}
+                                    {#                                    {{ allergy_badge(value=ingredient['ingredient_glutenfree'],#}
+                                    {#                                                    name_free='GLUTENFREE', name_contains='CONTAINS GLUTEN') }}#}
+                                    {#                                    {{ allergy_badge(value=ingredient['ingredient_lactosefree'],#}
+                                    {#                                                    name_free='LACTOSEFREE', name_contains='CONTAINS LACTOSE') }}#}
                                 </td>
                                 <td class="align-middle">
-{#                                    {{ ingredient['ingredient_price'] }} € / g#}
+                                    {#                                    {{ ingredient['ingredient_price'] }} € / g#}
                                 </td>
                                 {#                            <td class="align-middle">{{item[6]}}</td>#}
                                 <td class="align-middle">
@@ -51,9 +62,11 @@
 
                 <div class="my-3">
                     {% if tubes|length == 0 %}
-                        <p>You must first <a href="/tube/add/">add a tube </a> and an ingredient before you can add a recipe.</p>
+                        <p>You must first <a href="/tube/add/">add a tube </a> and an ingredient before you can add a
+                            recipe.</p>
                     {% elif ingredients|length == 0 %}
-                        <p>You must first <a href="/ingredient/add/">add an ingredient</a> before you can add a recipe.</p>
+                        <p>You must first <a href="/ingredient/add/">add an ingredient</a> before you can add a recipe.
+                        </p>
                     {% endif %}
                     <a
                             class="btn btn-success btn-lg btn-block {% if ingredients|length == 0 %}disabled{% endif %}"
@@ -66,5 +79,5 @@
         </div>
     </div>
 </main>
- 
+
 {% include "footer.html" %}

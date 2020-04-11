@@ -196,7 +196,9 @@
                     <h5 class="mt-3">Preview</h5>
                     <div class="card-deck mt-3">
                         <div class="card" id="muesli_card">
-                            {{ muesli_card_inner(recipe.recipe_name, recipe.recipe_description,
+                            {{ muesli_card_inner(recipe.recipe_name, recipe.user_username,
+                                                 '', '',
+                                                 recipe.recipe_description,
                                                  recipe.recipe_bgcolor1, recipe.recipe_bgcolor2,
                                                  recipe.recipe_icon) }}
                         </div>
@@ -377,6 +379,13 @@
     // Muesli Card
     var muesli_card_properties = {
         'name': '{{ recipe.recipe_name }}',
+        {% if recipe.recipe_uid %}
+            'creator': '{{ recipe.user_username }}',
+        {% else %}
+            'creator': '{{ mm_current_user.user_username }}',
+        {%- endif %}
+        'gluten': '',
+        'lactose': '',
         'description': '{{ recipe.recipe_description }}',
         'bgcolor1': '{{ recipe.recipe_bgcolor1 }}',
         'bgcolor2': '{{ recipe.recipe_bgcolor2 }}',
@@ -384,7 +393,9 @@
     }
 
     function get_muesli_card_inner(properties) {
-        {% set new_card_html = muesli_card_inner("' + properties.name + '", "' + properties.description + '",
+        {% set new_card_html = muesli_card_inner("' + properties.name + '", "' + properties.creator + '",
+                                                 "' + properties.gluten + '", "' + properties.lactose + '",
+                                                 "' + properties.description + '",
                                                  "' + properties.bgcolor1 + '", "' + properties.bgcolor2 + '",
                                                  "' + properties.icon + '") %}
         return '{{ new_card_html|replace("\n", " ")|replace("    ", " ") }}';
