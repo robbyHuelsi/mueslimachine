@@ -15,7 +15,7 @@
             <div class="mt-3">
                 <form method="post">
                     {% if ingredient.ingredient_uid %}
-                        <input type="hidden" name="ingredient_id" value="{{ ingredient.ingredient_uid }}">
+                        <input type="hidden" name="ingredient_uid" value="{{ ingredient.ingredient_uid }}">
                     {% endif %}
 
                     <h4>{% if ingredient.ingredient_uid %}Edit{% else %}Set{% endif %} Properties</h4>

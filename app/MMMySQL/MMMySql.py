@@ -225,11 +225,18 @@ class MMMySql:
             columns.remove(table + '_uid')
 
         # Modify column list for special purposes
-        if table == self.get_tbl_names().TBL_USER:
-            columns.remove('user_tracking')
-            columns.remove('user_login_date')
-            columns.remove('user_reg_date')
-            columns.append('user_password_confirm')
+        if cmd == 'add':
+            if table == self.get_tbl_names().TBL_USER:
+                columns.remove('user_tracking')
+                columns.remove('user_login_date')
+                columns.remove('user_reg_date')
+                columns.append('user_password_confirm')
+        elif cmd == 'edit':
+            if table == self.get_tbl_names().TBL_USER:
+                columns.remove('user_password')
+                columns.remove('user_tracking')
+                columns.remove('user_login_date')
+                columns.remove('user_reg_date')
 
         self.logger.log("Columns: " + str(columns))
 
@@ -269,37 +276,48 @@ class MMMySql:
             self.logger.log(err_msg)
             return False, None, err_msg
 
-        # Add item to table
-        success, item_id, err_msg = self.add_item(table, list(properties.values()))
+        # Add or edit item
+        if cmd == 'add':
+            success, item_id, err_msg = self.add_item(table, list(properties.values()))
+        elif cmd == "edit":
+            if (table + '_uid') in properties:
+                item_id = properties[table + '_uid']
+                success, err_msg = self.edit_item_by_id(table, item_id, list(properties.values()))
+        else:
+            return False, None, 'Wrong command'
 
         # For Recipe: Modify IR table
         if success and table == self.get_tbl_names().TBL_RECIPE:
+            new_ir_id_list = []
             for key, value in form_input.items():
                 if key[0:5] == 'irId_':
                     order = key[5:]
                     ir_id = value
                     ingredient_id = form_input.get("ingredientId_{}".format(order))
                     amount = form_input.get("amount_{}".format(order))
-                    ing_properties = (ingredient_id, item_id, amount, order)
-                    ir_success, ir_id, ir_err_msg = self.add_item(self.get_tbl_names().TBL_IR, ing_properties)
+                    if ir_id == '':  # add IR
+                        ing_properties = (ingredient_id, item_id, amount, order)
+                        ir_success, ir_id, ir_err_msg = self.add_item(self.get_tbl_names().TBL_IR, ing_properties)
+                    else:  # edit IR
+                        ing_properties = (ir_id, ingredient_id, item_id, amount, order)
+                        ir_success, ir_err_msg = self.edit_item_by_id(self.get_tbl_names().TBL_IR, ir_id, ing_properties)
                     if not ir_success:
                         success = False
                         err_msg = 'IR_UID {}: {}'.format(ir_id, ir_err_msg)
                         break
+                    new_ir_id_list.append(int(ir_id))
+
+            # In edit mode check if some IR entries have to delete
+            if cmd == 'edit':
+                ir_list = self.ir_get_ingredients_by_recipe_id(item_id)
+                if ir_list:
+                    for ir in ir_list:
+                        # self.logger.log('{} <-> {}'.format(ir['ir_uid'], new_ir_id_list))
+                        if ir['ir_uid'] not in new_ir_id_list:
+                            self.logger.log('IR #{} deleted'.format(ir['ir_uid']))
+                            self.delete_item_by_id(self.CONST_TBL_NAMES.TBL_IR, ir['ir_uid'])
 
         return success, item_id, err_msg
-
-    # elif cmd == "edit":
-    #     if item_id is not None:
-    #         self.mm.logger.log("Editing " + self.endpoint_name + " #" + str(item_id) + "...")
-    #         success = self.mm.mySQL.edit_item_by_id(self.endpoint_name, item_id, request.form)
-    #     if success:
-    #         self.mm.status.add_one_time_notification_success(
-    #             self.endpoint_name.title() + " #" + str(item_id) + " edited successfully.")
-    #     else:
-    #         self.mm.status.add_one_time_notification_error(
-    #             "Editing " + self.endpoint_name.title() + " #" + str(item_id) + " failed.")
-    #     return redirect(url_for(self.endpoint_name) + str(item_id) + "/")
 
     def add_item(self, table, properties):
         if self.status in [0, 1]:
@@ -310,7 +328,7 @@ class MMMySql:
 
         # Exit with error, if properties doesn't match to requirements.
         # Patch properties if possible (e.g. hash the password).
-        approved, properties, err_msg = self.check_and_patch_properties(table, properties)
+        approved, properties, err_msg = self.check_and_patch_properties(table, 'add', properties)
         if not approved:
             return False, None, err_msg
 
@@ -332,20 +350,26 @@ class MMMySql:
         self.connection.commit()
         return True, data[0]['LAST_INSERT_ID()'], ""
 
-    def edit_item_by_id(self, table, item_id, data):
+    def edit_item_by_id(self, table, item_id, properties):
         if self.status in [0, 1]:
-            return False
+            return False, 'database not connected'
+
         if table not in self.CONST_TBL_NAMES.TABLES:
-            return False
+            return False, "table_unknown;"
+
         self.cursor.callproc(table + "_getItemById", (item_id,))
         item = self.cursor.fetchall()
-        if len(item) == 1:
-            # TODO: Implement editing item (Take care at user: password!)
-            # self.cursor.callproc(table + "_editItemById",(item_id,...))
-            # return True
-            return False
-        else:
-            return False
+        if len(item) != 1:
+            return False, "item_does_not_exist;"
+
+        # Exit with error, if properties doesn't match to requirements.
+        # Patch properties if possible (e.g. hash the password).
+        approved, properties, err_msg = self.check_and_patch_properties(table, 'edit', properties)
+        if not approved:
+            return False, err_msg
+
+        self.cursor.callproc(table + "_updateItemById", properties)
+        return True, ''
 
     def delete_item_by_id(self, table, item_id):
         if self.status in [0, 1]:
@@ -421,13 +445,23 @@ class MMMySql:
         # self.logger.log(str(item), flush = True)
         return ingredients
 
-    def check_and_patch_properties(self, table, properties):
+    def check_and_patch_properties(self, table, cmd, properties):
         success = True
         err_msg = ""
         if table == self.CONST_TBL_NAMES.TBL_SETTING:
             pass  # TODO: Check all properties
         elif table == self.CONST_TBL_NAMES.TBL_USER:
-            username, first_name, last_name, password, email, role, password_confirm = properties
+            if cmd == 'add':
+                username, first_name, last_name, password, email, role, password_confirm = properties
+                uid = True
+            elif cmd == 'edit':
+                uid, username, first_name, last_name, email, role = properties
+                password = True
+                password_confirm = True
+            else:
+                err_msg += "wrong_cmd;"
+                return False, properties, err_msg
+
             if not username:
                 success = False
                 err_msg += "username_empty;"
@@ -452,10 +486,13 @@ class MMMySql:
             elif password != password_confirm:
                 success = False
                 err_msg += "password_conform_unequal;"
-            else:
+            elif cmd == 'add':
                 password = sec.generate_password_hash(password)
 
-            properties = (username, first_name, last_name, password, email, role)  # TODO: Do further checks
+            if cmd == 'add':
+                properties = (username, first_name, last_name, password, email, role)  # TODO: Do further checks
+            elif cmd == 'edit':
+                properties = (uid, username, first_name, last_name, email, role)
 
         elif table == self.CONST_TBL_NAMES.TBL_TUBE:
             pass  # TODO: Check all properties

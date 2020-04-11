@@ -242,27 +242,27 @@ class MMFlaskViewDefaultRenderer(MethodView):
             return ""
 
     def setup_or_signup(self, is_setup):
-        in_first_name = request.form.get("first_name")
-        in_last_name = request.form.get("last_name")
-        in_username = request.form.get("username")
-        in_email = request.form.get("email")
-        in_password = request.form.get("password")
-        in_password_confirm = request.form.get("password_confirm")
+        in_first_name = request.form.get("user_first_name")
+        in_last_name = request.form.get("user_last_name")
+        in_username = request.form.get("user_username")
+        in_email = request.form.get("user_email")
+        in_password = request.form.get("user_password")
+        in_password_confirm = request.form.get("user_password_confirm")
         in_role = "admin" if is_setup else 'pending'
 
         success = True
         err_msg = ''
 
-        if in_password != in_password_confirm:
-            success = False
-            err_msg = "Confirmed password was different"
-
-        if success:
-            tbl = self.mm.mySQL.get_tbl_names().TBL_USER
-            properties = (in_username, in_first_name,
-                          in_last_name, in_password,
-                          in_email, in_role)
-            success, user_uid, err_msg = self.mm.mySQL.add_item(tbl, properties)
+        # if in_password != in_password_confirm:
+        #     success = False
+        #     err_msg = "Confirmed password was different"
+        #
+        # if success:
+        tbl = self.mm.mySQL.get_tbl_names().TBL_USER
+        properties = (in_username, in_first_name,
+                      in_last_name, in_password,
+                      in_email, in_role, in_password_confirm)
+        success, user_uid, err_msg = self.mm.mySQL.add_item(tbl, properties)
             # TODO: Rewrite error messages
 
         if success and is_setup:
@@ -411,6 +411,15 @@ class MMFlaskViewForItemsRenderer(MethodView):
                     if len(key) > len(tbl_name) + 1 and key[0:len(tbl_name)+1] == tbl_name + '_':
                         item[key] = val
                 return self.render_template_single(item, mm_current_user)
+
+            # EDIT
+            # if success:
+            #     self.mm.status.add_one_time_notification_success(
+            #         self.endpoint_name.title() + " #" + str(item_id) + " edited successfully.")
+            # else:
+            #     self.mm.status.add_one_time_notification_error(
+            #         "Editing " + self.endpoint_name.title() + " #" + str(item_id) + " failed.")
+            # return redirect(url_for(self.endpoint_name) + str(item_id) + "/")
 
         elif cmd == "delete":
             if item_id is not None:
