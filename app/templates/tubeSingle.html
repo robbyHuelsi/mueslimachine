@@ -3,16 +3,16 @@
 <main>
 	<div class="jumbotron jumbotron-fluid">
 		<div class="container">
-{% if item %}
+{% if item.tube_uid %}
 			<h1>Tube #{{item.tube_uid}} <i class="fas fa-vial"></i></h1>
 {% else %}
 			<h1>New Tube <i class="fas fa-vial"></i></h1>
 {% endif %}
 			<div class="my-3">
-				<h4>{% if item %}Edit{% else %}Set{% endif %} Pins</h4>
+				<h4>{% if item.tube_uid %}Edit{% else %}Set{% endif %} Pins</h4>
 				<p>All pin fieds are requiered.</p>
 				<form method="post">
-{% if item %}
+{% if item.tube_uid %}
 					<input type="hidden" name="item_id" value="{{item.tube_uid}}">
 {% endif %}
 					<div class="form-row align-items-center">
@@ -21,7 +21,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text">A</span>
 								</div>
-								<input type="text" class="form-control" id="input_pin_1" name="pin_1" value="{% if item %}{{item.tube_gpio_1}}{% endif %}" autofocus required>
+								<input type="text" class="form-control" id="input_tube_gpio_1" name="tube_gpio_1" value="{{item.tube_gpio_1}}" autofocus required>
 							</div>
 						</div>
 						<div class="inputPinNumber col mb-2">
@@ -29,7 +29,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text">B</span>
 								</div>
-								<input type="text" class="form-control" id="input_pin_2" name="pin_2" value="{% if item %}{{item.tube_gpio_2}}{% endif %}" required>
+								<input type="text" class="form-control" id="input_tube_gpio_2" name="tube_gpio_2" value="{{item.tube_gpio_2}}" required>
 							</div>
 						</div>
 						<div class="inputPinNumber col mb-2">
@@ -37,7 +37,7 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text">C</span>
 								</div>
-								<input type="text" class="form-control" id="input_pin_3" name="pin_3" value="{% if item %}{{item.tube_gpio_3}}{% endif %}" required>
+								<input type="text" class="form-control" id="input_tube_gpio_3" name="tube_gpio_3" value="{{item.tube_gpio_3}}" required>
 							</div>
 						</div>
 						<div class="inputPinNumber col mb-2">
@@ -45,14 +45,14 @@
 								<div class="input-group-prepend">
 									<span class="input-group-text">D</span>
 								</div>
-								<input type="text" class="form-control" id="input_pin_4" name="pin_4" value="{% if item %}{{item.tube_gpio_4}}{% endif %}" required>
+								<input type="text" class="form-control" id="input_tube_gpio_4" name="tube_gpio_4" value="{{item.tube_gpio_4}}" required>
 							</div>
 						</div>
 					</div>
-					<button name="cmd" value="{% if item %}edit{% else %}add{% endif %}" class="btn btn-primary btn-lg btn-block">Save</button>
+					<button name="cmd" value="{% if item.tube_uid %}edit{% else %}add{% endif %}" class="btn btn-primary btn-lg btn-block">Save</button>
 				</form>
 			</div>
-{% if item %}
+{% if item.tube_uid %}
 			<div class="my-3">
 				<h4>Filling</h4>
 				<p>Lorem ipsum</p>

@@ -212,6 +212,95 @@ class MMMySql:
         # self.logger.log(str(item), flush = True)
         return item
 
+    def add_or_edit_item(self, table, form_input):
+        cmd = form_input["cmd"]
+
+        # Fetch columns of this table
+        self.cursor.execute("SHOW columns FROM " + table)
+        columns = self.cursor.fetchall()
+        columns = [c['Field'] for c in columns]
+
+        # Delete uid property if 'add' mode
+        if cmd == 'add':
+            columns.remove(table + '_uid')
+
+        # Modify column list for special purposes
+        if table == self.get_tbl_names().TBL_USER:
+            columns.remove('user_tracking')
+            columns.remove('user_login_date')
+            columns.remove('user_reg_date')
+            columns.append('user_password_confirm')
+
+        self.logger.log("Columns: " + str(columns))
+
+        # Get properties from user input
+        properties = {}
+        for column in columns:
+            if column in form_input:
+                properties[column] = form_input[column]
+            else:
+                # Modify input for special purposes
+                if table == self.get_tbl_names().TBL_USER:
+                    if column == 'user_role':
+                        properties[column] = 'user'
+                elif table == self.get_tbl_names().TBL_INGREDIENT:
+                    if column in ['ingredient_glutenfree', 'ingredient_lactosefree']:
+                        properties[column] = False
+                    elif column == 'ingredient_motortuning':
+                        properties[column] = 0
+                elif table == self.get_tbl_names().TBL_RECIPE:
+                    if column == 'recipe_draft':
+                        properties[column] = False
+
+        # Modify properties for special purposes
+        for key, val in properties.items():
+            if table == self.get_tbl_names().TBL_INGREDIENT:
+                if key in ['ingredient_glutenfree', 'ingredient_lactosefree']:
+                    properties[key] = True if val == 'true' else False
+            elif table == self.get_tbl_names().TBL_RECIPE:
+                if key == 'recipe_draft':
+                    properties[key] = True if val == 'true' else False
+
+        self.logger.log("Properties: " + str(properties))
+        self.logger.log("Count of prop.: " + str(len(properties)))
+
+        if len(properties) != len(columns):
+            err_msg = 'Length of properties is unequal to length of table columns'
+            self.logger.log(err_msg)
+            return False, None, err_msg
+
+        # Add item to table
+        success, item_id, err_msg = self.add_item(table, list(properties.values()))
+
+        # For Recipe: Modify IR table
+        if success and table == self.get_tbl_names().TBL_RECIPE:
+            for key, value in form_input.items():
+                if key[0:5] == 'irId_':
+                    order = key[5:]
+                    ir_id = value
+                    ingredient_id = form_input.get("ingredientId_{}".format(order))
+                    amount = form_input.get("amount_{}".format(order))
+                    ing_properties = (ingredient_id, item_id, amount, order)
+                    ir_success, ir_id, ir_err_msg = self.add_item(self.get_tbl_names().TBL_IR, ing_properties)
+                    if not ir_success:
+                        success = False
+                        err_msg = 'IR_UID {}: {}'.format(ir_id, ir_err_msg)
+                        break
+
+        return success, item_id, err_msg
+
+    # elif cmd == "edit":
+    #     if item_id is not None:
+    #         self.mm.logger.log("Editing " + self.endpoint_name + " #" + str(item_id) + "...")
+    #         success = self.mm.mySQL.edit_item_by_id(self.endpoint_name, item_id, request.form)
+    #     if success:
+    #         self.mm.status.add_one_time_notification_success(
+    #             self.endpoint_name.title() + " #" + str(item_id) + " edited successfully.")
+    #     else:
+    #         self.mm.status.add_one_time_notification_error(
+    #             "Editing " + self.endpoint_name.title() + " #" + str(item_id) + " failed.")
+    #     return redirect(url_for(self.endpoint_name) + str(item_id) + "/")
+
     def add_item(self, table, properties):
         if self.status in [0, 1]:
             return False, None, 'database not connected'
@@ -338,7 +427,7 @@ class MMMySql:
         if table == self.CONST_TBL_NAMES.TBL_SETTING:
             pass  # TODO: Check all properties
         elif table == self.CONST_TBL_NAMES.TBL_USER:
-            username, first_name, last_name, password, email, role = properties
+            username, first_name, last_name, password, email, role, password_confirm = properties
             if not username:
                 success = False
                 err_msg += "username_empty;"
@@ -357,6 +446,12 @@ class MMMySql:
             if not password:
                 success = False
                 err_msg += "password_empty;"
+            elif not password_confirm:
+                success = False
+                err_msg += "password_conform_empty;"
+            elif password != password_confirm:
+                success = False
+                err_msg += "password_conform_unequal;"
             else:
                 password = sec.generate_password_hash(password)
 

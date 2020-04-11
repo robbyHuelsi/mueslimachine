@@ -4,24 +4,23 @@
 <main>
     <div class="jumbotron jumbotron-fluid">
         <div class="container">
-            {% if item %}
+            {% if item.user_uid %}
                 <h1>{{ item.user_username }} <i class="fas fa-user"></i></h1>
                 <div class="my-3">
                     <p>
                         ID: <span class="badge badge-info">{{ item.user_uid }}</span><br>
                         Registration Date: <span class="badge badge-info">{{ item.user_reg_date }}</span><br>
-                        Role: <span class="badge badge-info">{{ item.user_role.upper() }}</span></p>
                 </div>
             {% else %}
                 <h1>New User <i class="fas fa-user"></i></h1>
             {% endif %}
 
             <div class="my-3">
-                <h4>{% if item %}Edit name or email address{% else %}Set properties of new user{% endif %}</h4>
-                {{ user_form(item, 'edit' if item else 'add') }}
+                <h4>{% if item.user_uid %}Edit name or email address{% else %}Set properties of new user{% endif %}</h4>
+                {{ user_form(item, 'edit' if item.user_uid else 'add') }}
             </div>
 
-            {% if item %}
+            {% if item.user_uid %}
                 <div class="my-3">
                     <h4>Edit password</h4>
                     <p>Not implemented yet</p>

@@ -3,7 +3,7 @@
 <main>
     <div class="jumbotron jumbotron-fluid">
         <div class="container">
-            {% if ingredient %}
+            {% if ingredient.ingredient_uid %}
                 <h1>Edit Ingredient <i class="fas fa-apple-alt"></i></h1>
                 <div class="my-3">
                     <p>ID: <span class="badge badge-info">{{ ingredient.ingredient_uid }}</span></p>
@@ -14,17 +14,17 @@
 
             <div class="mt-3">
                 <form method="post">
-                    {% if ingredient %}
+                    {% if ingredient.ingredient_uid %}
                         <input type="hidden" name="ingredient_id" value="{{ ingredient.ingredient_uid }}">
                     {% endif %}
 
-                    <h4>{% if ingredient %}Edit{% else %}Set{% endif %} Properties</h4>
+                    <h4>{% if ingredient.ingredient_uid %}Edit{% else %}Set{% endif %} Properties</h4>
                     <div class="card-deck mb-3">
                         <div class="card">
                             <h5 class="card-header">Main Properties</h5>
                             <div class="card-body">
                                 <p>Both fields are required:</p>
-                                <label for="input_name" class="sr-only">Name</label>
+                                <label for="input_ingredient_name" class="sr-only">Name</label>
                                 <div class="input-group mb-2">
 {#                                    <div class="input-group-prepend">#}
 {#                                        <div class="input-group-text">#}
@@ -33,33 +33,33 @@
 {#                                    </div>#}
                                     <input
                                             type="text"
-                                            name="name"
-                                            id="input_name"
+                                            name="ingredient_name"
+                                            id="input_ingredient_name"
                                             class="form-control"
                                             placeholder="Name"
                                             autocomplete="off"
-                                            value="{% if ingredient %}{{ ingredient.ingredient_name }}{% endif %}"
+                                            value="{{ ingredient.ingredient_name }}"
                                             autofocus
                                             required>
                                 </div>
 
-                                <label for="input_tube" class="sr-only">Tube</label>
+                                <label for="input_ingredient_tube" class="sr-only">Tube</label>
                                 <select
-                                        name="tube"
-                                        id="input_tube"
+                                        name="ingredient_tube"
+                                        id="input_ingredient_tube"
                                         class="form-control mb-2"
                                         required>
                                     <option
                                             hidden
                                             disabled
-                                            {% if not (ingredient and ingredient.ingredient_tube) %}selected{% endif %}
+                                            {% if not ingredient.ingredient_tube %}selected{% endif %}
                                             value>
                                         Select Tube
                                     </option>
                                     {% for tube in tubes %}
                                         <option
                                                 value="{{ tube['tube_uid'] }}"
-                                                {% if ingredient and ingredient.ingredient_tube == tube['tube_uid'] %}selected{% endif %}
+                                                {% if ingredient.ingredient_tube == tube['tube_uid'] %}selected{% endif %}
                                         >
                                             Tube #{{ tube['tube_uid'] }}
                                         </option>
@@ -74,22 +74,22 @@
                                 <div class="form-check">
                                     <input
                                             type="checkbox"
-                                            name="glutenfree"
+                                            name="ingredient_glutenfree"
                                             value="true"
-                                            id="input_glutenfree"
+                                            id="input_ingredient_glutenfree"
                                             class="form-check-input"
-                                            {% if ingredient and ingredient.ingredient_glutenfree %}checked{% endif %}>
-                                    <label for="input_glutenfree" class="form-check-label">Glutenfree</label>
+                                            {% if ingredient.ingredient_glutenfree %}checked{% endif %}>
+                                    <label for="input_ingredient_glutenfree" class="form-check-label">Glutenfree</label>
                                 </div>
                                 <div class="form-check">
                                     <input
                                             type="checkbox"
-                                            name="lactosefree"
+                                            name="ingredient_lactosefree"
                                             value="true"
-                                            id="input_lactosefree"
+                                            id="input_ingredient_lactosefree"
                                             class="form-check-input"
-                                            {% if ingredient and ingredient.ingredient_lactosefree %}checked{% endif %}>
-                                    <label for="input_lactosefree" class="form-check-label">Lactosefree</label>
+                                            {% if ingredient.ingredient_lactosefree %}checked{% endif %}>
+                                    <label for="input_ingredient_lactosefree" class="form-check-label">Lactosefree</label>
                                 </div>
                             </div>
                         </div>
@@ -97,16 +97,16 @@
                         <div class="card">
                             <h5 class="card-header">Price</h5>
                             <div class="card-body">
-                                <label for="input_price" class="sr-only">Price</label>
+                                <label for="input_ingredient_price" class="sr-only">Price</label>
                                 <div class="input-group mb-2">
                                     <input
                                             type="number"
-                                            name="price"
-                                            id="input_price"
+                                            name="ingredient_price"
+                                            id="input_ingredient_price"
                                             class="form-control"
                                             min="0"
                                             step="0.01"
-                                            value="{% if ingredient %}{{ ingredient.ingredient_price }}{% else %}0.00{% endif %}"
+                                            value="{% if ingredient.ingredient_price %}{{ ingredient.ingredient_price }}{% else %}0.00{% endif %}"
                                             aria-describedby="price_addon">
                                     <div class="input-group-append">
                                         <span class="input-group-text" id="price_addon">€ / g</span>
@@ -116,7 +116,7 @@
                         </div>
                     </div>
 
-                    <button name="cmd" value="{% if ingredient %}edit{% else %}add{% endif %}"
+                    <button name="cmd" value="{% if ingredient.ingredient_uid %}edit{% else %}add{% endif %}"
                             class="btn btn-primary btn-lg btn-block">Save
                     </button>
                 </form>
@@ -125,7 +125,7 @@
                 <h4>Motor Tuning</h4>
                 <p>Not implemented yet</p>
             </div>
-            {% if ingredient %}
+            {% if ingredient.ingredient_uid %}
                 <div class="mt-3">
                     <h4>Danger Zone</h4>
                     <form method="post">

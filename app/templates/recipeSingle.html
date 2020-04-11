@@ -6,11 +6,11 @@
 <main>
     <div class="jumbotron jumbotron-fluid">
         <div class="container">
-            {% if recipe %}
+            {% if recipe.recipe_uid %}
                 <h1>Edit Recipe <i class="fas fa-file-alt"></i></h1>
                 <div class="my-3">
                     <p>ID: <span class="badge badge-info">{{ recipe.recipe_uid }}</span></p>
-                    <p>Creator: <span class="badge badge-info">{{ recipe.user_username }}</span></p>
+                    <p>Creator: <span class="badge badge-info">{{ recipe.user_uid }}</span></p>
                 </div>
             {% else %}
                 <h1>New Recipe <i class="fas fa-file-alt"></i></h1>
@@ -19,11 +19,13 @@
 
             <div class="mt-3">
                 <form method="post">
-                    {% if recipe %}
-                        <input type="hidden" name="recipe_id" value="{{ recipe.recipe_uid }}">
-                    {% endif %}
-
-                    <h4>{% if recipe %}Edit{% else %}Set{% endif %} Properties</h4>
+                    <input type="hidden" name="recipe_uid" value="{{ recipe.recipe_uid }}">
+                    {% if recipe.recipe_uid %}
+                        <input type="hidden" name="recipe_creator" value="{{ recipe.recipe_creator }}">
+                    {% else %}
+                        <input type="hidden" name="recipe_creator" value="{{ mm_current_user.user_uid }}">
+                    {%- endif %}
+                    <h4>{% if recipe.recipe_uid %}Edit{% else %}Set{% endif %} Properties</h4>
                     <div class="input-group">
                         <label for="input_recipe_name" class="sr-only">Name</label>
                         <input
@@ -34,7 +36,7 @@
                                 placeholder="Name"
                                 autocomplete="off"
                                 aria-describedby="basic-addon2"
-                                value="{% if recipe %}{{ recipe.recipe_name }}{% endif %}"
+                                value="{{ recipe.recipe_name }}"
                                 onchange="update_muesli_card_delay();"
                                 onkeydown="update_muesli_card_delay();"
                                 oncut="update_muesli_card_delay();"
@@ -43,8 +45,8 @@
                                 required>
                         <div class="input-group-append">
                             <span class="input-group-text" style="padding-left: 32px;" id="basic-addon2">
-                                <input class="form-check-input" type="checkbox"
-                                       name="recipe_draft" id="checkbox_draft"
+                                <input class="form-check-input" id="checkbox_draft" type="checkbox"
+                                       name="recipe_draft" value="true"
                                        {% if not recipe or recipe.recipe_draft == true %}checked{% endif %}
                                 >
                                 <label class="form-check-label" for="checkbox_draft">
@@ -132,8 +134,7 @@
                                           oncut="update_muesli_card_delay();"
                                           onpaste="update_muesli_card_delay();"
                                           name="recipe_description"
-                                          style="height: 451px" rows="5">
-                                    {%- if recipe -%}{{ recipe.recipe_description }}{%- endif -%}
+                                          style="height: 451px" rows="5">{{- recipe.recipe_description -}}
                                 </textarea>
                             </div>
                         </div>
@@ -201,12 +202,12 @@
                         </div>
                     </div>
 
-                    <button name="cmd" value="{% if recipe %}edit{% else %}add{% endif %}"
+                    <button name="cmd" value="{% if recipe.recipe_uid %}edit{% else %}add{% endif %}"
                             class="btn btn-primary btn-lg btn-block mt-3">Save
                     </button>
                 </form>
             </div>
-            {% if recipe %}
+            {% if recipe.recipe_uid %}
                 <div class="mt-3">
                     <h4>Danger Zone</h4>
                     <form method="post">
@@ -321,7 +322,7 @@
     $('.icp-auto').iconpicker({
         title: false,
         selected: false,
-        defaultValue: {% if recipe %}'{{ recipe.recipe_icon }}'{% else %}false{% endif %},
+        defaultValue: {% if recipe.recipe_uid %}'{{ recipe.recipe_icon }}'{% else %}false{% endif %},
         selectedCustomClass: 'bg-primary',
         {#            mustAccept: true,#}
         {#            placement: 'bottomRight',#}

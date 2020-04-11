@@ -387,114 +387,42 @@ class MMFlaskViewForItemsRenderer(MethodView):
                 return redirect(url_for(self.endpoint_name))
 
     def post(self, item_id):
+        mm_current_user = self.mm.flask.get_user_by_id(session)
         cmd = request.form.get("cmd")
+        tbl_name = self.endpoint_name
         success = False
 
         # Add new item to items list
-        if cmd == "add":
-            self.mm.logger.log("Adding " + self.endpoint_name + "...")
+        if cmd in ["add", 'edit']:
+            self.mm.logger.log(cmd + " " + tbl_name + "...")
+            success, item_id, err_msg = self.mm.mySQL.add_or_edit_item(tbl_name, request.form)
 
-            # Get properties of new item from page
-            if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_USER:
-                in_first_name = request.form.get("first_name")
-                in_last_name = request.form.get("last_name")
-                in_username = request.form.get("username")
-                in_email = request.form.get("email")
-                in_password = request.form.get("password")
-                in_password_confirm = request.form.get("password_confirm")
-                in_role = "admin"
-                properties = (in_username, in_first_name, in_last_name, in_password, in_email, in_role)
-            elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_TUBE:
-                properties = (request.form.get("pin_1"), request.form.get("pin_2"),
-                              request.form.get("pin_3"), request.form.get("pin_4"))
-            elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
-                in_name = request.form.get("name")
-                in_price = float(request.form.get("price").replace(",", "."))
-                in_tube = int(request.form.get("tube"))
-                in_glutenfree = True if "glutenfree" in request.form else False
-                in_lactosefree = True if "lactosefree" in request.form else False
-                in_motortuning = 0
-                properties = (in_name, in_price, in_tube, in_glutenfree, in_lactosefree, in_motortuning)
-            elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
-                self.mm.logger.log(str(request.form))
-                in_name = request.form.get("recipe_name")
-                in_draft = True if "recipe_draft" in request.form else False
-                in_creator = session['user_uid'];
-                in_ingredients = []
-                for key, value in request.form.items():
-                    if key[0:5] == 'irId_':
-                        order = key[5:]
-                        ingredient = {
-                            'order': order,
-                            'ir_id': value,
-                            'ingredient_id': request.form.get("ingredientId_{}".format(order)),
-                            'amount': request.form.get("amount_{}".format(order))
-                        }
-                        in_ingredients.append(ingredient)
-                in_description = request.form.get("recipe_description")
-                in_icon = request.form.get("recipe_icon")
-                in_bgcolor1 = request.form.get("recipe_bgcolor1")
-                in_bgcolor2 = request.form.get("recipe_bgcolor2")
-                properties = (in_name, in_creator, in_draft, in_description,
-                              in_icon, in_bgcolor1, in_bgcolor2, in_ingredients)
-            else:
-                properties = ()
-
-            self.mm.logger.log("Properties: " + str(properties))
-            self.mm.logger.log("Count of prop.: " + str(len(properties)))
-
-            # If properties are available, add new item
-            if len(properties) > 0:
-                if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
-                    (name, creator, draft, description, icon, bgcolor1, bgcolor2, ingredients) = properties
-                    recipe_properties = (name, creator, draft, description, icon, bgcolor1, bgcolor2)
-                    success, item_id, err_msg = self.mm.mySQL.add_item(self.mm.mySQL.get_tbl_names().TBL_RECIPE,
-                                                                       recipe_properties)
-                    if success:
-                        for ing in ingredients:
-                            ing_properties = (ing['ingredient_id'], item_id, ing['amount'], ing['order'])
-                            ir_success, ir_id, ir_err_msg = self.mm.mySQL.add_item(self.mm.mySQL.get_tbl_names().TBL_IR,
-                                                                                   ing_properties)
-                            if not ir_success:
-                                success = False
-                                err_msg = 'IR_UID {}: {}'.format(ir_id, ir_err_msg)
-                                break
-
-                else:
-                    success, item_id, err_msg = self.mm.mySQL.add_item(self.endpoint_name, properties)
-
-                # If adding new item was successful go to its single page or if not go to list page
-                if success:
-                    self.mm.logger.log("item_id : " + str(item_id))
-                    return redirect(url_for(self.endpoint_name) + str(item_id) + "/")
-                else:
-                    self.mm.status.add_one_time_notification_error("Adding " + self.endpoint_name.title() + " failed. "
-                                                                   + err_msg)
-            return redirect(url_for(self.endpoint_name))
-
-        elif cmd == "edit":
-            if item_id is not None:
-                self.mm.logger.log("Editing " + self.endpoint_name + " #" + str(item_id) + "...")
-                success = self.mm.mySQL.edit_item_by_id(self.endpoint_name, item_id, request.form)
+            # If adding new item was successful go to its single page or if not go to list page
             if success:
-                self.mm.status.add_one_time_notification_success(
-                    self.endpoint_name.title() + " #" + str(item_id) + " edited successfully.")
+                self.mm.logger.log("item_id : " + str(item_id))
+                return redirect(url_for(tbl_name) + str(item_id) + "/")
             else:
-                self.mm.status.add_one_time_notification_error(
-                    "Editing " + self.endpoint_name.title() + " #" + str(item_id) + " failed.")
-            return redirect(url_for(self.endpoint_name) + str(item_id) + "/")
+                msg = cmd + " " + tbl_name.title() + " failed. " + err_msg;
+                self.mm.logger.log_error(msg)
+                self.mm.status.add_one_time_notification_error(msg)
+
+                item = {}
+                for key, val in request.form.items():
+                    if len(key) > len(tbl_name) + 1 and key[0:len(tbl_name)+1] == tbl_name + '_':
+                        item[key] = val
+                return self.render_template_single(item, mm_current_user)
 
         elif cmd == "delete":
             if item_id is not None:
-                # self.mm.logger.log("Deleting " + self.endpoint_name + " #" + str(item_id) + "...")
-                success = self.mm.mySQL.delete_item_by_id(self.endpoint_name, item_id)
+                # self.mm.logger.log("Deleting " + tbl_name + " #" + str(item_id) + "...")
+                success = self.mm.mySQL.delete_item_by_id(tbl_name, item_id)
             if success:
                 self.mm.status.add_one_time_notification_success(
-                    self.endpoint_name.title() + " #" + str(item_id) + " deleted successfully.")
+                    tbl_name.title() + " #" + str(item_id) + " deleted successfully.")
             else:
                 self.mm.status.add_one_time_notification_error(
-                    "Deleting " + self.endpoint_name.title() + " #" + str(item_id) + " failed.")
-            return redirect(url_for(self.endpoint_name))
+                    "Deleting " + tbl_name.title() + " #" + str(item_id) + " failed.")
+            return redirect(url_for(tbl_name))
 
 
 class MMFlaskViewAjaxStatus(View):

@@ -1,29 +1,27 @@
 {% macro user_form(user, mode) -%}
     {# modes: add, edit, signup, login #}
     <form method="post">
-        {% if mode == 'edit' and user %}
-            <input type="hidden" name="item_id" value="{{ user.user_uid }}">
-        {% endif %}
+    {% if mode == 'edit' %}
+        <input type="hidden" name="user_uid" value="{{ user.user_uid }}">
+    {% endif %}
         <label for="input_first_name" class="sr-only">Name</label>
-        <input
-                type="name"
-                name="first_name"
-                id="input_first_name"
-                class="form-control mb-2"
-                placeholder="First Name"
-                autocomplete="{% if mode == 'signup' %}given-name{% else %}off{% endif %}"
-                value="{% if user %}{{ user.user_first_name }}{% endif %}"
-                autofocus>
+        <input type="name"
+               name="user_first_name"
+               id="input_first_name"
+               class="form-control mb-2"
+               placeholder="First Name"
+               autocomplete="{% if mode == 'signup' %}given-name{% else %}off{% endif %}"
+               value="{{ user.user_first_name }}"
+               autofocus>
 
         <label for="input_last_name" class="sr-only">Name</label>
-        <input
-                type="name"
-                name="last_name"
-                id="input_last_name"
-                class="form-control mb-2"
-                placeholder="Last Name"
-                autocomplete="{% if mode == 'signup' %}family-name{% else %}off{% endif %}"
-                value="{% if user %}{{ user.user_last_name }}{% endif %}">
+        <input type="name"
+               name="user_last_name"
+               id="input_last_name"
+               class="form-control mb-2"
+               placeholder="Last Name"
+               autocomplete="{% if mode == 'signup' %}family-name{% else %}off{% endif %}"
+               value="{{ user.user_last_name }}">
 
         <div class="input-group mb-2">
             <div class="input-group-prepend">
@@ -31,15 +29,14 @@
                     <i class="fa fa-star" aria-hidden="true"></i>
                 </div>
             </div>
-            <input
-                    type="name"
-                    name="username"
-                    id="input_username"
-                    class="form-control"
-                    placeholder="Username"
-                    autocomplete="{% if mode == 'signup' %}nickname{% else %}off{% endif %}"
-                    value="{% if user %}{{ user.user_username }}{% endif %}"
-                    required>
+            <input type="name"
+                   name="user_username"
+                   id="input_username"
+                   class="form-control"
+                   placeholder="Username"
+                   autocomplete="{% if mode == 'signup' %}nickname{% else %}off{% endif %}"
+                   value="{{ user.user_username }}"
+                   required>
         </div>
 
         <div class="input-group mb-2">
@@ -48,15 +45,14 @@
                     <i class="fa fa-star" aria-hidden="true"></i>
                 </div>
             </div>
-            <input
-                    type="email"
-                    name="email"
-                    id="input_email"
-                    class="form-control"
-                    placeholder="Email Address"
-                    autocomplete="{% if mode == 'signup' %}email{% else %}off{% endif %}"
-                    value="{% if user %}{{ user.user_email }}{% endif %}"
-                    required>
+            <input type="email"
+                   name="user_email"
+                   id="input_email"
+                   class="form-control"
+                   placeholder="Email Address"
+                   autocomplete="{% if mode == 'signup' %}email{% else %}off{% endif %}"
+                   value="{{ user.user_email }}"
+                   required>
         </div>
         {% if mode not in ['edit'] %}
             <div class="input-group mb-2">
@@ -65,14 +61,13 @@
                         <i class="fa fa-star" aria-hidden="true"></i>
                     </div>
                 </div>
-                <input
-                        type="password"
-                        name="password"
-                        id="input_password"
-                        class="form-control"
-                        placeholder="Password"
-                        autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
-                        required>
+                <input type="password"
+                       name="user_password"
+                       id="input_password"
+                       class="form-control"
+                       placeholder="Password"
+                       autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
+                       required>
             </div>
         {% endif %}
         {% if mode not in ['edit', 'login'] %}
@@ -82,14 +77,27 @@
                         <i class="fa fa-star" aria-hidden="true"></i>
                     </div>
                 </div>
-                <input
-                        type="password"
-                        name="password_confirm"
-                        id="input_password_confirm"
-                        class="form-control"
-                        placeholder="Confirm Password"
-                        autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
-                        required>
+                <input type="password"
+                       name="user_password_confirm"
+                       id="input_password_confirm"
+                       class="form-control"
+                       placeholder="Confirm Password"
+                       autocomplete="{% if mode == 'signup' %}new-password{% else %}off{% endif %}"
+                       required>
+            </div>
+        {% endif %}
+        {% if mode in ['add', 'edit'] %}
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <div class="input-group-text" style="width: 44px;">
+                        <input type="checkbox" id="checkbox_user_role" style="margin: 0 auto;"
+                               name="user_role" value="admin"
+                               {% if user.user_role == 'admin' %}checked{% endif %}>
+                    </div>
+                </div>
+                <label class="form-control" for="checkbox_user_role">
+                    User is admin
+                </label>
             </div>
         {% endif %}
         <button name="cmd" value="{{ mode }}"
