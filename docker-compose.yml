@@ -28,7 +28,7 @@ services:
             - ./db:/var/lib/mysql
     pma:
         container_name: phpmyadmin
-        image: phpmyadmin/phpmyadmin
+        image: mt08/rpi-phpmyadmin
         restart: always
         links:
           - db:db
