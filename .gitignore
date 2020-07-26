@@ -1,4 +1,10 @@
-*.DS_Store
-.idea/
-*.pyc
+# Project exclude paths
 db/
+__pycache__/
+*.pyc
+
+# Mac Gedoens
+.DS_Store
+
+# PyCharm
+.idea/
