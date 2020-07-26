@@ -5,6 +5,8 @@ services:
         build: ./app
         ports:
             - ${APP_PORT}:80
+        devices:
+          - "/dev/ttyUSB0:/dev/ttyUSB0"
         environment:
             DB_HOST: db
             DB_PORT: ${DB_PORT}
