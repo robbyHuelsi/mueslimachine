@@ -8,7 +8,7 @@ CREATE TABLE `{table}`
     `user_email`      VARCHAR(100)                      NOT NULL,
     `user_role`       ENUM ('pending', 'user', 'admin') NOT NULL DEFAULT 'pending',
     `user_tracking`   VARCHAR(255),
-    `user_login_date` TIMESTAMP                         DEFAULT 0,
+    `user_login_date` TIMESTAMP,
     `user_reg_date`   TIMESTAMP                         NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (`user_uid`, `user_username`)
 ) ENGINE = INNODB

@@ -51,7 +51,8 @@ class _ConstTableNames(object):
 
 
 class MMMySql:
-    def __init__(self, logger, flask, mm_status, user, password, host, port, db_name):
+    def __init__(self, logger, flask, mm_status, user, password, host, port, db_name,
+                 connect_parallelized=True):
         self.logger = logger
         self.mm_status = mm_status
         self.status = None
@@ -71,12 +72,15 @@ class MMMySql:
 
         self.cmder = MMMySqlCommander(db_name, user, host, self.CONST_TBL_NAMES)
 
-        connecting_thread = threading.Thread(target=self.connect, args=[db_name, user, host])
-        connecting_thread.daemon = True
-        connecting_thread.start()
+        if connect_parallelized:
+            connecting_thread = threading.Thread(target=self.connect, args=[db_name, user, host])
+            connecting_thread.daemon = True  # Kill thread when main thread is killed
+            connecting_thread.start()
+        else:
+            self.connect(db_name, user, host)
 
     def __del__(self):
-        if self.status == 2 or self.status == 3:
+        if self.status in [2, 3]:
             self.connection.close()
             self.logger.log("MySQL connection closed")
 
@@ -118,16 +122,16 @@ class MMMySql:
 
     def __check_and_set_up_db(self, db_name):
         self.cursor.execute("SHOW DATABASES")
-        db_exists = 0
+        db_exists = False
         for (database) in self.cursor:
             if database['Database'] == db_name:
-                db_exists = 1
+                db_exists = True
                 break
         if db_exists:
             self.cursor.execute("USE " + db_name)
             self.logger.log("Database '" + db_name + "' already exists")
         else:
-            self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd("_createDatabase"))
+            self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd("createDatabase"))
             self.cursor.execute("USE " + db_name)
             self.logger.log("Database '" + db_name + "' was created")
 
