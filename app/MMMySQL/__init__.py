@@ -6,7 +6,7 @@ from werkzeug import security as sec
 import threading
 import time
 
-from MMMySQL.MMMySQLCommander import MMMySqlCommander
+from .MMMySQLCommander import MMMySqlCommander
 
 
 def constant(f):
@@ -152,7 +152,7 @@ class MMMySql:
                 # Add general procedures
                 procedures = ['createTable', 'addItem', 'getItems', 'getItemById', 'deleteItemById', 'updateItemById']
                 for procedure in procedures:
-                    self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd(procedure, table))
+                    self.cmder.execute_sql_cmd(self.cursor, self.cmder.get_sql_cmd(procedure, table, fail_silent=True))
 
                 # Add specific procedures
                 if table == self.CONST_TBL_NAMES.TBL_SETTING:
@@ -176,8 +176,12 @@ class MMMySql:
                 self.logger.log("Table '" + table + "' was created")
 
     def __check_and_set_up_entries(self, user, host):
-        self.logger.log('__check_and_set_up_entries')
-        # Check count users and enter setup mode if necessary
+        """
+        Check count users and enter setup mode if necessary
+        :param user:
+        :param host:
+        :return:
+        """
         users = self.get_items(self.CONST_TBL_NAMES.TBL_USER)
         setup_mode_necessary = True
         if users:

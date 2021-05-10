@@ -1,5 +1,4 @@
 import os.path
-import MMMySQL.MMMySql
 
 
 class MMMySqlCommander:
@@ -11,14 +10,17 @@ class MMMySqlCommander:
 
         self.folder_path = os.path.join(os.path.dirname(__file__), 'commands')
 
-    def get_sql_cmd(self, procedure_name, table=""):
+    def get_sql_cmd(self, procedure_name, table='', fail_silent=False):
 
         if os.path.isfile(os.path.join(self.folder_path, table + '_' + procedure_name + '.sql')):
             file_path = os.path.join(self.folder_path, table + '_' + procedure_name + '.sql')
         elif os.path.isfile(os.path.join(self.folder_path, '_' + procedure_name + '.sql')):
             file_path = os.path.join(self.folder_path, '_' + procedure_name + '.sql')
         else:
-            return False
+            if fail_silent:
+                return False
+            else:
+                raise Exception('Command template not found.')
 
         with open(file_path, "r") as command_file:
             return str(command_file.read()).format(db_name=self.db_name,
@@ -38,7 +40,7 @@ class MMMySqlCommander:
             return False
 
 
-if __name__ == '__main__':
-    table_names = MMMySQL.MMMySql._ConstTableNames()
-    commander = MMMySqlCommander('mm_db', 'root', 'db', table_names)
-    print(commander.get_sql_cmd('recipe_getItemById', 'user'))
+# if __name__ == '__main__':
+#     table_names = MMMySql._ConstTableNames()
+#     commander = MMMySqlCommander('mm_db', 'root', 'db', table_names)
+#     print(commander.get_sql_cmd('recipe_getItemById', 'user'))

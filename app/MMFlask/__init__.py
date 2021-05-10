@@ -2,7 +2,7 @@ from flask import Flask, session, render_template, request, jsonify, redirect, u
 from flask.views import View, MethodView
 import json
 
-from MMFlask.MMFlaskNav import MMFlaskNav
+from .MMFlaskNav import MMFlaskNav
 
 
 class MMFlask(Flask):
