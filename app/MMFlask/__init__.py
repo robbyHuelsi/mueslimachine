@@ -3,6 +3,7 @@ from flask.views import View, MethodView
 import json
 
 from .MMFlaskNav import MMFlaskNav
+from MMMySQL.TableNames import TableNames
 
 
 class MMFlask(Flask):
@@ -174,7 +175,7 @@ class MMFlask(Flask):
     def get_user_by_id(self, session):
         self.mm.logger.log(str(session))
         if 'user_uid' in session:
-            user = self.mm.mySQL.get_item_by_id(self.mm.mySQL.get_tbl_names().TBL_USER, session['user_uid'])
+            user = self.mm.mySQL.get_item_by_id(TableNames.USER, session['user_uid'])
             if user and len(user) > 0:
                 current_user = {'user_uid': user[0]['user_uid'],
                                 'user_username': user[0]['user_username'],
@@ -211,9 +212,9 @@ class MMFlaskViewDefaultRenderer(MethodView):
                                    mm_status=self.mm.status.get_status(),
                                    mm_version=self.mm.version)
         elif self.endpoint_name == "index":
-            tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
-            ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_INGREDIENT)
-            recipes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_RECIPE)
+            tubes = self.mm.mySQL.get_items(TableNames.TUBE)
+            ingredients = self.mm.mySQL.get_items(TableNames.INGREDIENT)
+            recipes = self.mm.mySQL.get_items(TableNames.RECIPE)
             return render_template(self.templateName,
                                    mm_current_user=mm_current_user,
                                    mm_status=self.mm.status.get_status(),
@@ -258,11 +259,10 @@ class MMFlaskViewDefaultRenderer(MethodView):
         #     err_msg = "Confirmed password was different"
         #
         # if success:
-        tbl = self.mm.mySQL.get_tbl_names().TBL_USER
         properties = (in_username, in_first_name,
                       in_last_name, in_password,
                       in_email, in_role, in_password_confirm)
-        success, user_uid, err_msg = self.mm.mySQL.add_item(tbl, properties)
+        success, user_uid, err_msg = self.mm.mySQL.add_item(TableNames.USER, properties)
             # TODO: Rewrite error messages
 
         if success and is_setup:
@@ -315,15 +315,15 @@ class MMFlaskViewForItemsRenderer(MethodView):
 
     def render_template_list(self, items, mm_current_user):
         self.mm.logger.log(str(items))
-        if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
-            tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
+        if self.endpoint_name == TableNames.INGREDIENT.value:
+            tubes = self.mm.mySQL.get_items(TableNames.TUBE)
             return render_template(self.endpoint_name + "List.html",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
                                    ingredients=items, tubes=tubes)
-        elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
-            ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_INGREDIENT)
-            tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
+        elif self.endpoint_name == TableNames.RECIPE.value:
+            ingredients = self.mm.mySQL.get_items(TableNames.INGREDIENT)
+            tubes = self.mm.mySQL.get_items(TableNames.TUBE)
             return render_template(self.endpoint_name + "List.html",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
@@ -336,14 +336,14 @@ class MMFlaskViewForItemsRenderer(MethodView):
 
     def render_template_single(self, item, mm_current_user):
         self.mm.logger.log(str(item))
-        if self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_INGREDIENT:
-            tubes = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_TUBE)
+        if self.endpoint_name == TableNames.INGREDIENT.value:
+            tubes = self.mm.mySQL.get_items(TableNames.TUBE)
             return render_template(self.endpoint_name + "Single.html",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
                                    ingredient=item, tubes=tubes)
-        elif self.endpoint_name == self.mm.mySQL.get_tbl_names().TBL_RECIPE:
-            all_ingredients = self.mm.mySQL.get_items(self.mm.mySQL.get_tbl_names().TBL_INGREDIENT)
+        elif self.endpoint_name == TableNames.RECIPE.value:
+            all_ingredients = self.mm.mySQL.get_items(TableNames.INGREDIENT)
             self.mm.logger.log("ir_get_ingredients_by_recipe_id: " + str(item))
             if item is None:
                 used_ingredients = []
