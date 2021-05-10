@@ -12,8 +12,8 @@ class MMFlask(Flask):
 
         self.mm = muesli_machine
 
-        self.static_folder = "../static"
-        self.template_folder = "../templates"
+        self.static_folder = "static"
+        self.template_folder = "templates"
 
         self.sites = [{'url': 'index',
                        'name': 'Index',
