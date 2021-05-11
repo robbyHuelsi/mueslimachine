@@ -3,10 +3,11 @@ services:
   app:
     container_name: Muesli_Machine_App
     build: ./app
+    restart: always
     ports:
       - ${APP_PORT}:80
-#    devices:
-#      - "/dev/ttyUSB0:/dev/ttyUSB0"
+    devices:
+      - "/dev:/dev"
     environment:
       DB_HOST: db
       DB_PORT: ${DB_PORT}
