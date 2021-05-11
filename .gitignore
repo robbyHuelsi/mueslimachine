@@ -1,10 +1,14 @@
-# Project exclude paths
-db/
+## Python Cache
 __pycache__/
 *.pyc
 
-# Mac Gedoens
+## Virtual Environment
+venv/
+
+## JetBrain / PyCharm
+.idea/
+
+## macOS
 .DS_Store
 
-# PyCharm
-.idea/
+db/

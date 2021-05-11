@@ -1,8 +1,11 @@
+#!/usr/bin/python
+#
+
 import os
 from MMLogger import MMLogger
-from MMFlask.MMFlask import MMFlask
+from MMFlask import MMFlask
 from MMStatus import MMStatus
-from MMMySQL.MMMySql import MMMySql
+from MMMySQL import MMMySql
 from MMArduino import MMArduino
 # from MMGpio import *
 # from MMGpioServo import *
@@ -22,17 +25,22 @@ class MuesliMachine:
         self.flask = MMFlask(self)
 
         self.status = MMStatus()
-        self.mySQL = MMMySql(self.logger, self.flask, self.status, db_user, db_pass, db_host, db_port, db_name)
+        self.mySQL = MMMySql(self.logger, self.flask, self.status, db_user, db_pass, db_host, db_port, db_name,
+                             connect_parallelized=True)
 
         self.arduino = MMArduino(self.logger, self.status, arduino_port)
 
         self.version = "beta 0.3"
 
-        # self.ledRed = MMGpioOutBinary(4,0,"LED Red", self.status)
-        # self.ledYellow = MMGpioOutBinary(17,0,"LED Yellow", self.status)
-        # self.servo1 = MMGpioServo(22, "Servo 1", self.status)
+        # # self.ledRed = MMGpioOutBinary(4,0,"LED Red", self.status)
+        # # self.ledYellow = MMGpioOutBinary(17,0,"LED Yellow", self.status)
+        # # self.servo1 = MMGpioServo(22, "Servo 1", self.status)
 
         # ref_unit = -1026300 / 503
         # self.scale = MMGpioInHx711(5, 6, "Scale", ref_unit, self.status) #(self, pin1, pin2, name, ref_unit, MMStatus)
 
-        self.flask.run(debug=True, host='0.0.0.0', port=80)
+        self.flask.run(debug=True, host='0.0.0.0', port=80, use_reloader=False)
+
+
+if __name__ == '__main__':
+    MuesliMachine()
