@@ -1,39 +1,40 @@
 version: "3"
 services:
-    app:
-        container_name: Muesli_Machine_App
-        build: ./app
-        ports:
-            - ${APP_PORT}:80
-        environment:
-            DB_HOST: db
-            DB_PORT: ${DB_PORT}
-            DB_USER: root
-            DB_PASS: ${DB_PASS}
-            DB_NAME: ${DB_NAME}
+  app:
+    container_name: Muesli_Machine_App
+    build: ./app
+    ports:
+      - ${APP_PORT}:80
+    environment:
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}
+      DB_USER: root
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
 
-    db:
-        container_name: Muesli_Machine_MySQL
-        image: mysql:8
-        command: --default-authentication-plugin=mysql_native_password
-        restart: always
-        ports:
-            - ${DB_PORT}:3306
-        environment:
-            MYSQL_DATABASE: ${DB_NAME}
-            MYSQL_ROOT_PASSWORD: ${DB_PASS}
-            MYSQL_HOST: localhost
-        volumes:
-            - ./db:/var/lib/mysql
-    pma:
-        container_name: phpmyadmin
-        image: phpmyadmin/phpmyadmin
-        restart: always
-        links:
-          - db:db
-        ports:
-            - 8181:80
-        environment:
-#              PMA_HOST: localhost
-              PMA_USER: root
-              PMA_PASSWORD: ${DB_PASS}
+  db:
+    container_name: Muesli_Machine_DB
+    image: mariadb:10.6
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    ports:
+      - 3306:${DB_PORT}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+    volumes:
+      - ./db:/var/lib/mysql
+
+  pma:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    links:
+      - db:db
+    ports:
+      - 8181:80
+    environment:
+      PMA_HOST: db
+      PMA_PORT: ${DB_PORT}
+      PMA_USER: root
+      PMA_PASSWORD: ${DB_PASS}
