@@ -29,7 +29,7 @@ services:
 
   pma:
     container_name: phpmyadmin
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     restart: always
     links:
       - db:db
