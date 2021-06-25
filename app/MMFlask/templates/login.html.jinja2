@@ -1,5 +1,5 @@
-{% from '_macros.html' import user_form as user_form %}
-{% include "header.html" %}
+{% from '_macros.html.jinja2' import user_form as user_form %}
+{% include "header.html.jinja2" %}
 
 <main>
     <div class="container my-3">
@@ -47,10 +47,10 @@
 				</form>
 			</div>
             <div class="card-footer text-muted">
-                {% include "footer_statusbar.html" %}
+                {% include "footer_statusbar.html.jinja2" %}
             </div>
         </div>
     </div>
 </main>
 
-{% include "footer.html" %}
+{% include "footer.html.jinja2" %}

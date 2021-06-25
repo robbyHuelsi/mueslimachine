@@ -1,6 +1,6 @@
             {% if not request.url_rule.endpoint in ['welcome', 'startup', 'signup', 'login'] %}
             <footer class="container-fluid bg-light">
-                {% include "footer_statusbar.html" %}
+                {% include "footer_statusbar.html.jinja2" %}
             </footer>
             {% endif %}
         </div>

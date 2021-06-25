@@ -194,7 +194,7 @@ class MMFlask(Flask):
 class MMFlaskViewDefaultRenderer(MethodView):
     def __init__(self, endpoint_name, muesli_machine):
         self.endpoint_name = endpoint_name
-        self.templateName = endpoint_name + ".html"
+        self.templateName = endpoint_name + ".html.jinja2"
         self.mm = muesli_machine
         super().__init__()
 
@@ -317,19 +317,19 @@ class MMFlaskViewForItemsRenderer(MethodView):
         self.mm.logger.log(str(items))
         if self.endpoint_name == TableNames.INGREDIENT.value:
             tubes = self.mm.mySQL.get_items(TableNames.TUBE)
-            return render_template(self.endpoint_name + "List.html",
+            return render_template(self.endpoint_name + "List.html.jinja2",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
                                    ingredients=items, tubes=tubes)
         elif self.endpoint_name == TableNames.RECIPE.value:
             ingredients = self.mm.mySQL.get_items(TableNames.INGREDIENT)
             tubes = self.mm.mySQL.get_items(TableNames.TUBE)
-            return render_template(self.endpoint_name + "List.html",
+            return render_template(self.endpoint_name + "List.html.jinja2",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
                                    recipes=items, ingredients=ingredients, tubes=tubes)
         else:
-            return render_template(self.endpoint_name + "List.html",
+            return render_template(self.endpoint_name + "List.html.jinja2",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
                                    items=items)
@@ -338,7 +338,7 @@ class MMFlaskViewForItemsRenderer(MethodView):
         self.mm.logger.log(str(item))
         if self.endpoint_name == TableNames.INGREDIENT.value:
             tubes = self.mm.mySQL.get_items(TableNames.TUBE)
-            return render_template(self.endpoint_name + "Single.html",
+            return render_template(self.endpoint_name + "Single.html.jinja2",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
                                    ingredient=item, tubes=tubes)
@@ -355,12 +355,12 @@ class MMFlaskViewForItemsRenderer(MethodView):
             #     for icon, properties in data:
             #         all_icons.append(icon)
 
-            return render_template(self.endpoint_name + "Single.html",
+            return render_template(self.endpoint_name + "Single.html.jinja2",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
                                    recipe=item, all_ingredients=all_ingredients, used_ingredients=used_ingredients)
         else:
-            return render_template(self.endpoint_name + "Single.html",
+            return render_template(self.endpoint_name + "Single.html.jinja2",
                                    mm_current_user=mm_current_user,
                                    mm_version=self.mm.version,
                                    item=item)

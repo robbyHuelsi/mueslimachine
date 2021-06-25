@@ -1,7 +1,7 @@
-{% from '_macros.html' import allergy_badge as allergy_badge %}
-{% from '_macros.html' import recipeSingle_usedIngredientsTr as usedIngredientsTr %}
-{% from '_macros.html' import muesli_card_inner as muesli_card_inner %}
-{% include "header.html" %}
+{% from '_macros.html.jinja2' import allergy_badge as allergy_badge %}
+{% from '_macros.html.jinja2' import recipeSingle_usedIngredientsTr as usedIngredientsTr %}
+{% from '_macros.html.jinja2' import muesli_card_inner as muesli_card_inner %}
+{% include "header.html.jinja2" %}
 
 <main>
     <div class="jumbotron jumbotron-fluid">
@@ -424,4 +424,4 @@
 
 </script>
 
-{% include "footer.html" %}
+{% include "footer.html.jinja2" %}

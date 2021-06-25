@@ -1,5 +1,5 @@
-{% from '_macros.html' import user_form as user_form %}
-{% include "header.html" %}
+{% from '_macros.html.jinja2' import user_form as user_form %}
+{% include "header.html.jinja2" %}
 
 <main>
     <div class="jumbotron jumbotron-fluid">
@@ -38,4 +38,4 @@
     </div>
 </main>
 
-{% include "footer.html" %}
+{% include "footer.html.jinja2" %}
